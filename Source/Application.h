@@ -6,6 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include <string>
 #include <vector>
 
 #include "glad/glad_wgl.h"
@@ -36,7 +37,9 @@ class Application
     HGLRC m_hGLRenderContext;
 
     GLuint m_VertexArray;
-    
+
     std::vector<GLfloat> m_Vertices;
     GLuint m_VertexBuffer;
+
+    GLuint m_Program;
 };

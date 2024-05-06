@@ -45,6 +45,8 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
+    glDeleteProgram(m_Program);
+
     glDeleteBuffers(1, &m_VertexBuffer);
     glDeleteVertexArrays(1, &m_VertexBuffer);
 
@@ -210,19 +212,104 @@ bool Application::Init()
     m_Vertices = 
     {
         // ACB
-        0.0f, 0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
+        // Position         // Color
+        0.0f, 0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   
+        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f
     };
 
     glCreateBuffers(1, &m_VertexBuffer);
     glNamedBufferData(m_VertexBuffer, sizeof(GLfloat) * m_Vertices.size(), m_Vertices.data(), GL_STATIC_DRAW);
 
-    glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, (3 * sizeof(GLfloat)));
+    glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, (6 * sizeof(GLfloat)));
 
+    // Position
     glEnableVertexArrayAttrib(m_VertexArray, 0);
     glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
     glVertexArrayAttribBinding(m_VertexArray, 0, 0);
+
+    // Color
+    glEnableVertexArrayAttrib(m_VertexArray, 1);
+    glVertexArrayAttribFormat(m_VertexArray, 1, 3, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
+    glVertexArrayAttribBinding(m_VertexArray, 1, 0);
+
+    const std::string vsSource =
+    {
+        "#version 460 core\n"
+
+        "in layout(location = 0) vec3 a_Pos;"
+        "in layout(location = 1) vec3 a_Color;"
+        
+        "out vec3 v_Color;"
+
+        "void main()"
+        "{"
+            "gl_Position = vec4(a_Pos, 1.0);"
+            "v_Color = a_Color;"
+        "}"
+    };
+
+    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+    const GLchar* vsSourceCString = vsSource.c_str();
+    glShaderSource(vs, 1, &vsSourceCString, nullptr);
+    glCompileShader(vs);
+
+    GLint result;
+    glGetShaderiv(vs, GL_COMPILE_STATUS, &result);
+
+    if (result != GL_TRUE)
+    {
+        GLchar infoLog[BUFSIZ];
+        glGetShaderInfoLog(vs, BUFSIZ, nullptr, infoLog);
+        printf("%s \n", infoLog);
+    }
+
+    const std::string fsSource =
+    {
+        "#version 460 core\n"
+
+        "in vec3 v_Color;"
+
+        "out vec4 v_FragmentColor;"
+        
+        "void main()"
+        "{"
+            "v_FragmentColor = vec4(v_Color, 1.0);"
+        "}"
+    };
+
+    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+    const GLchar* fsSourceCString = fsSource.c_str();
+    glShaderSource(fs, 1, &fsSourceCString, nullptr);
+    glCompileShader(fs);
+
+    glGetShaderiv(fs, GL_COMPILE_STATUS, &result);
+
+    if (result != GL_TRUE)
+    {
+        GLchar infoLog[BUFSIZ];
+        glGetShaderInfoLog(fs, BUFSIZ, nullptr, infoLog);
+        printf("%s \n", infoLog);
+    }
+
+    m_Program = glCreateProgram();
+    
+    glAttachShader(m_Program, vs);
+    glAttachShader(m_Program, fs);
+
+    glLinkProgram(m_Program);
+
+    glGetShaderiv(m_Program, GL_LINK_STATUS, &result);
+
+    if (result != GL_TRUE)
+    {
+        GLchar infoLog[BUFSIZ];
+        glGetProgramInfoLog(m_Program, BUFSIZ, nullptr, infoLog);
+        printf("%s \n", infoLog);
+    }
+
+    glDeleteShader(vs);
+    glDeleteShader(fs);
 
     return true;
 }
@@ -243,6 +330,8 @@ void Application::MainLoop()
         {
             glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            glUseProgram(m_Program);
 
             glBindVertexArray(m_VertexArray);
             glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
