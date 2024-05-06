@@ -18,7 +18,8 @@ $CompilerFlags += " -I Source\"
 $CompilerFlags += " -ggdb"
 $CompilerFlags += " -O0"
 
-$LinkerFlags = " -L."
+$LinkerFlags = "-municode"
+$LinkerFlags += " -L."
 
 Get-ChildItem -Recurse "Source\" -Include *.c, *.cpp | ForEach-Object {
     $SourceFileFullName = $_.FullName
