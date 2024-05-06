@@ -4,17 +4,17 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "App.h"
+#include "Application.h"
 
 int WINAPI wWinMain(
     HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow
 )
 {
-    App app;
-
-    if (app.Init(hInstance))
+    Application app(hInstance);
+    
+    if (app.Init())
     {
-        app.Run();
+        app.MainLoop();
     }
 
     return 0;

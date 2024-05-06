@@ -18,8 +18,10 @@ $CompilerFlags += " -I Source\"
 $CompilerFlags += " -ggdb"
 $CompilerFlags += " -O0"
 
+# $CompilerFlags += " -D NDEBUG"
+
 $LinkerFlags = "-municode"
-$LinkerFlags += " -L."
+$LinkerFlags += " -L. -lgdi32 -lopengl32"
 
 Get-ChildItem -Recurse "Source\" -Include *.c, *.cpp | ForEach-Object {
     $SourceFileFullName = $_.FullName
