@@ -3,14 +3,12 @@
 #include <cstdio>
 #include <cassert>
 
-// #include <GL/gl.h>
-#include "glad/glad_wgl.h"
-#include "glad/glad.h"
-
 const wchar_t ClassName[] = TEXT("MyWindow");
 
 // Window procedure wrapped in C++ class:
-//  https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
+//      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
+//      ˘˘˘
+
 LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Application* pApp = nullptr;
@@ -47,6 +45,9 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
+    glDeleteBuffers(1, &m_VertexBuffer);
+    glDeleteVertexArrays(1, &m_VertexBuffer);
+
     wglDeleteContext(m_hGLRenderContext);
     ReleaseDC(m_hWindow, m_hDeviceContext);
 
@@ -84,8 +85,11 @@ bool Application::Init()
     assert(m_hWindow);
 
     // Proper OpenGL context creation:
-    //  https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
-    //  ˘˘˘
+    //      https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
+    //      ˘˘˘
+
+    // Temp context:
+
     WNDCLASSEX temp_wcex;
     memset(&temp_wcex, 0, sizeof(temp_wcex));
 
@@ -148,6 +152,8 @@ bool Application::Init()
 
     DestroyWindow(temp_hWindow);
 
+    // Final context:
+
     m_hDeviceContext = GetDC(m_hWindow);
     assert(m_hDeviceContext);
 
@@ -191,6 +197,33 @@ bool Application::Init()
     printf("OpenGL Version: %s \n", glGetString(GL_VERSION));
 
     ShowWindow(m_hWindow, SW_SHOW);
+
+    glCreateVertexArrays(1, &m_VertexArray);
+
+    /*
+           A 
+          / \
+         /   \ 
+        C-- - B
+    */
+
+    m_Vertices = 
+    {
+        // ACB
+        0.0f, 0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+    };
+
+    glCreateBuffers(1, &m_VertexBuffer);
+    glNamedBufferData(m_VertexBuffer, sizeof(GLfloat) * m_Vertices.size(), m_Vertices.data(), GL_STATIC_DRAW);
+
+    glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, (3 * sizeof(GLfloat)));
+
+    glEnableVertexArrayAttrib(m_VertexArray, 0);
+    glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
+    glVertexArrayAttribBinding(m_VertexArray, 0, 0);
+
     return true;
 }
 
@@ -210,6 +243,9 @@ void Application::MainLoop()
         {
             glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            glBindVertexArray(m_VertexArray);
+            glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
 
             // TODO: Get WGL_EXT_swap_control.
             wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);

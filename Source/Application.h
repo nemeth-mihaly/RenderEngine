@@ -6,8 +6,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include <vector>
+
+#include "glad/glad_wgl.h"
+#include "glad/glad.h"
+
 // Win32 programming in C++:
-//  https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
+//      https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
+//      ˘˘˘
 
 class Application
 {
@@ -25,7 +31,12 @@ class Application
  private:
     HINSTANCE m_hInstance;
     HWND m_hWindow;
-    
+
     HDC m_hDeviceContext;
     HGLRC m_hGLRenderContext;
+
+    GLuint m_VertexArray;
+    
+    std::vector<GLfloat> m_Vertices;
+    GLuint m_VertexBuffer;
 };
