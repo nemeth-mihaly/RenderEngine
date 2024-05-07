@@ -39,6 +39,8 @@ Application::Application(HINSTANCE hInstance)
 {
     m_hWindow = nullptr;
 
+    memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
+
     m_hDeviceContext = nullptr;
     m_hGLRenderContext = nullptr;
 }
@@ -199,6 +201,7 @@ bool Application::Init()
     printf("OpenGL Version: %s \n", glGetString(GL_VERSION));
 
     ShowWindow(m_hWindow, SW_SHOW);
+    SetFocus(m_hWindow);
 
     glCreateVertexArrays(1, &m_VertexArray);
 
@@ -318,11 +321,6 @@ bool Application::Init()
     m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
     m_CameraForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
 
-    const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
-    m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
-
-    m_Projection = glm::perspective(glm::radians(45.0f), (1280.f / 720.0f), 0.001f, 1000.0f);
-
     return true;
 }
 
@@ -340,10 +338,43 @@ void Application::MainLoop()
         }
         else
         {
+            if (m_bKeyStates[VK_ESCAPE])
+            {
+                PostQuitMessage(0);
+            }
+
+            const float cameraSpeed = 5.0f;
+
+            if (m_bKeyStates[0x57]) //  W key
+            {
+                m_CameraPosition += m_CameraForwardDir * cameraSpeed;
+            }
+            else
+            if (m_bKeyStates[0x53]) // 	S key
+            {
+                m_CameraPosition -= m_CameraForwardDir * cameraSpeed;
+            }
+
+            const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
+            const glm::vec3 rightDirection = glm::cross(m_CameraForwardDir, upDirection);
+
+            if (m_bKeyStates[0x41]) //  A key
+            {
+                m_CameraPosition -= rightDirection * cameraSpeed;
+            }
+            else
+            if (m_bKeyStates[0x44]) // 	D key
+            {
+                m_CameraPosition += rightDirection * cameraSpeed;
+            }
+
             glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glUseProgram(m_Program);
+
+            m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
+            m_Projection = glm::perspective(glm::radians(45.0f), (1280.f / 720.0f), 0.001f, 1000.0f);
 
             glm::mat4 worldViewProjection = (m_Projection * m_View);
             glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_WorldViewProjection"), 1, GL_FALSE, glm::value_ptr(worldViewProjection));
@@ -366,11 +397,18 @@ LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_KEYDOWN:
         {
-            if (wParam == VK_ESCAPE)
-            {
-                PostQuitMessage(0);
-            }
+            //if (wParam == VK_ESCAPE)
+            //{
+            //    PostQuitMessage(0);
+            //}
 
+            m_bKeyStates[wParam] = true;
+            return 0;
+        };
+
+        case WM_KEYUP:
+        {
+            m_bKeyStates[wParam] = false;
             return 0;
         };
 

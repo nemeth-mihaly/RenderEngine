@@ -37,6 +37,8 @@ class Application
     HINSTANCE m_hInstance;
     HWND m_hWindow;
 
+    bool m_bKeyStates[256];
+
     HDC m_hDeviceContext;
     HGLRC m_hGLRenderContext;
 
