@@ -99,18 +99,18 @@ bool Application::Init()
     temp_wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     temp_wcex.lpfnWndProc = DefWindowProc;
     temp_wcex.hInstance = m_hInstance;
-    temp_wcex.lpszClassName = TEXT("temp_ClassName");
+    temp_wcex.lpszClassName = TEXT("temp_className");
 
     ATOM temp_wcexClassID = RegisterClassEx(&temp_wcex);
     assert(temp_wcexClassID);
 
     HWND temp_hWindow = CreateWindowEx(
         0,
-        TEXT("temp_ClassName"),
+        TEXT("temp_className"),
         TEXT("temp"),
         WS_OVERLAPPEDWINDOW,
     
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720,
     
         nullptr,
         nullptr,
@@ -240,11 +240,14 @@ bool Application::Init()
         "in layout(location = 0) vec3 a_Pos;"
         "in layout(location = 1) vec3 a_Color;"
         
+        "uniform mat4 u_WorldViewProjection;"
+        "uniform mat4 u_World;"
+
         "out vec3 v_Color;"
 
         "void main()"
         "{"
-            "gl_Position = vec4(a_Pos, 1.0);"
+            "gl_Position = u_WorldViewProjection * u_World * vec4(a_Pos, 1.0);"
             "v_Color = a_Color;"
         "}"
     };
@@ -267,10 +270,9 @@ bool Application::Init()
     const std::string fsSource =
     {
         "#version 460 core\n"
+        "out vec4 v_FragmentColor;"
 
         "in vec3 v_Color;"
-
-        "out vec4 v_FragmentColor;"
         
         "void main()"
         "{"
@@ -311,6 +313,16 @@ bool Application::Init()
     glDeleteShader(vs);
     glDeleteShader(fs);
 
+    m_MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+    m_CameraForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
+
+    const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
+    m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
+
+    m_Projection = glm::perspective(glm::radians(45.0f), (1280.f / 720.0f), 0.001f, 1000.0f);
+
     return true;
 }
 
@@ -332,6 +344,12 @@ void Application::MainLoop()
             glClear(GL_COLOR_BUFFER_BIT);
 
             glUseProgram(m_Program);
+
+            glm::mat4 worldViewProjection = (m_Projection * m_View);
+            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_WorldViewProjection"), 1, GL_FALSE, glm::value_ptr(worldViewProjection));
+
+            glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_MeshPosition));
+            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
 
             glBindVertexArray(m_VertexArray);
             glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());

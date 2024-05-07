@@ -12,6 +12,10 @@
 #include "glad/glad_wgl.h"
 #include "glad/glad.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 // Win32 programming in C++:
 //      https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
 //      ˘˘˘
@@ -42,4 +46,12 @@ class Application
     GLuint m_VertexBuffer;
 
     GLuint m_Program;
+
+    glm::vec3 m_MeshPosition;
+
+    glm::vec3 m_CameraPosition;
+    glm::vec3 m_CameraForwardDir;
+
+    glm::mat4 m_View;
+    glm::mat4 m_Projection;
 };
