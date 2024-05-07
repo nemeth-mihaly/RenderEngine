@@ -329,8 +329,31 @@ void Application::MainLoop()
     MSG msg;
     memset(&msg, 0, sizeof(msg));
 
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+
+    LARGE_INTEGER previousTickCount;
+    QueryPerformanceCounter(&previousTickCount);
+
     while (msg.message != WM_QUIT)
     {
+        LARGE_INTEGER currentTickCount;
+        QueryPerformanceCounter(&currentTickCount);
+
+        ULONGLONG elapsedTickCount = currentTickCount.QuadPart - previousTickCount.QuadPart;
+
+        ULONGLONG elapsedMicroseconds = (elapsedTickCount * 1'000'000);
+        elapsedMicroseconds /= frequency.QuadPart;
+
+        previousTickCount = currentTickCount;
+
+        float deltaTime = (elapsedMicroseconds * 0.001f) * 0.001f;
+
+        if (deltaTime >= 0.05f)
+        {
+            deltaTime = 0.05f;
+        }
+
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
@@ -347,12 +370,12 @@ void Application::MainLoop()
 
             if (m_bKeyStates[0x57]) //  W key
             {
-                m_CameraPosition += m_CameraForwardDir * cameraSpeed;
+                m_CameraPosition += m_CameraForwardDir * cameraSpeed * deltaTime;
             }
             else
             if (m_bKeyStates[0x53]) // 	S key
             {
-                m_CameraPosition -= m_CameraForwardDir * cameraSpeed;
+                m_CameraPosition -= m_CameraForwardDir * cameraSpeed * deltaTime;
             }
 
             const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -360,12 +383,12 @@ void Application::MainLoop()
 
             if (m_bKeyStates[0x41]) //  A key
             {
-                m_CameraPosition -= rightDirection * cameraSpeed;
+                m_CameraPosition -= rightDirection * cameraSpeed * deltaTime;
             }
             else
             if (m_bKeyStates[0x44]) // 	D key
             {
-                m_CameraPosition += rightDirection * cameraSpeed;
+                m_CameraPosition += rightDirection * cameraSpeed * deltaTime;
             }
 
             glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
