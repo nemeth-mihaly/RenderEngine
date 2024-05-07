@@ -385,7 +385,7 @@ void Application::MainLoop()
             glBindVertexArray(m_VertexArray);
             glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
 
-            // TODO: Get WGL_EXT_swap_control.
+            wglSwapIntervalEXT(0);
             wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
         }
     }
