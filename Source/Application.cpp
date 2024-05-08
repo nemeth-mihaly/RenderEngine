@@ -5,6 +5,11 @@
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
+uint32_t triangleVertexCount;
+uint32_t triangleVertexDataByteOffset;
+uint32_t rectangleVertexCount;
+uint32_t rectangleVertexDataByteOffset;
+
 // Window procedure wrapped in C++ class:
 //      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
 //      ˘˘˘
@@ -46,6 +51,12 @@ Application::Application(HINSTANCE hInstance)
 
     m_hDeviceContext = nullptr;
     m_hGLRenderContext = nullptr;
+
+    m_TriangleAPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_RectangleAPosition = glm::vec3(5.0f, 0.0f, 0.0f);
+
+    m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+    m_CameraForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
 
     m_bCameraMoving = false;
 
@@ -216,8 +227,6 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
-    glCreateVertexArrays(1, &m_VertexArray);
-
     /*
     //         A 
     //        / \ 
@@ -225,15 +234,15 @@ bool Application::Init()
     //      C-- - B
     */
 
-    //m_Vertices = 
-    //{
-    //    // ACB
-    //
-    //    // Position           // Color
-    //    0.0f, 0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-    //    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   
-    //    0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f
-    //};
+   m_TriangleVertices =
+   {
+        // Position           // Texcoord
+
+        // ACB
+        0.0f, 0.5f, 0.0f,     0.5f, 1.0f,
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   
+        0.5f, -0.5f, 0.0f,    1.0f, 0.0f
+   };
 
     /*
     //      A --  B
@@ -242,7 +251,7 @@ bool Application::Init()
     //      C  -- D
     */
 
-    m_Vertices =
+    m_RectangleVertices =
     {
         // Position             // Texcoord
 
@@ -257,8 +266,12 @@ bool Application::Init()
         0.5f, -0.5f, 0.0f,      1.0f, 0.0f
     };
 
+    glCreateVertexArrays(1, &m_VertexArray);
+
     glCreateBuffers(1, &m_VertexBuffer);
-    glNamedBufferData(m_VertexBuffer, sizeof(GLfloat) * m_Vertices.size(), m_Vertices.data(), GL_STATIC_DRAW);
+    glNamedBufferData(m_VertexBuffer, sizeof(GLfloat) * (m_TriangleVertices.size() + m_RectangleVertices.size()), nullptr, GL_STATIC_DRAW);
+    glNamedBufferSubData(m_VertexBuffer, 0, sizeof(GLfloat) * m_TriangleVertices.size(), m_TriangleVertices.data());
+    glNamedBufferSubData(m_VertexBuffer, sizeof(GLfloat) * m_TriangleVertices.size(), sizeof(GLfloat) * m_RectangleVertices.size(), m_RectangleVertices.data());
 
     glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, (5 * sizeof(GLfloat)));
 
@@ -391,11 +404,6 @@ bool Application::Init()
 
     stbi_image_free(pStonebricksPixels);
 
-    m_MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_CameraForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
-
     return true;
 }
 
@@ -505,7 +513,8 @@ void Application::MainLoop()
 
             glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
             glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glUseProgram(m_Program);
 
@@ -517,11 +526,19 @@ void Application::MainLoop()
 
             glBindTextureUnit(0, m_StonebricksTexture);
 
-            glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_MeshPosition));
+            // TriangleA
+            glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
             glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
 
             glBindVertexArray(m_VertexArray);
-            glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
+            glDrawArrays(GL_TRIANGLES, 0, (m_TriangleVertices.size() / 5));
+
+            // RectangleA
+            world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
+            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
+
+            glBindVertexArray(m_VertexArray);
+            glDrawArrays(GL_TRIANGLES, (m_TriangleVertices.size() / 5), (m_RectangleVertices.size() / 5));
 
             wglSwapIntervalEXT(0);
             wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);

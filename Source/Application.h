@@ -6,6 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,32 +43,33 @@ class Application
     HINSTANCE m_hInstance;
     HWND m_hWindow;
 
-    bool m_bKeyStates[256];
-
     HDC m_hDeviceContext;
     HGLRC m_hGLRenderContext;
 
-    GLuint m_VertexArray;
-
-    std::vector<GLfloat> m_Vertices;
-    GLuint m_VertexBuffer;
-
     GLuint m_Program;
+
+    std::vector<GLfloat> m_TriangleVertices;
+    std::vector<GLfloat> m_RectangleVertices;
+
+    GLuint m_VertexArray;
+    GLuint m_VertexBuffer;
 
     GLuint m_StonebricksTexture;
 
-    glm::vec3 m_MeshPosition;
+    glm::mat4 m_View;
+    glm::mat4 m_Projection;
 
+    glm::vec3 m_TriangleAPosition;
+    glm::vec3 m_RectangleAPosition;
+
+    glm::vec3 m_CameraPosition;
+    glm::vec3 m_CameraForwardDir;
+
+    bool m_bKeyStates[256];
     bool m_bCameraMoving;
     glm::vec2 m_PrevMousePos;
     glm::vec2 m_CurrentMousePos;
 
     float m_Yaw;
     float m_Pitch;
-
-    glm::vec3 m_CameraPosition;
-    glm::vec3 m_CameraForwardDir;
-
-    glm::mat4 m_View;
-    glm::mat4 m_Projection;
 };
