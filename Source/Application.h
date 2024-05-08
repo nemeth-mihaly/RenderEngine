@@ -12,6 +12,8 @@
 #include "glad/glad_wgl.h"
 #include "glad/glad.h"
 
+#include "stb/stb_image.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -34,6 +36,9 @@ class Application
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
  private:
+    int m_ScreenWidth;
+    int m_ScreenHeight;
+
     HINSTANCE m_hInstance;
     HWND m_hWindow;
 
@@ -49,7 +54,16 @@ class Application
 
     GLuint m_Program;
 
+    GLuint m_StonebricksTexture;
+
     glm::vec3 m_MeshPosition;
+
+    bool m_bCameraMoving;
+    glm::vec2 m_PrevMousePos;
+    glm::vec2 m_CurrentMousePos;
+
+    float m_Yaw;
+    float m_Pitch;
 
     glm::vec3 m_CameraPosition;
     glm::vec3 m_CameraForwardDir;
