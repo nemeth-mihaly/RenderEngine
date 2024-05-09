@@ -53,6 +53,8 @@ Application::Application(HINSTANCE hInstance)
     m_hDeviceContext = nullptr;
     m_hGLRenderContext = nullptr;
 
+    m_bIsRunning = false;
+
     m_TriangleAPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     m_RectangleAPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 
@@ -67,8 +69,8 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
-    glDeleteBuffers(1, &m_VertexBuffer);
-    glDeleteVertexArrays(1, &m_VertexBuffer);
+    glDeleteBuffers(1, &m_VertexBuffer_Textured);
+    glDeleteVertexArrays(1, &m_VertexArray_Textured);
 
     wglDeleteContext(m_hGLRenderContext);
     ReleaseDC(m_hWindow, m_hDeviceContext);
@@ -265,27 +267,27 @@ bool Application::Init()
         0.5f, -0.5f, 0.0f,      1.0f, 0.0f
     };
 
-    glCreateVertexArrays(1, &m_VertexArray);
+    glCreateVertexArrays(1, &m_VertexArray_Textured);
 
-    glCreateBuffers(1, &m_VertexBuffer);
-    glNamedBufferData(m_VertexBuffer, sizeof(GLfloat) * (m_TriangleVertices.size() + m_RectangleVertices.size()), nullptr, GL_STATIC_DRAW);
-    glNamedBufferSubData(m_VertexBuffer, 0, sizeof(GLfloat) * m_TriangleVertices.size(), m_TriangleVertices.data());
-    glNamedBufferSubData(m_VertexBuffer, sizeof(GLfloat) * m_TriangleVertices.size(), sizeof(GLfloat) * m_RectangleVertices.size(), m_RectangleVertices.data());
+    glCreateBuffers(1, &m_VertexBuffer_Textured);
+    glNamedBufferData(m_VertexBuffer_Textured, sizeof(GLfloat) * (m_TriangleVertices.size() + m_RectangleVertices.size()), nullptr, GL_STATIC_DRAW);
+    glNamedBufferSubData(m_VertexBuffer_Textured, 0, sizeof(GLfloat) * m_TriangleVertices.size(), m_TriangleVertices.data());
+    glNamedBufferSubData(m_VertexBuffer_Textured, sizeof(GLfloat) * m_TriangleVertices.size(), sizeof(GLfloat) * m_RectangleVertices.size(), m_RectangleVertices.data());
 
-    glVertexArrayVertexBuffer(m_VertexArray, 0, m_VertexBuffer, 0, (5 * sizeof(GLfloat)));
+    glVertexArrayVertexBuffer(m_VertexArray_Textured, 0, m_VertexBuffer_Textured, 0, (5 * sizeof(GLfloat)));
 
     // Pos
-    glEnableVertexArrayAttrib(m_VertexArray, 0);
-    glVertexArrayAttribFormat(m_VertexArray, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
-    glVertexArrayAttribBinding(m_VertexArray, 0, 0);
+    glEnableVertexArrayAttrib(m_VertexArray_Textured, 0);
+    glVertexArrayAttribFormat(m_VertexArray_Textured, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
+    glVertexArrayAttribBinding(m_VertexArray_Textured, 0, 0);
 
     // Texcoord
-    glEnableVertexArrayAttrib(m_VertexArray, 1);
-    glVertexArrayAttribFormat(m_VertexArray, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
-    glVertexArrayAttribBinding(m_VertexArray, 1, 0);
+    glEnableVertexArrayAttrib(m_VertexArray_Textured, 1);
+    glVertexArrayAttribFormat(m_VertexArray_Textured, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
+    glVertexArrayAttribBinding(m_VertexArray_Textured, 1, 0);
 
     m_FlatShader.reset(new Shader(
-        "FlatColor", 
+        "Flat", 
         "Assets\\Shaders\\Flat_vert.glsl", 
         "Assets\\Shaders\\Flat_frag.glsl")
     );
@@ -298,6 +300,7 @@ bool Application::Init()
     assert(m_StonebricksTexture);
     m_StonebricksTexture->Init();
 
+    m_bIsRunning = true;
     return true;
 }
 
@@ -306,37 +309,48 @@ void Application::MainLoop()
     MSG msg;
     memset(&msg, 0, sizeof(msg));
 
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
+    //LARGE_INTEGER frequency;
+    //QueryPerformanceFrequency(&frequency);
 
-    LARGE_INTEGER previousTickCount;
-    QueryPerformanceCounter(&previousTickCount);
+    //LARGE_INTEGER previousTickCount;
+    //QueryPerformanceCounter(&previousTickCount);
 
-    while (msg.message != WM_QUIT)
+    std::chrono::_V2::system_clock::time_point previous;
+    previous = std::chrono::high_resolution_clock::now();
+
+    while (m_bIsRunning)
     {
-        LARGE_INTEGER currentTickCount;
-        QueryPerformanceCounter(&currentTickCount);
+        //LARGE_INTEGER currentTickCount;
+        //QueryPerformanceCounter(&currentTickCount);
 
-        ULONGLONG elapsedTickCount = currentTickCount.QuadPart - previousTickCount.QuadPart;
+        //ULONGLONG elapsedTickCount = currentTickCount.QuadPart - previousTickCount.QuadPart;
 
-        ULONGLONG elapsedMicroseconds = (elapsedTickCount * 1'000'000);
-        elapsedMicroseconds /= frequency.QuadPart;
+        //ULONGLONG elapsedMicroseconds = (elapsedTickCount * 1'000'000);
+        //elapsedMicroseconds /= frequency.QuadPart;
 
-        previousTickCount = currentTickCount;
+        //previousTickCount = currentTickCount;
 
-        float deltaTime = (elapsedMicroseconds * 0.001f) * 0.001f;
+        //float deltaTime = (elapsedMicroseconds * 0.001f) * 0.001f;
 
-        if (deltaTime >= 0.05f)
+        std::chrono::_V2::system_clock::time_point current;
+        current = std::chrono::high_resolution_clock::now();
+
+        float deltaTime = std::chrono::duration<float>(current - previous).count();
+        previous = current;
+
+        while (PeekMessage(&msg, m_hWindow, 0, 0, PM_REMOVE))
         {
-            deltaTime = 0.05f;
+            if (msg.message == WM_QUIT)
+            {
+                m_bIsRunning = false;
+            }
+            else
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
         }
-
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        else
+        //else
         {
             if (m_bKeyStates[VK_ESCAPE])
             {
@@ -426,14 +440,14 @@ void Application::MainLoop()
             glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
             m_FlatShader->UniformMatrix4f("u_World", world);
 
-            glBindVertexArray(m_VertexArray);
+            glBindVertexArray(m_VertexArray_Textured);
             glDrawArrays(GL_TRIANGLES, 0, (m_TriangleVertices.size() / 5));
 
             // RectangleA
             world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
             m_FlatShader->UniformMatrix4f("u_World", world);
 
-            glBindVertexArray(m_VertexArray);
+            glBindVertexArray(m_VertexArray_Textured);
             glDrawArrays(GL_TRIANGLES, (m_TriangleVertices.size() / 5), (m_RectangleVertices.size() / 5));
 
             wglSwapIntervalEXT(0);
@@ -499,6 +513,7 @@ LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
+        case WM_CLOSE:
         case WM_DESTROY:
         {
             PostQuitMessage(0);

@@ -7,6 +7,7 @@
 #include <windows.h>
 
 #include <memory>
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -50,17 +51,17 @@ class Application
     HDC m_hDeviceContext;
     HGLRC m_hGLRenderContext;
 
-    //GLuint m_Program;
+    bool m_bIsRunning;
+
     std::shared_ptr<Shader> m_FlatShader;
 
     std::vector<GLfloat> m_TriangleVertices;
     std::vector<GLfloat> m_RectangleVertices;
     std::vector<GLfloat> m_CubeVertices;
 
-    GLuint m_VertexArray;
-    GLuint m_VertexBuffer;
+    GLuint m_VertexArray_Textured;
+    GLuint m_VertexBuffer_Textured;
 
-    //GLuint m_StonebricksTexture;
     std::shared_ptr<Texture> m_StonebricksTexture;
 
     glm::mat4 m_View;
