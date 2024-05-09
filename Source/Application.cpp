@@ -371,7 +371,7 @@ bool Application::Init()
     stbi_set_flip_vertically_on_load(true);
 
     int texw, texh, chCount;
-    uint8_t* pStonebricksPixels = stbi_load("Assets\\Stonebricks.png", &texw, &texh, &chCount, 0);
+    uint8_t* pStonebricksPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &texw, &texh, &chCount, 0);
     assert(pStonebricksPixels);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &m_StonebricksTexture);
