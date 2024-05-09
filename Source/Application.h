@@ -19,6 +19,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Shader.h"
+
 // Win32 programming in C++:
 //      https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
 //      ˘˘˘
@@ -46,10 +48,12 @@ class Application
     HDC m_hDeviceContext;
     HGLRC m_hGLRenderContext;
 
-    GLuint m_Program;
+    //GLuint m_Program;
+    std::shared_ptr<Shader> m_FlatShader;
 
     std::vector<GLfloat> m_TriangleVertices;
     std::vector<GLfloat> m_RectangleVertices;
+    std::vector<GLfloat> m_CubeVertices;
 
     GLuint m_VertexArray;
     GLuint m_VertexBuffer;

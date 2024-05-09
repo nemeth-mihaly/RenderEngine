@@ -10,6 +10,7 @@ uint32_t triangleVertexDataByteOffset;
 uint32_t rectangleVertexCount;
 uint32_t rectangleVertexDataByteOffset;
 
+
 // Window procedure wrapped in C++ class:
 //      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
 //      ˘˘˘
@@ -66,7 +67,7 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
-    glDeleteProgram(m_Program);
+    //glDeleteProgram(m_Program);
 
     glDeleteBuffers(1, &m_VertexBuffer);
     glDeleteVertexArrays(1, &m_VertexBuffer);
@@ -285,88 +286,96 @@ bool Application::Init()
     glVertexArrayAttribFormat(m_VertexArray, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
     glVertexArrayAttribBinding(m_VertexArray, 1, 0);
 
-    const std::string vsSource =
-    {
-        "#version 460 core\n"
+    //const std::string vsSource =
+    //{
+    //    "#version 460 core\n"
+    //
+    //    "in layout(location = 0) vec3 a_Pos;"
+    //    "in layout(location = 1) vec2 a_Texcoord;"
+    //    
+    //    "uniform mat4 u_WorldViewProjection;"
+    //    "uniform mat4 u_World;"
+    //
+    //    "out vec2 v_Texcoord;"
+    //
+    //    "void main()"
+    //    "{"
+    //        "gl_Position = u_WorldViewProjection * u_World * vec4(a_Pos, 1.0);"
+    //        "v_Texcoord = a_Texcoord;"
+    //    "}"
+    //};
 
-        "in layout(location = 0) vec3 a_Pos;"
-        "in layout(location = 1) vec2 a_Texcoord;"
-        
-        "uniform mat4 u_WorldViewProjection;"
-        "uniform mat4 u_World;"
+    //GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+    //const GLchar* vsSourceCString = vsSource.c_str();
+    //glShaderSource(vs, 1, &vsSourceCString, nullptr);
+    //glCompileShader(vs);
+    //
+    //GLint result;
+    //glGetShaderiv(vs, GL_COMPILE_STATUS, &result);
+    //
+    //if (result != GL_TRUE)
+    //{
+    //    GLchar infoLog[BUFSIZ];
+    //    glGetShaderInfoLog(vs, BUFSIZ, nullptr, infoLog);
+    //    printf("%s \n", infoLog);
+    //}
 
-        "out vec2 v_Texcoord;"
+    //const std::string fsSource =
+    //{
+    //    "#version 460 core\n"
+    //    "out vec4 v_FragmentColor;"
+    //
+    //    "in vec2 v_Texcoord;"
+    //
+    //    "uniform sampler2D u_Texture;"
+    //    
+    //    "void main()"
+    //    "{"
+    //        //"v_FragmentColor = vec4(v_Color, 1.0);"
+    //        "v_FragmentColor = texture(u_Texture, v_Texcoord);"
+    //    "}"
+    //};
 
-        "void main()"
-        "{"
-            "gl_Position = u_WorldViewProjection * u_World * vec4(a_Pos, 1.0);"
-            "v_Texcoord = a_Texcoord;"
-        "}"
-    };
+    //GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+    //const GLchar* fsSourceCString = fsSource.c_str();
+    //glShaderSource(fs, 1, &fsSourceCString, nullptr);
+    //glCompileShader(fs);
+    //
+    //glGetShaderiv(fs, GL_COMPILE_STATUS, &result);
+    //
+    //if (result != GL_TRUE)
+    //{
+    //    GLchar infoLog[BUFSIZ];
+    //    glGetShaderInfoLog(fs, BUFSIZ, nullptr, infoLog);
+    //    printf("%s \n", infoLog);
+    //}
 
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const GLchar* vsSourceCString = vsSource.c_str();
-    glShaderSource(vs, 1, &vsSourceCString, nullptr);
-    glCompileShader(vs);
+    //m_Program = glCreateProgram();
+    //
+    //glAttachShader(m_Program, vs);
+    //glAttachShader(m_Program, fs);
+    //
+    //glLinkProgram(m_Program);
+    //
+    //glGetShaderiv(m_Program, GL_LINK_STATUS, &result);
+    //
+    //if (result != GL_TRUE)
+    //{
+    //    GLchar infoLog[BUFSIZ];
+    //    glGetProgramInfoLog(m_Program, BUFSIZ, nullptr, infoLog);
+    //    printf("%s \n", infoLog);
+    //}
 
-    GLint result;
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &result);
+    //glDeleteShader(vs);
+    //glDeleteShader(fs);
 
-    if (result != GL_TRUE)
-    {
-        GLchar infoLog[BUFSIZ];
-        glGetShaderInfoLog(vs, BUFSIZ, nullptr, infoLog);
-        printf("%s \n", infoLog);
-    }
-
-    const std::string fsSource =
-    {
-        "#version 460 core\n"
-        "out vec4 v_FragmentColor;"
-
-        "in vec2 v_Texcoord;"
-
-        "uniform sampler2D u_Texture;"
-        
-        "void main()"
-        "{"
-            //"v_FragmentColor = vec4(v_Color, 1.0);"
-            "v_FragmentColor = texture(u_Texture, v_Texcoord);"
-        "}"
-    };
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const GLchar* fsSourceCString = fsSource.c_str();
-    glShaderSource(fs, 1, &fsSourceCString, nullptr);
-    glCompileShader(fs);
-
-    glGetShaderiv(fs, GL_COMPILE_STATUS, &result);
-
-    if (result != GL_TRUE)
-    {
-        GLchar infoLog[BUFSIZ];
-        glGetShaderInfoLog(fs, BUFSIZ, nullptr, infoLog);
-        printf("%s \n", infoLog);
-    }
-
-    m_Program = glCreateProgram();
-    
-    glAttachShader(m_Program, vs);
-    glAttachShader(m_Program, fs);
-
-    glLinkProgram(m_Program);
-
-    glGetShaderiv(m_Program, GL_LINK_STATUS, &result);
-
-    if (result != GL_TRUE)
-    {
-        GLchar infoLog[BUFSIZ];
-        glGetProgramInfoLog(m_Program, BUFSIZ, nullptr, infoLog);
-        printf("%s \n", infoLog);
-    }
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    m_FlatShader.reset(new Shader(
+        "FlatColor", 
+        "Assets\\Shaders\\Flat_vert.glsl", 
+        "Assets\\Shaders\\Flat_frag.glsl")
+    );
+    assert(m_FlatShader);
+    m_FlatShader->Init();
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -516,26 +525,30 @@ void Application::MainLoop()
             glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glUseProgram(m_Program);
+            //glUseProgram(m_Program);
+            m_FlatShader->Use();
 
             m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
             m_Projection = glm::perspective(glm::radians(45.0f), (m_ScreenWidth / static_cast<float>(m_ScreenHeight)), 0.001f, 1000.0f);
 
             glm::mat4 worldViewProjection = (m_Projection * m_View);
-            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_WorldViewProjection"), 1, GL_FALSE, glm::value_ptr(worldViewProjection));
+            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_WorldViewProjection"), 1, GL_FALSE, glm::value_ptr(worldViewProjection));
+            m_FlatShader->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
             glBindTextureUnit(0, m_StonebricksTexture);
 
             // TriangleA
             glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
-            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
+            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
+            m_FlatShader->UniformMatrix4f("u_World", world);
 
             glBindVertexArray(m_VertexArray);
             glDrawArrays(GL_TRIANGLES, 0, (m_TriangleVertices.size() / 5));
 
             // RectangleA
             world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
-            glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
+            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
+            m_FlatShader->UniformMatrix4f("u_World", world);
 
             glBindVertexArray(m_VertexArray);
             glDrawArrays(GL_TRIANGLES, (m_TriangleVertices.size() / 5), (m_RectangleVertices.size() / 5));
