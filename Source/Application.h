@@ -10,8 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "glad/glad_wgl.h"
-#include "glad/glad.h"
+#include "GLCommon.h"
+//#include "glad/glad_wgl.h"
+//#include "glad/glad.h"
 
 #include "stb/stb_image.h"
 
@@ -20,6 +21,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
+#include "Texture.h"
 
 // Win32 programming in C++:
 //      https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
@@ -58,7 +60,8 @@ class Application
     GLuint m_VertexArray;
     GLuint m_VertexBuffer;
 
-    GLuint m_StonebricksTexture;
+    //GLuint m_StonebricksTexture;
+    std::shared_ptr<Texture> m_StonebricksTexture;
 
     glm::mat4 m_View;
     glm::mat4 m_Projection;

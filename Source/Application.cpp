@@ -67,8 +67,6 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
-    //glDeleteProgram(m_Program);
-
     glDeleteBuffers(1, &m_VertexBuffer);
     glDeleteVertexArrays(1, &m_VertexBuffer);
 
@@ -286,89 +284,6 @@ bool Application::Init()
     glVertexArrayAttribFormat(m_VertexArray, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
     glVertexArrayAttribBinding(m_VertexArray, 1, 0);
 
-    //const std::string vsSource =
-    //{
-    //    "#version 460 core\n"
-    //
-    //    "in layout(location = 0) vec3 a_Pos;"
-    //    "in layout(location = 1) vec2 a_Texcoord;"
-    //    
-    //    "uniform mat4 u_WorldViewProjection;"
-    //    "uniform mat4 u_World;"
-    //
-    //    "out vec2 v_Texcoord;"
-    //
-    //    "void main()"
-    //    "{"
-    //        "gl_Position = u_WorldViewProjection * u_World * vec4(a_Pos, 1.0);"
-    //        "v_Texcoord = a_Texcoord;"
-    //    "}"
-    //};
-
-    //GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    //const GLchar* vsSourceCString = vsSource.c_str();
-    //glShaderSource(vs, 1, &vsSourceCString, nullptr);
-    //glCompileShader(vs);
-    //
-    //GLint result;
-    //glGetShaderiv(vs, GL_COMPILE_STATUS, &result);
-    //
-    //if (result != GL_TRUE)
-    //{
-    //    GLchar infoLog[BUFSIZ];
-    //    glGetShaderInfoLog(vs, BUFSIZ, nullptr, infoLog);
-    //    printf("%s \n", infoLog);
-    //}
-
-    //const std::string fsSource =
-    //{
-    //    "#version 460 core\n"
-    //    "out vec4 v_FragmentColor;"
-    //
-    //    "in vec2 v_Texcoord;"
-    //
-    //    "uniform sampler2D u_Texture;"
-    //    
-    //    "void main()"
-    //    "{"
-    //        //"v_FragmentColor = vec4(v_Color, 1.0);"
-    //        "v_FragmentColor = texture(u_Texture, v_Texcoord);"
-    //    "}"
-    //};
-
-    //GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    //const GLchar* fsSourceCString = fsSource.c_str();
-    //glShaderSource(fs, 1, &fsSourceCString, nullptr);
-    //glCompileShader(fs);
-    //
-    //glGetShaderiv(fs, GL_COMPILE_STATUS, &result);
-    //
-    //if (result != GL_TRUE)
-    //{
-    //    GLchar infoLog[BUFSIZ];
-    //    glGetShaderInfoLog(fs, BUFSIZ, nullptr, infoLog);
-    //    printf("%s \n", infoLog);
-    //}
-
-    //m_Program = glCreateProgram();
-    //
-    //glAttachShader(m_Program, vs);
-    //glAttachShader(m_Program, fs);
-    //
-    //glLinkProgram(m_Program);
-    //
-    //glGetShaderiv(m_Program, GL_LINK_STATUS, &result);
-    //
-    //if (result != GL_TRUE)
-    //{
-    //    GLchar infoLog[BUFSIZ];
-    //    glGetProgramInfoLog(m_Program, BUFSIZ, nullptr, infoLog);
-    //    printf("%s \n", infoLog);
-    //}
-
-    //glDeleteShader(vs);
-    //glDeleteShader(fs);
-
     m_FlatShader.reset(new Shader(
         "FlatColor", 
         "Assets\\Shaders\\Flat_vert.glsl", 
@@ -379,39 +294,9 @@ bool Application::Init()
 
     stbi_set_flip_vertically_on_load(true);
 
-    int texw, texh, chCount;
-    uint8_t* pStonebricksPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &texw, &texh, &chCount, 0);
-    assert(pStonebricksPixels);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_StonebricksTexture);
-
-    glTextureParameteri(m_StonebricksTexture, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(m_StonebricksTexture, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTextureParameteri(m_StonebricksTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(m_StonebricksTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    GLenum internalFormat, format;
-    
-    if (chCount == 3)
-    {
-        internalFormat = GL_RGB8;
-        format = GL_RGB;
-    }
-    else
-    if (chCount == 4)
-    {
-        internalFormat = GL_RGBA8;
-        format = GL_RGBA;
-    }
-    else
-    {
-        assert(1);
-    }
-
-    glTextureStorage2D(m_StonebricksTexture, 1, internalFormat, texw, texh);
-    glTextureSubImage2D(m_StonebricksTexture, 0, 0, 0, texw, texh, format, GL_UNSIGNED_BYTE, pStonebricksPixels);
-
-    stbi_image_free(pStonebricksPixels);
+    m_StonebricksTexture.reset(new Texture("Stonebricks", "Assets\\Textures\\Stonebricks.png"));
+    assert(m_StonebricksTexture);
+    m_StonebricksTexture->Init();
 
     return true;
 }
@@ -525,21 +410,20 @@ void Application::MainLoop()
             glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            //glUseProgram(m_Program);
             m_FlatShader->Use();
 
             m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
             m_Projection = glm::perspective(glm::radians(45.0f), (m_ScreenWidth / static_cast<float>(m_ScreenHeight)), 0.001f, 1000.0f);
 
             glm::mat4 worldViewProjection = (m_Projection * m_View);
-            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_WorldViewProjection"), 1, GL_FALSE, glm::value_ptr(worldViewProjection));
             m_FlatShader->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
-            glBindTextureUnit(0, m_StonebricksTexture);
+            //glBindTextureUnit(0, m_StonebricksTexture);
+            m_StonebricksTexture->Bind(0);
+            m_FlatShader->Uniform1ui("u_Texture", 0);
 
             // TriangleA
             glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
-            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
             m_FlatShader->UniformMatrix4f("u_World", world);
 
             glBindVertexArray(m_VertexArray);
@@ -547,7 +431,6 @@ void Application::MainLoop()
 
             // RectangleA
             world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
-            //glUniformMatrix4fv(glGetUniformLocation(m_Program, "u_World"), 1, GL_FALSE, glm::value_ptr(world));
             m_FlatShader->UniformMatrix4f("u_World", world);
 
             glBindVertexArray(m_VertexArray);
