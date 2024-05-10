@@ -1,7 +1,6 @@
 #include "Application.h"
 
 #include <cstdio>
-#include <cassert>
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
@@ -246,55 +245,89 @@ bool Application::Init()
 
     // Vertex inputs
 
-    m_UVSphereVertices = CreateUvSphere_Position(128, 64);
+    std::vector<Vertex> triangleVertices = CreateTriangleVertices();
+    std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
 
-    m_VertexBuffer_Position.reset(new Buffer());
-    assert(m_VertexBuffer_Position);
-    m_VertexBuffer_Position->Create();
-    m_VertexBuffer_Position->SetData(
-        sizeof(Vertex_Position) * m_UVSphereVertices.size(), 
-        m_UVSphereVertices.data(), 
-        GL_STATIC_DRAW
-    );
+    uint32_t vertexBufferSize_Textured = 0;
 
-    m_VertexArray_Position.reset(new VertexArray());
-    assert(m_VertexArray_Position);
-    m_VertexArray_Position->Create();
-    m_VertexArray_Position->SetVertexBuffer(m_VertexBuffer_Position, sizeof(Vertex_Position));
-    m_VertexArray_Position->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray_Position->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
+    m_Mesh_Triangle.reset(new Mesh());
+    assert(m_Mesh_Triangle);
+    m_Mesh_Triangle->VertexCount = triangleVertices.size();
+    m_Mesh_Triangle->pVertices = triangleVertices.data();
+    m_Mesh_Triangle->VertexBufferOffset = vertexBufferSize_Textured;
 
-    m_TriangleVertices = CreateTriangle_Textured();
-    m_RectangleVertices = CreateRectangle_Textured();
+    vertexBufferSize_Textured += m_Mesh_Triangle->VertexCount;
 
-    m_VertexBuffer_Textured.reset(new Buffer());
-    assert(m_VertexBuffer_Textured);
-    m_VertexBuffer_Textured->Create();
-    m_VertexBuffer_Textured->SetData(
-        sizeof(Vertex_Textured) * (m_TriangleVertices.size() + m_RectangleVertices.size()),
+    m_Mesh_Rectangle.reset(new Mesh());
+    assert(m_Mesh_Rectangle);
+    m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
+    m_Mesh_Rectangle->pVertices = rectangleVertices.data();
+    m_Mesh_Rectangle->VertexBufferOffset = vertexBufferSize_Textured;
+
+    vertexBufferSize_Textured += m_Mesh_Rectangle->VertexCount;
+
+    m_VertexBuffer_Multiple.reset(new Buffer());
+    assert(m_VertexBuffer_Multiple);
+    m_VertexBuffer_Multiple->Create();
+    m_VertexBuffer_Multiple->SetData(
+        sizeof(Vertex) * vertexBufferSize_Textured,
         nullptr,
         GL_STATIC_DRAW
     );
 
-    m_VertexBuffer_Textured->SetSubData(
-        0,
-        sizeof(Vertex_Textured) * m_TriangleVertices.size(),
-        m_TriangleVertices.data()
+    m_VertexBuffer_Multiple->SetSubData(
+        sizeof(Vertex) * m_Mesh_Triangle->VertexBufferOffset,
+        sizeof(Vertex) * m_Mesh_Triangle->VertexCount,
+        m_Mesh_Triangle->pVertices
     );
 
-    m_VertexBuffer_Textured->SetSubData(
-        sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
-        sizeof(Vertex_Textured) * m_RectangleVertices.size(), 
-        m_RectangleVertices.data()
+    m_VertexBuffer_Multiple->SetSubData(
+        sizeof(Vertex) * m_Mesh_Rectangle->VertexBufferOffset, 
+        sizeof(Vertex) * m_Mesh_Rectangle->VertexCount, 
+        m_Mesh_Rectangle->pVertices
     );
 
-    m_VertexArray_Textured.reset(new VertexArray());
-    assert(m_VertexArray_Textured);
-    m_VertexArray_Textured->Create();
-    m_VertexArray_Textured->SetVertexBuffer(m_VertexBuffer_Textured, sizeof(Vertex_Textured));
-    m_VertexArray_Textured->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray_Textured->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
-    m_VertexArray_Textured->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
+    triangleVertices.clear();
+    rectangleVertices.clear();
+
+    m_VertexArray_Multiple.reset(new VertexArray());
+    assert(m_VertexArray_Multiple);
+    m_VertexArray_Multiple->Create();
+    m_VertexArray_Multiple->SetVertexBuffer(m_VertexBuffer_Multiple, sizeof(Vertex));
+    m_VertexArray_Multiple->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
+    m_VertexArray_Multiple->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
+    m_VertexArray_Multiple->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
+
+    std::vector<Vertex> cubeVertices = CreateCubeVertices();
+
+    uint32_t vertexBufferSize_Position = 0;
+
+    m_Mesh_Cube.reset(new Mesh());
+    assert(m_Mesh_Cube);
+    m_Mesh_Cube->VertexCount = cubeVertices.size();
+    m_Mesh_Cube->pVertices = cubeVertices.data();
+    m_Mesh_Cube->VertexBufferOffset = vertexBufferSize_Position;
+
+    vertexBufferSize_Position += m_Mesh_Cube->VertexCount;
+
+    m_VertexBuffer.reset(new Buffer());
+    assert(m_VertexBuffer);
+    m_VertexBuffer->Create();
+    m_VertexBuffer->SetData(
+        sizeof(Vertex) * vertexBufferSize_Position, 
+        m_Mesh_Cube->pVertices, 
+        GL_STATIC_DRAW
+    );
+
+    cubeVertices.clear();
+
+    m_VertexArray.reset(new VertexArray());
+    assert(m_VertexArray);
+    m_VertexArray->Create();
+    m_VertexArray->SetVertexBuffer(m_VertexBuffer, sizeof(Vertex));
+    m_VertexArray->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
+    m_VertexArray->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
 
     //  ShaderProgs
 
@@ -329,6 +362,7 @@ bool Application::Init()
 
     int width, height, channelCount;
     uint8_t* pPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &width, &height, &channelCount, 0);
+    assert(pPixels);
 
     m_Texture_Stonebricks.reset(new Texture());
     assert(m_Texture_Stonebricks);
@@ -480,8 +514,8 @@ void Application::MainLoop()
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        m_VertexArray_Position->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, m_UVSphereVertices.size());
+        m_VertexArray->Bind();
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -493,15 +527,15 @@ void Application::MainLoop()
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        m_VertexArray_Textured->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, m_TriangleVertices.size());
+        m_VertexArray_Multiple->Bind();
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Triangle->VertexBufferOffset, m_Mesh_Triangle->VertexCount);
 
         // RectangleA
         m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true);
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        glDrawArrays(GL_TRIANGLES, m_TriangleVertices.size(), m_RectangleVertices.size());
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
         wglSwapIntervalEXT(0);
         wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);

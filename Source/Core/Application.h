@@ -12,6 +12,7 @@
 #include "Graphics3D/Geometry.h"
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Texture.h"
+#include "Graphics3D/Mesh.h"
 
 extern char* _ReadFile(const std::string& name);
 
@@ -46,18 +47,15 @@ class Application
 
     StrongShaderProgPtr m_ShaderProg_Textured;
 
-    std::vector<Vertex_Position> m_UVSphereVertices;
-    std::vector<Vertex_Textured> m_TriangleVertices;
-    std::vector<Vertex_Textured> m_RectangleVertices;
+    StrongMeshPtr m_Mesh_Triangle;
+    StrongMeshPtr m_Mesh_Rectangle;
+    StrongMeshPtr m_Mesh_Cube;
 
-    StrongBufferPtr m_VertexBuffer_Position;
-    StrongVertexArrayPtr m_VertexArray_Position;
+    StrongBufferPtr m_VertexBuffer_Multiple;
+    StrongVertexArrayPtr m_VertexArray_Multiple;
 
-    StrongBufferPtr m_VertexBuffer_Textured;
-    StrongVertexArrayPtr m_VertexArray_Textured;
-
-    //GLuint m_VertexArray_Textured;
-    //GLuint m_VertexBuffer_Textured;
+    StrongBufferPtr m_VertexBuffer;
+    StrongVertexArrayPtr m_VertexArray;
 
     StrongTexturePtr m_Texture_Stonebricks;
 

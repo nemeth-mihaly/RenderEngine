@@ -4,30 +4,15 @@
 
 #include <vector>
 
-////////////////////////////////////////////////////
-//  Vertex Type Definitions
-////////////////////////////////////////////////////
+constexpr float Pi = 3.14159265358979323846f;
 
-struct Vertex_Position
-{
-    glm::vec3 Pos;
-    glm::vec3 Normal;
-};
-
-struct Vertex_Textured
+struct Vertex
 {
     glm::vec3 Pos;
     glm::vec3 Normal;
     glm::vec2 Uv;
 };
 
-
-extern std::vector<Vertex_Position> CreateTriangle_Position();
-extern std::vector<Vertex_Textured> CreateTriangle_Textured();
-
-extern std::vector<Vertex_Position> CreateRectangle_Position();
-extern std::vector<Vertex_Textured> CreateRectangle_Textured();
-
-extern std::vector<Vertex_Position> CreateCube_Position();
-
-extern std::vector<Vertex_Position> CreateUvSphere_Position(uint32_t segmentCount, uint32_t ringCount);
+extern std::vector<Vertex> CreateTriangleVertices();
+extern std::vector<Vertex> CreateRectangleVertices();
+extern std::vector<Vertex> CreateCubeVertices();
