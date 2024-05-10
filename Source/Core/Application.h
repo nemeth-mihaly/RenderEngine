@@ -9,6 +9,7 @@
 
 #include "Graphics3D/Buffer.h"
 #include "Graphics3D/VertexArray.h"
+#include "Graphics3D/Geometry.h"
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Texture.h"
 

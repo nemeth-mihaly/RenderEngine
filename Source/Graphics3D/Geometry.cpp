@@ -1,10 +1,8 @@
-#include "MeshGen.h"
-
-#include <cassert>
+#include "Graphics3D/Geometry.h"
 
 constexpr float Pi = 3.14159265358979323846f;
 
-std::vector<Vertex_Position> GenerateTriangle_Position()
+std::vector<Vertex_Position> CreateTriangle_Position()
 {
     /*
     //         A 
@@ -16,28 +14,28 @@ std::vector<Vertex_Position> GenerateTriangle_Position()
     std::vector<Vertex_Position> vertices =
     {
         // ACB
-        Vertex_Position{ glm::vec3(0.0f, 0.5f, 0.0f) },
-        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },   
-        Vertex_Position{ glm::vec3(0.5f, -0.5f, 0.0f) }
+        {{  0.0f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},   
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }}
     };
 
     return vertices;
 }
 
-std::vector<Vertex_Textured> GenerateTriangle_Textured()
+std::vector<Vertex_Textured> CreateTriangle_Textured()
 {
     std::vector<Vertex_Textured> vertices =
     {
         // ACB
-        Vertex_Textured{ glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.5f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },   
-        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
+        {{  0.0f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.5f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},   
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }}
     };
 
     return vertices;
 }
 
-std::vector<Vertex_Position> GenerateRectangle_Position()
+std::vector<Vertex_Position> CreateRectangle_Position()
 {
     /*
     //      A --  B
@@ -49,38 +47,38 @@ std::vector<Vertex_Position> GenerateRectangle_Position()
     std::vector<Vertex_Position> vertices =
     {
         // ACB
-        Vertex_Position{ glm::vec3(-0.5f, 0.5f, 0.0f) },
-        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },
-        Vertex_Position{ glm::vec3(0.5f, 0.5f, 0.0f) },
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position{ glm::vec3(0.5f, 0.5f, 0.0f) },
-        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },
-        Vertex_Position{ glm::vec3(0.5f, -0.5f, 0.0f) }
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }}
     };
 
     return vertices;
 }
 
-std::vector<Vertex_Textured> GenerateRectangle_Textured()
+std::vector<Vertex_Textured> CreateRectangle_Textured()
 {
     std::vector<Vertex_Textured> vertices =
     {
         // ACB
-        Vertex_Textured{ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
-        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
 
         // BCD
-        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
-        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }}
     };
 
     return vertices;
 }
 
-std::vector<Vertex_Position> GenerateCube_Position()
+std::vector<Vertex_Position> CreateCube_Position()
 {
     /*
     //      A --  B
@@ -96,90 +94,90 @@ std::vector<Vertex_Position> GenerateCube_Position()
         */
 
         // ACB
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
+        {{ -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
+        {{  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         /*
         // South (+z)
         */
 
         // ACB
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        {{ -0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+        {{  0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         /*
         // East (+x)
         */
 
         // ACB
-        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        {{ 0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ 0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ 0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+        {{ 0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ 0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ 0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         /*
         // West (-x)
         */
 
         // ACB
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, 0.5f,  0.5f) },
+        {{ -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+        {{ -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         /*
         // Up (+y)
         */
 
         // ACB
-        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        {{  0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f, 0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
+        {{  0.5f, 0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, 0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         /*
         // Down (-y)
         */
 
         // ACB
-        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+        {{  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
 
         // BCD
-        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
-        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+        {{  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f }},
+        {{ -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f }},
     };
 
     return vertices;
 }
 
-std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, uint32_t ringCount)
+std::vector<Vertex_Position> CreateUvSphere_Position(uint32_t segmentCount, uint32_t ringCount)
 {
     std::vector<Vertex_Position> temp_vertices;
 
@@ -189,6 +187,7 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
     // Add the bottom vertex.
     Vertex_Position v0;
     v0.Pos = glm::vec3(0.0f,- 1.0f, 0.0f);
+    v0.Normal = glm::vec3(0.0f, 0.0f, 0.0f);
     temp_vertices.push_back(v0);
 
     // Add the vertices for the middle part.
@@ -216,6 +215,8 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
             vertex.Pos.y = sinf(phi);
             vertex.Pos.z = cosf(phi) * sinf(theta);
 
+            vertex.Normal = glm::vec3(0.0f, 0.0f, 0.0f);
+
             temp_vertices.push_back(vertex);
         }
     }
@@ -223,6 +224,7 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
     // Add the bottom vertex.
     Vertex_Position v1;
     v1.Pos = glm::vec3(0.0f, 1.0f, 0.0f);
+    v1.Normal = glm::vec3(0.0f, 0.0f, 0.0f);
     temp_vertices.push_back(v1);
 
     std::vector<Vertex_Position> vertices; // Triangulated vertices.

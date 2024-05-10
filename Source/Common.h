@@ -23,14 +23,3 @@
 #include <3rdParty/stb/stb_image.h>
 
 constexpr GLuint InvalidGpuID = 0xffffffff;
-
-struct Vertex_Position
-{
-    glm::vec3 Pos;
-};
-
-struct Vertex_Textured
-{
-    glm::vec3 Pos;
-    glm::vec2 UV;
-};

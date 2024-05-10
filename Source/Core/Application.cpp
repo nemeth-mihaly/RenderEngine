@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <cassert>
 
-#include "MeshGen.h"
-
 const wchar_t ClassName[] = TEXT("MyWindow");
 
 char* _ReadFile(const std::string& name)
@@ -248,7 +246,7 @@ bool Application::Init()
 
     // Vertex inputs
 
-    m_UVSphereVertices = GenerateUVSphere_Position(128, 64);
+    m_UVSphereVertices = CreateUvSphere_Position(128, 64);
 
     m_VertexBuffer_Position.reset(new Buffer());
     assert(m_VertexBuffer_Position);
@@ -264,9 +262,10 @@ bool Application::Init()
     m_VertexArray_Position->Create();
     m_VertexArray_Position->SetVertexBuffer(m_VertexBuffer_Position, sizeof(Vertex_Position));
     m_VertexArray_Position->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
+    m_VertexArray_Position->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
 
-    m_TriangleVertices = GenerateTriangle_Textured();
-    m_RectangleVertices = GenerateRectangle_Textured();
+    m_TriangleVertices = CreateTriangle_Textured();
+    m_RectangleVertices = CreateRectangle_Textured();
 
     m_VertexBuffer_Textured.reset(new Buffer());
     assert(m_VertexBuffer_Textured);
@@ -294,7 +293,8 @@ bool Application::Init()
     m_VertexArray_Textured->Create();
     m_VertexArray_Textured->SetVertexBuffer(m_VertexBuffer_Textured, sizeof(Vertex_Textured));
     m_VertexArray_Textured->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray_Textured->SetVertexInputAttribute(1, 2, GL_FLOAT, 12);
+    m_VertexArray_Textured->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
+    m_VertexArray_Textured->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
 
     //  ShaderProgs
 
@@ -480,14 +480,10 @@ void Application::MainLoop()
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        //glBindVertexArray(m_VertexArray_Color);
         m_VertexArray_Position->Bind();
         glDrawArrays(GL_TRIANGLES, 0, m_UVSphereVertices.size());
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        //m_ShaderProg_Textured->Use();
-        //m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
         // TriangleA
         m_Texture_Stonebricks->BindUnit(0);
@@ -497,7 +493,6 @@ void Application::MainLoop()
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        //glBindVertexArray(m_VertexArray_Textured);
         m_VertexArray_Textured->Bind();
         glDrawArrays(GL_TRIANGLES, 0, m_TriangleVertices.size());
 
@@ -506,7 +501,6 @@ void Application::MainLoop()
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        //glBindVertexArray(m_VertexArray_Textured);
         glDrawArrays(GL_TRIANGLES, m_TriangleVertices.size(), m_RectangleVertices.size());
 
         wglSwapIntervalEXT(0);
