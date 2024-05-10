@@ -50,7 +50,7 @@ class Application
     std::shared_ptr<Shader> m_Shader_Color;
     std::shared_ptr<Shader> m_Shader_Textured;
 
-    //std::vector<GLfloat> m_CubeVertices;
+    std::vector<Vertex_Position> m_CubeVertices;
     std::vector<Vertex_Position> m_UVSphereVertices;
     std::vector<Vertex_Textured> m_TriangleVertices;
     std::vector<Vertex_Textured> m_RectangleVertices;

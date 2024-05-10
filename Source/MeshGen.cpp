@@ -4,6 +4,181 @@
 
 constexpr float Pi = 3.14159265358979323846f;
 
+std::vector<Vertex_Position> GenerateTriangle_Position()
+{
+    /*
+    //         A 
+    //        / \ 
+    //       /   \ 
+    //      C-- - B
+    */
+
+    std::vector<Vertex_Position> vertices =
+    {
+        // ACB
+        Vertex_Position{ glm::vec3(0.0f, 0.5f, 0.0f) },
+        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },   
+        Vertex_Position{ glm::vec3(0.5f, -0.5f, 0.0f) }
+    };
+
+    return vertices;
+}
+
+std::vector<Vertex_Textured> GenerateTriangle_Textured()
+{
+    std::vector<Vertex_Textured> vertices =
+    {
+        // ACB
+        Vertex_Textured{ glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.5f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },   
+        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
+    };
+
+    return vertices;
+}
+
+std::vector<Vertex_Position> GenerateRectangle_Position()
+{
+    /*
+    //      A --  B
+    //      |   / |
+    //      | /   |
+    //      C  -- D
+    */
+
+    std::vector<Vertex_Position> vertices =
+    {
+        // ACB
+        Vertex_Position{ glm::vec3(-0.5f, 0.5f, 0.0f) },
+        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },
+        Vertex_Position{ glm::vec3(0.5f, 0.5f, 0.0f) },
+
+        // BCD
+        Vertex_Position{ glm::vec3(0.5f, 0.5f, 0.0f) },
+        Vertex_Position{ glm::vec3(-0.5f, -0.5f, 0.0f) },
+        Vertex_Position{ glm::vec3(0.5f, -0.5f, 0.0f) }
+    };
+
+    return vertices;
+}
+
+std::vector<Vertex_Textured> GenerateRectangle_Textured()
+{
+    std::vector<Vertex_Textured> vertices =
+    {
+        // ACB
+        Vertex_Textured{ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
+        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
+
+        // BCD
+        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
+        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
+    };
+
+    return vertices;
+}
+
+std::vector<Vertex_Position> GenerateCube_Position()
+{
+    /*
+    //      A --  B
+    //      |   / |
+    //      | /   |
+    //      C  -- D
+    */
+
+    std::vector<Vertex_Position> vertices =
+    {
+        /*
+        // North (-z)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
+
+        /*
+        // South (+z)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+
+        /*
+        // East (+x)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+
+        /*
+        // West (-x)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, 0.5f,  0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+
+        /*
+        // Up (+y)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(0.5f, 0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, 0.5f, 0.5f) },
+
+        /*
+        // Down (-y)
+        */
+
+        // ACB
+        Vertex_Position { glm::vec3(0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+
+        // BCD
+        Vertex_Position { glm::vec3(0.5f, -0.5f, 0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, -0.5f) },
+        Vertex_Position { glm::vec3(-0.5f, -0.5f, 0.5f) },
+    };
+
+    return vertices;
+}
+
 std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, uint32_t ringCount)
 {
     std::vector<Vertex_Position> temp_vertices;
@@ -35,6 +210,7 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
             //           ++ -  + x                     ++ -  + x/z
             //              cos(yaw)                        cos(pitch)
             */  
+
             Vertex_Position vertex;
             vertex.Pos.x = cosf(phi) * cosf(theta);
             vertex.Pos.y = sinf(phi);
@@ -61,6 +237,7 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
     //       \ /               /   \ 
     //        v0             i1-- - i2
     */
+
     for (uint32_t segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++)
     { 
         // Bottom triangle.
@@ -90,6 +267,7 @@ std::vector<Vertex_Position> GenerateUVSphere_Position(uint32_t segmentCount, ui
     //      | /   |
     //     i1  -- i2
     */
+
     for (uint32_t ringIndex = 0; ringIndex < (ringCount - 2); ringIndex++) 
     {
         for (uint32_t segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++)

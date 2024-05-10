@@ -106,7 +106,7 @@ bool Application::Init()
     m_hWindow = CreateWindowEx(
         0,
         ClassName,
-        TEXT("Engine"),
+        TEXT("TestApp"),
         WS_OVERLAPPEDWINDOW,
     
         CW_USEDEFAULT, CW_USEDEFAULT, 
@@ -238,51 +238,7 @@ bool Application::Init()
 
     // Color
 
-    //m_CubeVertices = 
-    //{
-    //    -0.5f, -0.5f, -0.5f,
-    //    0.5f, -0.5f, -0.5f,
-    //    0.5f,  0.5f, -0.5f,
-    //    0.5f,  0.5f, -0.5f,
-    //    -0.5f,  0.5f, -0.5f,
-    //    -0.5f, -0.5f, -0.5f,
-    //
-    //    -0.5f, -0.5f,  0.5f,
-    //    0.5f, -0.5f,  0.5f,
-    //    0.5f,  0.5f,  0.5f,
-    //    0.5f,  0.5f,  0.5f,
-    //    -0.5f,  0.5f,  0.5f,
-    //    -0.5f, -0.5f,  0.5f,
-    //
-    //    -0.5f,  0.5f,  0.5f,
-    //    -0.5f,  0.5f, -0.5f,
-    //    -0.5f, -0.5f, -0.5f,
-    //    -0.5f, -0.5f, -0.5f,
-    //    -0.5f, -0.5f,  0.5f,
-    //    -0.5f,  0.5f,  0.5f,
-    //
-    //    0.5f,  0.5f,  0.5f,
-    //    0.5f,  0.5f, -0.5f,
-    //    0.5f, -0.5f, -0.5f,
-    //    0.5f, -0.5f, -0.5f,
-    //    0.5f, -0.5f,  0.5f,
-    //    0.5f,  0.5f,  0.5f,
-    //
-    //    -0.5f, -0.5f, -0.5f,
-    //    0.5f, -0.5f, -0.5f,
-    //    0.5f, -0.5f,  0.5f,
-    //    0.5f, -0.5f,  0.5f,
-    //    -0.5f, -0.5f,  0.5f,
-    //    -0.5f, -0.5f, -0.5f,
-    //
-    //    -0.5f,  0.5f, -0.5f,
-    //    0.5f,  0.5f, -0.5f,
-    //    0.5f,  0.5f,  0.5f,
-    //    0.5f,  0.5f,  0.5f,
-    //    -0.5f,  0.5f,  0.5f,
-    //    -0.5f,  0.5f, -0.5f
-    //};
-
+    m_CubeVertices = GenerateCube_Position();
     m_UVSphereVertices = GenerateUVSphere_Position(32, 16);
 
     glCreateVertexArrays(1, &m_VertexArray_Color);
@@ -291,8 +247,8 @@ bool Application::Init()
 
     glNamedBufferData(
         m_VertexBuffer_Color, 
-        sizeof(Vertex_Position) * m_UVSphereVertices.size(), 
-        m_UVSphereVertices.data(), 
+        sizeof(Vertex_Position) * m_CubeVertices.size(), 
+        m_CubeVertices.data(), 
         GL_STATIC_DRAW
     );
 
@@ -305,49 +261,12 @@ bool Application::Init()
 
     // Textured
 
-    /*
-    //         A 
-    //        / \ 
-    //       /   \ 
-    //      C-- - B
-    */
-
-   m_TriangleVertices =
-   {
-        // Position           // Texcoord
-
-        // ACB
-        Vertex_Textured{ glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.5f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },   
-        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
-   };
-
-    /*
-    //      A --  B
-    //      |   / |
-    //      | /   |
-    //      C  -- D
-    */
-
-    m_RectangleVertices =
-    {
-        // Position             // Texcoord
-
-        // ACB
-        Vertex_Textured{ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
-        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
-
-        // BCD
-        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
-        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
-        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
-    };
+    m_TriangleVertices = GenerateTriangle_Textured();
+    m_RectangleVertices = GenerateRectangle_Textured();
 
     glCreateVertexArrays(1, &m_VertexArray_Textured);
 
     glCreateBuffers(1, &m_VertexBuffer_Textured);
-
     glNamedBufferData(
         m_VertexBuffer_Textured, 
         sizeof(Vertex_Textured) * (m_TriangleVertices.size() + m_RectangleVertices.size()), 
@@ -361,7 +280,6 @@ bool Application::Init()
         sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
         m_TriangleVertices.data()
     );
-
     glNamedBufferSubData(
         m_VertexBuffer_Textured, 
         sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
@@ -499,7 +417,8 @@ void Application::MainLoop()
             //           | /   |                       | /   |
             //           ++ -  + x                     ++ -  + x/z
             //              cos(yaw)                        cos(pitch)
-            */                                        
+            */    
+
             if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
             {
                 const float rotationSpeed = 0.55f;
@@ -538,7 +457,7 @@ void Application::MainLoop()
         }
 
         glBindVertexArray(m_VertexArray_Color);
-        glDrawArrays(GL_TRIANGLES, 0, m_UVSphereVertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, m_CubeVertices.size());
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
