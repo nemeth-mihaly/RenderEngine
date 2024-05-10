@@ -112,6 +112,16 @@ void Shader::Use() const
     glUseProgram(m_ProgramID);
 }
 
+void Shader::Uniform1b(const std::string& name, bool value) const
+{
+    Uniform1i(name, static_cast<int>(value));
+}
+
+void Shader::Uniform1i(const std::string& name, int value) const
+{
+    glUniform1i(GetUniformLocation(name), value);
+}
+
 void Shader::Uniform1ui(const std::string& name, uint32_t value) const
 {
     glUniform1ui(GetUniformLocation(name), value);

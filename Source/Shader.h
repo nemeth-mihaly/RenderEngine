@@ -3,12 +3,6 @@
 #include <string>
 
 #include "GLCommon.h"
-//#include "glad/glad_wgl.h"
-//#include "glad/glad.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
 
 class Shader
 {
@@ -24,6 +18,9 @@ class Shader
 
     void Use() const;
 
+    // The Uniform1b should be interpreted as an integer in the shader source because GLSL lacks a boolean type.
+    void Uniform1b(const std::string& name, bool value) const;
+    void Uniform1i(const std::string& name, int value) const;
     void Uniform1ui(const std::string& name, uint32_t value) const;
     void UniformMatrix4f(const std::string& name, const glm::mat4& value) const;
 

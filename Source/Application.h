@@ -12,14 +12,8 @@
 #include <vector>
 
 #include "GLCommon.h"
-//#include "glad/glad_wgl.h"
-//#include "glad/glad.h"
 
 #include "stb/stb_image.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
 #include "Texture.h"
@@ -53,12 +47,16 @@ class Application
 
     bool m_bIsRunning;
 
-    std::shared_ptr<Shader> m_FlatShader;
+    std::shared_ptr<Shader> m_Shader_Color;
+    std::shared_ptr<Shader> m_Shader_Textured;
 
-    std::vector<GLfloat> m_TriangleVertices;
-    std::vector<GLfloat> m_RectangleVertices;
-    std::vector<GLfloat> m_CubeVertices;
+    //std::vector<GLfloat> m_CubeVertices;
+    std::vector<Vertex_Position> m_UVSphereVertices;
+    std::vector<Vertex_Textured> m_TriangleVertices;
+    std::vector<Vertex_Textured> m_RectangleVertices;
 
+    GLuint m_VertexArray_Color;
+    GLuint m_VertexBuffer_Color;
     GLuint m_VertexArray_Textured;
     GLuint m_VertexBuffer_Textured;
 
@@ -67,6 +65,7 @@ class Application
     glm::mat4 m_View;
     glm::mat4 m_Projection;
 
+    glm::vec3 m_CubeAPosition;
     glm::vec3 m_TriangleAPosition;
     glm::vec3 m_RectangleAPosition;
 
@@ -77,6 +76,7 @@ class Application
     bool m_bCameraMoving;
     glm::vec2 m_PrevMousePos;
     glm::vec2 m_CurrentMousePos;
+    bool m_bWireframeEnabled;
 
     float m_Yaw;
     float m_Pitch;

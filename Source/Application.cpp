@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cassert>
 
+#include "MeshGen.h"
+
 const wchar_t ClassName[] = TEXT("MyWindow");
 
 uint32_t triangleVertexCount;
@@ -55,6 +57,7 @@ Application::Application(HINSTANCE hInstance)
 
     m_bIsRunning = false;
 
+    m_CubeAPosition = glm::vec3(-5.0f, 0.0f, 0.0f);
     m_TriangleAPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     m_RectangleAPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 
@@ -65,12 +68,17 @@ Application::Application(HINSTANCE hInstance)
 
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
+
+    m_bWireframeEnabled = false;
 }
 
 Application::~Application()
 {
     glDeleteBuffers(1, &m_VertexBuffer_Textured);
     glDeleteVertexArrays(1, &m_VertexArray_Textured);
+
+    glDeleteBuffers(1, &m_VertexArray_Color);
+    glDeleteVertexArrays(1, &m_VertexArray_Color);
 
     wglDeleteContext(m_hGLRenderContext);
     ReleaseDC(m_hWindow, m_hDeviceContext);
@@ -228,6 +236,75 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
+    // Color
+
+    //m_CubeVertices = 
+    //{
+    //    -0.5f, -0.5f, -0.5f,
+    //    0.5f, -0.5f, -0.5f,
+    //    0.5f,  0.5f, -0.5f,
+    //    0.5f,  0.5f, -0.5f,
+    //    -0.5f,  0.5f, -0.5f,
+    //    -0.5f, -0.5f, -0.5f,
+    //
+    //    -0.5f, -0.5f,  0.5f,
+    //    0.5f, -0.5f,  0.5f,
+    //    0.5f,  0.5f,  0.5f,
+    //    0.5f,  0.5f,  0.5f,
+    //    -0.5f,  0.5f,  0.5f,
+    //    -0.5f, -0.5f,  0.5f,
+    //
+    //    -0.5f,  0.5f,  0.5f,
+    //    -0.5f,  0.5f, -0.5f,
+    //    -0.5f, -0.5f, -0.5f,
+    //    -0.5f, -0.5f, -0.5f,
+    //    -0.5f, -0.5f,  0.5f,
+    //    -0.5f,  0.5f,  0.5f,
+    //
+    //    0.5f,  0.5f,  0.5f,
+    //    0.5f,  0.5f, -0.5f,
+    //    0.5f, -0.5f, -0.5f,
+    //    0.5f, -0.5f, -0.5f,
+    //    0.5f, -0.5f,  0.5f,
+    //    0.5f,  0.5f,  0.5f,
+    //
+    //    -0.5f, -0.5f, -0.5f,
+    //    0.5f, -0.5f, -0.5f,
+    //    0.5f, -0.5f,  0.5f,
+    //    0.5f, -0.5f,  0.5f,
+    //    -0.5f, -0.5f,  0.5f,
+    //    -0.5f, -0.5f, -0.5f,
+    //
+    //    -0.5f,  0.5f, -0.5f,
+    //    0.5f,  0.5f, -0.5f,
+    //    0.5f,  0.5f,  0.5f,
+    //    0.5f,  0.5f,  0.5f,
+    //    -0.5f,  0.5f,  0.5f,
+    //    -0.5f,  0.5f, -0.5f
+    //};
+
+    m_UVSphereVertices = GenerateUVSphere_Position(32, 16);
+
+    glCreateVertexArrays(1, &m_VertexArray_Color);
+
+    glCreateBuffers(1, &m_VertexBuffer_Color);
+
+    glNamedBufferData(
+        m_VertexBuffer_Color, 
+        sizeof(Vertex_Position) * m_UVSphereVertices.size(), 
+        m_UVSphereVertices.data(), 
+        GL_STATIC_DRAW
+    );
+
+    glVertexArrayVertexBuffer(m_VertexArray_Color, 0, m_VertexBuffer_Color, 0, sizeof(Vertex_Position));
+
+    // Pos
+    glEnableVertexArrayAttrib(m_VertexArray_Color, 0);
+    glVertexArrayAttribFormat(m_VertexArray_Color, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
+    glVertexArrayAttribBinding(m_VertexArray_Color, 0, 0);
+
+    // Textured
+
     /*
     //         A 
     //        / \ 
@@ -240,9 +317,9 @@ bool Application::Init()
         // Position           // Texcoord
 
         // ACB
-        0.0f, 0.5f, 0.0f,     0.5f, 1.0f,
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   
-        0.5f, -0.5f, 0.0f,    1.0f, 0.0f
+        Vertex_Textured{ glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.5f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },   
+        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
    };
 
     /*
@@ -257,24 +334,42 @@ bool Application::Init()
         // Position             // Texcoord
 
         // ACB
-        -0.5f, 0.5f, 0.0f,      0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f,
-        0.5f, 0.5f, 0.0f,       1.0f, 1.0f,
+        Vertex_Textured{ glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
+        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
 
         // BCD
-        0.5f, 0.5f, 0.0f,       1.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f,      1.0f, 0.0f
+        Vertex_Textured{ glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f) },
+        Vertex_Textured{ glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f) },
+        Vertex_Textured{ glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f) }
     };
 
     glCreateVertexArrays(1, &m_VertexArray_Textured);
 
     glCreateBuffers(1, &m_VertexBuffer_Textured);
-    glNamedBufferData(m_VertexBuffer_Textured, sizeof(GLfloat) * (m_TriangleVertices.size() + m_RectangleVertices.size()), nullptr, GL_STATIC_DRAW);
-    glNamedBufferSubData(m_VertexBuffer_Textured, 0, sizeof(GLfloat) * m_TriangleVertices.size(), m_TriangleVertices.data());
-    glNamedBufferSubData(m_VertexBuffer_Textured, sizeof(GLfloat) * m_TriangleVertices.size(), sizeof(GLfloat) * m_RectangleVertices.size(), m_RectangleVertices.data());
 
-    glVertexArrayVertexBuffer(m_VertexArray_Textured, 0, m_VertexBuffer_Textured, 0, (5 * sizeof(GLfloat)));
+    glNamedBufferData(
+        m_VertexBuffer_Textured, 
+        sizeof(Vertex_Textured) * (m_TriangleVertices.size() + m_RectangleVertices.size()), 
+        nullptr, 
+        GL_STATIC_DRAW
+    );
+
+    glNamedBufferSubData(
+        m_VertexBuffer_Textured, 
+        0, 
+        sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
+        m_TriangleVertices.data()
+    );
+
+    glNamedBufferSubData(
+        m_VertexBuffer_Textured, 
+        sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
+        sizeof(Vertex_Textured) * m_RectangleVertices.size(), 
+        m_RectangleVertices.data()
+    );
+
+    glVertexArrayVertexBuffer(m_VertexArray_Textured, 0, m_VertexBuffer_Textured, 0, sizeof(Vertex_Textured));
 
     // Pos
     glEnableVertexArrayAttrib(m_VertexArray_Textured, 0);
@@ -286,13 +381,21 @@ bool Application::Init()
     glVertexArrayAttribFormat(m_VertexArray_Textured, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
     glVertexArrayAttribBinding(m_VertexArray_Textured, 1, 0);
 
-    m_FlatShader.reset(new Shader(
-        "Flat", 
-        "Assets\\Shaders\\Flat_vert.glsl", 
-        "Assets\\Shaders\\Flat_frag.glsl")
+    m_Shader_Color.reset(new Shader(
+        "Color", 
+        "Assets\\Shaders\\Color_vert.glsl", 
+        "Assets\\Shaders\\Color_frag.glsl")
     );
-    assert(m_FlatShader);
-    m_FlatShader->Init();
+    assert(m_Shader_Color);
+    m_Shader_Color->Init();
+
+    m_Shader_Textured.reset(new Shader(
+        "Textured", 
+        "Assets\\Shaders\\Textured_vert.glsl", 
+        "Assets\\Shaders\\Textured_frag.glsl")
+    );
+    assert(m_Shader_Textured);
+    m_Shader_Textured->Init();
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -338,121 +441,131 @@ void Application::MainLoop()
         float deltaTime = std::chrono::duration<float>(current - previous).count();
         previous = current;
 
-        while (PeekMessage(&msg, m_hWindow, 0, 0, PM_REMOVE))
+        while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
             {
                 m_bIsRunning = false;
             }
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        const float cameraSpeed = 2.5f;
+
+        const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.1f;
+        m_PrevMousePos = m_CurrentMousePos;
+
+        //if (m_bCameraMoving)
+        //{
+            if (m_bKeyStates[0x57]) //  W key
+            {
+                m_CameraPosition += m_CameraForwardDir * cameraSpeed * deltaTime;
+            }
             else
+            if (m_bKeyStates[0x53]) // 	S key
             {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
+                m_CameraPosition -= m_CameraForwardDir * cameraSpeed * deltaTime;
             }
-        }
-        //else
+
+            const glm::vec3 rightDirection = glm::cross(m_CameraForwardDir, upDirection);
+
+            if (m_bKeyStates[0x41]) //  A key
+            {
+                m_CameraPosition -= rightDirection * cameraSpeed * deltaTime;
+            }
+            else
+            if (m_bKeyStates[0x44]) //  D key
+            {
+                m_CameraPosition += rightDirection * cameraSpeed * deltaTime;
+            }
+
+            if (m_bKeyStates[0x51]) //     Q key
+            {
+                m_CameraPosition += upDirection * cameraSpeed * deltaTime;
+            }
+            else
+            if (m_bKeyStates[0x45])  //  E key
+            {
+                m_CameraPosition -= upDirection * cameraSpeed * deltaTime;
+            }
+
+            /*
+            //  sin(yaw) z     +            sin(pitch) y     +  
+            //           |   / |                       |   / |
+            //           | /   |                       | /   |
+            //           ++ -  + x                     ++ -  + x/z
+            //              cos(yaw)                        cos(pitch)
+            */                                        
+            if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+            {
+                const float rotationSpeed = 0.55f;
+                m_Yaw += deltaMousePos.x * rotationSpeed;
+                m_Pitch += (-deltaMousePos.y) * rotationSpeed;
+
+                glm::vec3 newForwardDirection;
+                newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                newForwardDirection.y = sin(glm::radians(m_Pitch));
+                newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+
+                m_CameraForwardDir = glm::normalize(newForwardDirection);
+            }
+        //}
+
+        m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
+        m_Projection = glm::perspective(glm::radians(45.0f), (m_ScreenWidth / static_cast<float>(m_ScreenHeight)), 0.001f, 1000.0f);
+
+        glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        m_Shader_Color->Use();
+        glm::mat4 worldViewProjection = (m_Projection * m_View);
+        m_Shader_Color->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
+
+        // CubeA
+        glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_CubeAPosition));
+        m_Shader_Color->UniformMatrix4f("u_World", world);
+
+
+        if (m_bWireframeEnabled)
         {
-            if (m_bKeyStates[VK_ESCAPE])
-            {
-                PostQuitMessage(0);
-            }
-
-            const float cameraSpeed = 2.5f;
-
-            const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
-
-            glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.1f;
-            m_PrevMousePos = m_CurrentMousePos;
-
-            //if (m_bCameraMoving)
-            //{
-                if (m_bKeyStates[0x57]) //  W key
-                {
-                    m_CameraPosition += m_CameraForwardDir * cameraSpeed * deltaTime;
-                }
-                else
-                if (m_bKeyStates[0x53]) // 	S key
-                {
-                    m_CameraPosition -= m_CameraForwardDir * cameraSpeed * deltaTime;
-                }
-
-                const glm::vec3 rightDirection = glm::cross(m_CameraForwardDir, upDirection);
-
-                if (m_bKeyStates[0x41]) //  A key
-                {
-                    m_CameraPosition -= rightDirection * cameraSpeed * deltaTime;
-                }
-                else
-                if (m_bKeyStates[0x44]) //  D key
-                {
-                    m_CameraPosition += rightDirection * cameraSpeed * deltaTime;
-                }
-
-                if (m_bKeyStates[0x51]) //     Q key
-                {
-                    m_CameraPosition += upDirection * cameraSpeed * deltaTime;
-                }
-                else
-                if (m_bKeyStates[0x45])  //  E key
-                {
-                    m_CameraPosition -= upDirection * cameraSpeed * deltaTime;
-                }
-
-                //  sin(yaw) z     +            sin(pitch) y     +  
-                //           |   / |                       |   / |
-                //           | /   |                       | /   |
-                //           ++ -  + x                     ++ -  + x/z
-                //                  cos(yaw)                      cos(pitch)
-
-                if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
-                {
-                    const float rotationSpeed = 0.55f;
-                    m_Yaw += deltaMousePos.x * rotationSpeed;
-                    m_Pitch += (-deltaMousePos.y) * rotationSpeed;
-
-                    glm::vec3 newForwardDirection;
-                    newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                    newForwardDirection.y = sin(glm::radians(m_Pitch));
-                    newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-
-                    m_CameraForwardDir = glm::normalize(newForwardDirection);
-                }
-            //}
-
-            glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
-            glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
-            glEnable(GL_DEPTH_TEST);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            m_FlatShader->Use();
-
-            m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
-            m_Projection = glm::perspective(glm::radians(45.0f), (m_ScreenWidth / static_cast<float>(m_ScreenHeight)), 0.001f, 1000.0f);
-
-            glm::mat4 worldViewProjection = (m_Projection * m_View);
-            m_FlatShader->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
-
-            //glBindTextureUnit(0, m_StonebricksTexture);
-            m_StonebricksTexture->Bind(0);
-            m_FlatShader->Uniform1ui("u_Texture", 0);
-
-            // TriangleA
-            glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
-            m_FlatShader->UniformMatrix4f("u_World", world);
-
-            glBindVertexArray(m_VertexArray_Textured);
-            glDrawArrays(GL_TRIANGLES, 0, (m_TriangleVertices.size() / 5));
-
-            // RectangleA
-            world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
-            m_FlatShader->UniformMatrix4f("u_World", world);
-
-            glBindVertexArray(m_VertexArray_Textured);
-            glDrawArrays(GL_TRIANGLES, (m_TriangleVertices.size() / 5), (m_RectangleVertices.size() / 5));
-
-            wglSwapIntervalEXT(0);
-            wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
+
+        glBindVertexArray(m_VertexArray_Color);
+        glDrawArrays(GL_TRIANGLES, 0, m_UVSphereVertices.size());
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        m_Shader_Textured->Use();
+        m_Shader_Textured->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
+
+        // TriangleA
+        m_StonebricksTexture->Bind(0);
+        m_Shader_Textured->Uniform1ui("u_Texture", 0);
+        m_Shader_Textured->Uniform1b("u_bHasTexture", false);
+
+        world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
+        m_Shader_Textured->UniformMatrix4f("u_World", world);
+
+        glBindVertexArray(m_VertexArray_Textured);
+        glDrawArrays(GL_TRIANGLES, 0, m_TriangleVertices.size());
+
+        // RectangleA
+        m_Shader_Textured->Uniform1b("u_bHasTexture", true);
+        world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
+        m_Shader_Textured->UniformMatrix4f("u_World", world);
+
+        glBindVertexArray(m_VertexArray_Textured);
+        glDrawArrays(GL_TRIANGLES, m_TriangleVertices.size(), m_RectangleVertices.size());
+
+        wglSwapIntervalEXT(0);
+        wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
     }
 }
 
@@ -462,6 +575,16 @@ LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_KEYDOWN:
         {
+            if (wParam == VK_ESCAPE)
+            {
+                PostQuitMessage(0);
+            }
+            else
+            if (wParam == VK_F1)
+            {
+                m_bWireframeEnabled = !m_bWireframeEnabled;
+            }
+
             m_bKeyStates[wParam] = true;
 
             //if (wParam == VK_F1)
