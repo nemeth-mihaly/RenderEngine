@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "Graphics3D/Buffer.h"
+#include "Graphics3D/VertexArray.h"
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Texture.h"
 
@@ -41,19 +43,22 @@ class Application
 
     bool m_bIsRunning;
 
-    std::shared_ptr<ShaderProgram> m_ShaderProg_Textured;
+    StrongShaderProgPtr m_ShaderProg_Textured;
 
-    std::vector<Vertex_Position> m_CubeVertices;
     std::vector<Vertex_Position> m_UVSphereVertices;
     std::vector<Vertex_Textured> m_TriangleVertices;
     std::vector<Vertex_Textured> m_RectangleVertices;
 
-    GLuint m_VertexArray_Color;
-    GLuint m_VertexBuffer_Color;
-    GLuint m_VertexArray_Textured;
-    GLuint m_VertexBuffer_Textured;
+    StrongBufferPtr m_VertexBuffer_Position;
+    StrongVertexArrayPtr m_VertexArray_Position;
 
-    std::shared_ptr<Texture> m_Texture_Stonebricks;
+    StrongBufferPtr m_VertexBuffer_Textured;
+    StrongVertexArrayPtr m_VertexArray_Textured;
+
+    //GLuint m_VertexArray_Textured;
+    //GLuint m_VertexBuffer_Textured;
+
+    StrongTexturePtr m_Texture_Stonebricks;
 
     glm::mat4 m_View;
     glm::mat4 m_Projection;

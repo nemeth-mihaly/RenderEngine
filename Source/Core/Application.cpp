@@ -90,12 +90,6 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
-    glDeleteBuffers(1, &m_VertexBuffer_Textured);
-    glDeleteVertexArrays(1, &m_VertexArray_Textured);
-
-    glDeleteBuffers(1, &m_VertexArray_Color);
-    glDeleteVertexArrays(1, &m_VertexArray_Color);
-
     wglDeleteContext(m_hGLRenderContext);
     ReleaseDC(m_hWindow, m_hDeviceContext);
 
@@ -252,68 +246,55 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
-    // Color
+    // Vertex inputs
 
-    m_CubeVertices = GenerateCube_Position();
-    m_UVSphereVertices = GenerateUVSphere_Position(32, 16);
+    m_UVSphereVertices = GenerateUVSphere_Position(128, 64);
 
-    glCreateVertexArrays(1, &m_VertexArray_Color);
-
-    glCreateBuffers(1, &m_VertexBuffer_Color);
-
-    glNamedBufferData(
-        m_VertexBuffer_Color, 
-        sizeof(Vertex_Position) * m_CubeVertices.size(), 
-        m_CubeVertices.data(), 
+    m_VertexBuffer_Position.reset(new Buffer());
+    assert(m_VertexBuffer_Position);
+    m_VertexBuffer_Position->Create();
+    m_VertexBuffer_Position->SetData(
+        sizeof(Vertex_Position) * m_UVSphereVertices.size(), 
+        m_UVSphereVertices.data(), 
         GL_STATIC_DRAW
     );
 
-    glVertexArrayVertexBuffer(m_VertexArray_Color, 0, m_VertexBuffer_Color, 0, sizeof(Vertex_Position));
-
-    // Pos
-    glEnableVertexArrayAttrib(m_VertexArray_Color, 0);
-    glVertexArrayAttribFormat(m_VertexArray_Color, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
-    glVertexArrayAttribBinding(m_VertexArray_Color, 0, 0);
-
-    // Textured
+    m_VertexArray_Position.reset(new VertexArray());
+    assert(m_VertexArray_Position);
+    m_VertexArray_Position->Create();
+    m_VertexArray_Position->SetVertexBuffer(m_VertexBuffer_Position, sizeof(Vertex_Position));
+    m_VertexArray_Position->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
 
     m_TriangleVertices = GenerateTriangle_Textured();
     m_RectangleVertices = GenerateRectangle_Textured();
 
-    glCreateVertexArrays(1, &m_VertexArray_Textured);
-
-    glCreateBuffers(1, &m_VertexBuffer_Textured);
-    glNamedBufferData(
-        m_VertexBuffer_Textured, 
-        sizeof(Vertex_Textured) * (m_TriangleVertices.size() + m_RectangleVertices.size()), 
-        nullptr, 
+    m_VertexBuffer_Textured.reset(new Buffer());
+    assert(m_VertexBuffer_Textured);
+    m_VertexBuffer_Textured->Create();
+    m_VertexBuffer_Textured->SetData(
+        sizeof(Vertex_Textured) * (m_TriangleVertices.size() + m_RectangleVertices.size()),
+        nullptr,
         GL_STATIC_DRAW
     );
 
-    glNamedBufferSubData(
-        m_VertexBuffer_Textured, 
-        0, 
-        sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
+    m_VertexBuffer_Textured->SetSubData(
+        0,
+        sizeof(Vertex_Textured) * m_TriangleVertices.size(),
         m_TriangleVertices.data()
     );
-    glNamedBufferSubData(
-        m_VertexBuffer_Textured, 
+
+    m_VertexBuffer_Textured->SetSubData(
         sizeof(Vertex_Textured) * m_TriangleVertices.size(), 
         sizeof(Vertex_Textured) * m_RectangleVertices.size(), 
         m_RectangleVertices.data()
     );
 
-    glVertexArrayVertexBuffer(m_VertexArray_Textured, 0, m_VertexBuffer_Textured, 0, sizeof(Vertex_Textured));
-
-    // Pos
-    glEnableVertexArrayAttrib(m_VertexArray_Textured, 0);
-    glVertexArrayAttribFormat(m_VertexArray_Textured, 0, 3, GL_FLOAT, GL_FALSE, (0 * sizeof(GLfloat)));
-    glVertexArrayAttribBinding(m_VertexArray_Textured, 0, 0);
-
-    // Texcoord
-    glEnableVertexArrayAttrib(m_VertexArray_Textured, 1);
-    glVertexArrayAttribFormat(m_VertexArray_Textured, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
-    glVertexArrayAttribBinding(m_VertexArray_Textured, 1, 0);
+    m_VertexArray_Textured.reset(new VertexArray());
+    assert(m_VertexArray_Textured);
+    m_VertexArray_Textured->Create();
+    m_VertexArray_Textured->SetVertexBuffer(m_VertexBuffer_Textured, sizeof(Vertex_Textured));
+    m_VertexArray_Textured->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
+    m_VertexArray_Textured->SetVertexInputAttribute(1, 2, GL_FLOAT, 12);
 
     //  ShaderProgs
 
@@ -321,11 +302,13 @@ bool Application::Init()
     char* pFragShaderSource = _ReadFile("Assets\\Shaders\\Textured_frag.glsl");
 
     auto vertShader_Textured = std::make_shared<Shader>();
+    assert(vertShader_Textured);
     vertShader_Textured->Create(GL_VERTEX_SHADER);
     vertShader_Textured->SetSource(1, &pVertShaderSource, nullptr);
     vertShader_Textured->Compile();
 
     auto fragShader_Textured = std::make_shared<Shader>();
+    assert(fragShader_Textured);
     fragShader_Textured->Create(GL_FRAGMENT_SHADER);
     fragShader_Textured->SetSource(1, &pFragShaderSource, nullptr);
     fragShader_Textured->Compile();
@@ -497,8 +480,9 @@ void Application::MainLoop()
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        glBindVertexArray(m_VertexArray_Color);
-        glDrawArrays(GL_TRIANGLES, 0, m_CubeVertices.size());
+        //glBindVertexArray(m_VertexArray_Color);
+        m_VertexArray_Position->Bind();
+        glDrawArrays(GL_TRIANGLES, 0, m_UVSphereVertices.size());
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -513,7 +497,8 @@ void Application::MainLoop()
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        glBindVertexArray(m_VertexArray_Textured);
+        //glBindVertexArray(m_VertexArray_Textured);
+        m_VertexArray_Textured->Bind();
         glDrawArrays(GL_TRIANGLES, 0, m_TriangleVertices.size());
 
         // RectangleA
@@ -521,7 +506,7 @@ void Application::MainLoop()
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
-        glBindVertexArray(m_VertexArray_Textured);
+        //glBindVertexArray(m_VertexArray_Textured);
         glDrawArrays(GL_TRIANGLES, m_TriangleVertices.size(), m_RectangleVertices.size());
 
         wglSwapIntervalEXT(0);

@@ -27,3 +27,5 @@ class Texture
  private:
     GLuint m_TextureID;
 };
+
+typedef std::shared_ptr<Texture> StrongTexturePtr;

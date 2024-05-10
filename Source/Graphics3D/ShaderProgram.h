@@ -55,3 +55,5 @@ class ShaderProgram
  private:
     GLuint m_ProgramID;
 };
+
+typedef std::shared_ptr<ShaderProgram> StrongShaderProgPtr;
