@@ -7,15 +7,27 @@
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
-uint32_t triangleVertexCount;
-uint32_t triangleVertexDataByteOffset;
-uint32_t rectangleVertexCount;
-uint32_t rectangleVertexDataByteOffset;
+char* _ReadFile(const std::string& name)
+{
+    FILE* fp = fopen(name.c_str(), "rb");
+    assert(fp != nullptr);
 
+    fseek(fp, 0, SEEK_END);
+    size_t size = ftell(fp);
+    rewind(fp);
+
+    char* buf = new char[size + 1];
+    size_t bytesRead = fread(buf, sizeof(char), size, fp);
+    assert(bytesRead >= size);
+
+    buf[size] = '\0';
+    fclose(fp);
+
+    return buf;
+}
 
 // Window procedure wrapped in C++ class:
 //      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
-//      ˘˘˘
 
 LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -41,6 +53,10 @@ LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     return DefWindowProc(hWindow, uMsg, wParam, lParam);
 }
+
+////////////////////////////////////////////////////
+//  Application Implementation
+////////////////////////////////////////////////////
 
 Application::Application(HINSTANCE hInstance)
     : m_hInstance(hInstance)
@@ -299,27 +315,52 @@ bool Application::Init()
     glVertexArrayAttribFormat(m_VertexArray_Textured, 1, 2, GL_FLOAT, GL_FALSE, (3 * sizeof(GLfloat)));
     glVertexArrayAttribBinding(m_VertexArray_Textured, 1, 0);
 
-    m_Shader_Color.reset(new Shader(
-        "Color", 
-        "Assets\\Shaders\\Color_vert.glsl", 
-        "Assets\\Shaders\\Color_frag.glsl")
-    );
-    assert(m_Shader_Color);
-    m_Shader_Color->Init();
+    //  ShaderProgs
 
-    m_Shader_Textured.reset(new Shader(
-        "Textured", 
-        "Assets\\Shaders\\Textured_vert.glsl", 
-        "Assets\\Shaders\\Textured_frag.glsl")
-    );
-    assert(m_Shader_Textured);
-    m_Shader_Textured->Init();
+    char* pVertShaderSource = _ReadFile("Assets\\Shaders\\Textured_vert.glsl");
+    char* pFragShaderSource = _ReadFile("Assets\\Shaders\\Textured_frag.glsl");
+
+    auto vertShader_Textured = std::make_shared<Shader>();
+    vertShader_Textured->Create(GL_VERTEX_SHADER);
+    vertShader_Textured->SetSource(1, &pVertShaderSource, nullptr);
+    vertShader_Textured->Compile();
+
+    auto fragShader_Textured = std::make_shared<Shader>();
+    fragShader_Textured->Create(GL_FRAGMENT_SHADER);
+    fragShader_Textured->SetSource(1, &pFragShaderSource, nullptr);
+    fragShader_Textured->Compile();
+
+    m_ShaderProg_Textured.reset(new ShaderProgram());
+    assert(m_ShaderProg_Textured);
+    m_ShaderProg_Textured->Create();
+    m_ShaderProg_Textured->AttachShader(vertShader_Textured);
+    m_ShaderProg_Textured->AttachShader(fragShader_Textured);
+    m_ShaderProg_Textured->Link();
+
+    delete[] pFragShaderSource;
+    delete[] pVertShaderSource;
+
+    //  Textures
 
     stbi_set_flip_vertically_on_load(true);
 
-    m_StonebricksTexture.reset(new Texture("Stonebricks", "Assets\\Textures\\Stonebricks.png"));
-    assert(m_StonebricksTexture);
-    m_StonebricksTexture->Init();
+    int width, height, channelCount;
+    uint8_t* pPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &width, &height, &channelCount, 0);
+
+    m_Texture_Stonebricks.reset(new Texture());
+    assert(m_Texture_Stonebricks);
+
+    m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
+    
+    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
+    m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+
+    stbi_image_free(pPixels);
 
     m_bIsRunning = true;
     return true;
@@ -442,14 +483,14 @@ void Application::MainLoop()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_Shader_Color->Use();
+        m_ShaderProg_Textured->Use();
         glm::mat4 worldViewProjection = (m_Projection * m_View);
-        m_Shader_Color->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
+        m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
         // CubeA
         glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_CubeAPosition));
-        m_Shader_Color->UniformMatrix4f("u_World", world);
-
+        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
+        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
 
         if (m_bWireframeEnabled)
         {
@@ -461,24 +502,24 @@ void Application::MainLoop()
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        m_Shader_Textured->Use();
-        m_Shader_Textured->UniformMatrix4f("u_WorldViewProjection", worldViewProjection);
+        //m_ShaderProg_Textured->Use();
+        //m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
         // TriangleA
-        m_StonebricksTexture->Bind(0);
-        m_Shader_Textured->Uniform1ui("u_Texture", 0);
-        m_Shader_Textured->Uniform1b("u_bHasTexture", false);
+        m_Texture_Stonebricks->BindUnit(0);
+        m_ShaderProg_Textured->SetUniform1ui("u_Texture", 0);
+        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
 
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
-        m_Shader_Textured->UniformMatrix4f("u_World", world);
+        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
         glBindVertexArray(m_VertexArray_Textured);
         glDrawArrays(GL_TRIANGLES, 0, m_TriangleVertices.size());
 
         // RectangleA
-        m_Shader_Textured->Uniform1b("u_bHasTexture", true);
+        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true);
         world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
-        m_Shader_Textured->UniformMatrix4f("u_World", world);
+        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
         glBindVertexArray(m_VertexArray_Textured);
         glDrawArrays(GL_TRIANGLES, m_TriangleVertices.size(), m_RectangleVertices.size());

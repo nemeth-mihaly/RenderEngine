@@ -1,26 +1,20 @@
 #pragma once
 
-#ifndef UNICODE
-    #define UNICODE
-#endif 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "Common.h"
 
 #include <memory>
 #include <chrono>
 #include <string>
 #include <vector>
 
-#include "GLCommon.h"
+#include "Graphics3D/ShaderProgram.h"
+#include "Graphics3D/Texture.h"
 
-#include "stb/stb_image.h"
+extern char* _ReadFile(const std::string& name);
 
-#include "Shader.h"
-#include "Texture.h"
-
-// Win32 programming in C++:
-//      https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
-//      ˘˘˘
+////////////////////////////////////////////////////
+//  class Application
+////////////////////////////////////////////////////
 
 class Application
 {
@@ -47,8 +41,7 @@ class Application
 
     bool m_bIsRunning;
 
-    std::shared_ptr<Shader> m_Shader_Color;
-    std::shared_ptr<Shader> m_Shader_Textured;
+    std::shared_ptr<ShaderProgram> m_ShaderProg_Textured;
 
     std::vector<Vertex_Position> m_CubeVertices;
     std::vector<Vertex_Position> m_UVSphereVertices;
@@ -60,7 +53,7 @@ class Application
     GLuint m_VertexArray_Textured;
     GLuint m_VertexBuffer_Textured;
 
-    std::shared_ptr<Texture> m_StonebricksTexture;
+    std::shared_ptr<Texture> m_Texture_Stonebricks;
 
     glm::mat4 m_View;
     glm::mat4 m_Projection;

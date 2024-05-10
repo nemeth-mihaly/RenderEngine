@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
+#include "Common.h"
 
-#include "GLCommon.h"
+#include <vector>
 
 extern std::vector<Vertex_Position> GenerateTriangle_Position();
 extern std::vector<Vertex_Textured> GenerateTriangle_Textured();
