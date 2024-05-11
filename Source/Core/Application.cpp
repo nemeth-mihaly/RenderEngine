@@ -70,15 +70,7 @@ Application::Application(HINSTANCE hInstance)
 
     m_bIsRunning = false;
 
-    m_CubeAPosition = glm::vec3(-5.0f, 0.0f, 0.0f);
-    m_TriangleAPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_RectangleAPosition = glm::vec3(5.0f, 0.0f, 0.0f);
-
-    m_CameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_CameraForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
-
     m_bCameraMoving = false;
-
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 
@@ -380,13 +372,20 @@ bool Application::Init()
     stbi_image_free(pPixels);
 
     m_SceneNode1.reset(new SceneNode());
+    m_SceneNode1->VCreate();
     m_SceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
     
     m_SceneNode2.reset(new SceneNode());
+    m_SceneNode2->VCreate();
     m_SceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
     m_SceneNode3.reset(new SceneNode());
+    m_SceneNode3->VCreate();
     m_SceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
+
+    m_Camera.reset(new CameraNode());
+    m_Camera->VCreate();
+    m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
     m_bIsRunning = true;
     return true;
@@ -448,34 +447,40 @@ void Application::MainLoop()
         //{
             if (m_bKeyStates[0x57]) //  W key
             {
-                m_CameraPosition += m_CameraForwardDir * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x53]) // 	S key
             {
-                m_CameraPosition -= m_CameraForwardDir * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
 
-            const glm::vec3 rightDirection = glm::cross(m_CameraForwardDir, upDirection);
+            const glm::vec3 rightDirection = glm::cross(m_Camera->GetForwardDir(), upDirection);
 
             if (m_bKeyStates[0x41]) //  A key
             {
-                m_CameraPosition -= rightDirection * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x44]) //  D key
             {
-                m_CameraPosition += rightDirection * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
 
             if (m_bKeyStates[0x51]) //     Q key
             {
-                m_CameraPosition += upDirection * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x45])  //  E key
             {
-                m_CameraPosition -= upDirection * cameraSpeed * deltaTime;
+                glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
+                m_Camera->SetPosition(newPos);
             }
 
             /*
@@ -496,13 +501,10 @@ void Application::MainLoop()
                 newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
                 newForwardDirection.y = sin(glm::radians(m_Pitch));
                 newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-
-                m_CameraForwardDir = glm::normalize(newForwardDirection);
+                
+                m_Camera->SetForwardDir(glm::normalize(newForwardDirection));
             }
         //}
-
-        m_View = glm::lookAt(m_CameraPosition, (m_CameraPosition + m_CameraForwardDir), upDirection);
-        m_Projection = glm::perspective(glm::radians(45.0f), (m_ScreenWidth / static_cast<float>(m_ScreenHeight)), 0.001f, 1000.0f);
 
         glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
@@ -510,8 +512,7 @@ void Application::MainLoop()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_ShaderProg_Textured->Use();
-        glm::mat4 worldViewProjection = (m_Projection * m_View);
-        m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", worldViewProjection);
+        m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
 
         // CubeA
         glm::mat4 world = glm::translate(glm::mat4(1.0f), m_SceneNode1->GetPosition());

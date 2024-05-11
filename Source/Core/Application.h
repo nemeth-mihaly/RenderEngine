@@ -60,19 +60,11 @@ class Application
 
     StrongTexturePtr m_Texture_Stonebricks;
 
-    glm::mat4 m_View;
-    glm::mat4 m_Projection;
+    std::shared_ptr<SceneNode> m_SceneNode1;
+    std::shared_ptr<SceneNode> m_SceneNode2;
+    std::shared_ptr<SceneNode> m_SceneNode3;
 
-    glm::vec3 m_CubeAPosition;
-    glm::vec3 m_TriangleAPosition;
-    glm::vec3 m_RectangleAPosition;
-
-    StrongSceneNodePtr m_SceneNode1;
-    StrongSceneNodePtr m_SceneNode2;
-    StrongSceneNodePtr m_SceneNode3;
-
-    glm::vec3 m_CameraPosition;
-    glm::vec3 m_CameraForwardDir;
+    std::shared_ptr<CameraNode> m_Camera;
 
     bool m_bKeyStates[256];
     bool m_bCameraMoving;
