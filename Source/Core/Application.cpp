@@ -379,6 +379,15 @@ bool Application::Init()
 
     stbi_image_free(pPixels);
 
+    m_SceneNode1.reset(new SceneNode());
+    m_SceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
+    
+    m_SceneNode2.reset(new SceneNode());
+    m_SceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    m_SceneNode3.reset(new SceneNode());
+    m_SceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
+
     m_bIsRunning = true;
     return true;
 }
@@ -505,7 +514,7 @@ void Application::MainLoop()
         m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", worldViewProjection);
 
         // CubeA
-        glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(m_CubeAPosition));
+        glm::mat4 world = glm::translate(glm::mat4(1.0f), m_SceneNode1->GetPosition());
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
         m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
 
@@ -524,7 +533,7 @@ void Application::MainLoop()
         m_ShaderProg_Textured->SetUniform1ui("u_Texture", 0);
         m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
 
-        world = glm::translate(glm::mat4(1.0f), glm::vec3(m_TriangleAPosition));
+        world = glm::translate(glm::mat4(1.0f), m_SceneNode2->GetPosition());
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
         m_VertexArray_Multiple->Bind();
@@ -532,7 +541,7 @@ void Application::MainLoop()
 
         // RectangleA
         m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true);
-        world = glm::translate(glm::mat4(1.0f), glm::vec3(m_RectangleAPosition));
+        world = glm::translate(glm::mat4(1.0f), m_SceneNode3->GetPosition());
         m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
 
         glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);

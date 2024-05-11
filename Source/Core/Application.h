@@ -13,6 +13,7 @@
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Texture.h"
 #include "Graphics3D/Mesh.h"
+#include "Graphics3D/SceneNodes.h"
 
 extern char* _ReadFile(const std::string& name);
 
@@ -65,6 +66,10 @@ class Application
     glm::vec3 m_CubeAPosition;
     glm::vec3 m_TriangleAPosition;
     glm::vec3 m_RectangleAPosition;
+
+    StrongSceneNodePtr m_SceneNode1;
+    StrongSceneNodePtr m_SceneNode2;
+    StrongSceneNodePtr m_SceneNode3;
 
     glm::vec3 m_CameraPosition;
     glm::vec3 m_CameraForwardDir;
