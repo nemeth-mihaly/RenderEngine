@@ -60,10 +60,7 @@ class Application
 
     StrongTexturePtr m_Texture_Stonebricks;
 
-    std::shared_ptr<SceneNode> m_SceneNode1;
-    std::shared_ptr<SceneNode> m_SceneNode2;
-    std::shared_ptr<SceneNode> m_SceneNode3;
-
+    SceneNodeList m_SceneNodes; // A SceneNodeList for each render phase?
     std::shared_ptr<CameraNode> m_Camera;
 
     bool m_bKeyStates[256];

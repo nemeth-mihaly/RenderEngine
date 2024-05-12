@@ -371,21 +371,29 @@ bool Application::Init()
 
     stbi_image_free(pPixels);
 
-    m_SceneNode1.reset(new SceneNode());
-    m_SceneNode1->VCreate();
-    m_SceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
-    
-    m_SceneNode2.reset(new SceneNode());
-    m_SceneNode2->VCreate();
-    m_SceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    // --- Scene ------------------------------------------
 
-    m_SceneNode3.reset(new SceneNode());
-    m_SceneNode3->VCreate();
-    m_SceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
+    m_SceneNodes.reserve(32);
 
     m_Camera.reset(new CameraNode());
     m_Camera->VCreate();
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    m_SceneNodes.push_back(m_Camera);
+
+    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray, m_Mesh_Cube, nullptr));
+    sceneNode1->VCreate();
+    sceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
+
+    auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Rectangle, m_Texture_Stonebricks));
+    sceneNode2->VCreate();
+    sceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Triangle, m_Texture_Stonebricks));
+    sceneNode3->VCreate();
+    sceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
+
+    // ----------------------------------------------------
 
     m_bIsRunning = true;
     return true;
@@ -506,46 +514,19 @@ void Application::MainLoop()
             }
         //}
 
+        glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
-        glEnable(GL_DEPTH_TEST);
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_ShaderProg_Textured->Use();
         m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
 
-        // CubeA
-        glm::mat4 world = glm::translate(glm::mat4(1.0f), m_SceneNode1->GetPosition());
-        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
-        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
-
-        if (m_bWireframeEnabled)
+        for (const auto& node : m_SceneNodes) 
         {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            node->VRender(m_ShaderProg_Textured);
         }
-
-        m_VertexArray->Bind();
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        // TriangleA
-        m_Texture_Stonebricks->BindUnit(0);
-        m_ShaderProg_Textured->SetUniform1ui("u_Texture", 0);
-        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", false);
-
-        world = glm::translate(glm::mat4(1.0f), m_SceneNode2->GetPosition());
-        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
-
-        m_VertexArray_Multiple->Bind();
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Triangle->VertexBufferOffset, m_Mesh_Triangle->VertexCount);
-
-        // RectangleA
-        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true);
-        world = glm::translate(glm::mat4(1.0f), m_SceneNode3->GetPosition());
-        m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
-
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
         wglSwapIntervalEXT(0);
         wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
@@ -562,11 +543,11 @@ LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 PostQuitMessage(0);
             }
-            else
-            if (wParam == VK_F1)
-            {
-                m_bWireframeEnabled = !m_bWireframeEnabled;
-            }
+            //else
+            //if (wParam == VK_F1)
+            //{
+            //    m_bWireframeEnabled = !m_bWireframeEnabled;
+            //}
 
             m_bKeyStates[wParam] = true;
 
