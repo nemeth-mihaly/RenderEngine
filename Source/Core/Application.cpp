@@ -31,19 +31,6 @@ void LoadTexture(StrongTexturePtr& texture, const std::string& file)
     uint8_t* pPixels = stbi_load(file.c_str(), &width, &height, &channelCount, 0);
     assert(pPixels);
 
-    //m_Texture_Stonebricks.reset(new Texture());
-    //assert(m_Texture_Stonebricks);
-    //
-    //m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
-    //
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //
-    //m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
-    //m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
-
     texture.reset(new Texture());
     assert(texture);
     texture->Create(GL_TEXTURE_2D);
@@ -387,6 +374,7 @@ bool Application::Init()
  #endif
 
     //  ShaderProgs
+
     LoadShader(m_ShaderProg_Textured, "Assets\\Shaders\\Textured_vert.glsl", "Assets\\Shaders\\Textured_frag.glsl");
     LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
 
@@ -394,41 +382,20 @@ bool Application::Init()
 
     stbi_set_flip_vertically_on_load(true);
 
-    //int width, height, channelCount;
-    //uint8_t* pPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &width, &height, &channelCount, 0);
-    //assert(pPixels);
-
-    //m_Texture_Stonebricks.reset(new Texture());
-    //assert(m_Texture_Stonebricks);
-
-    //m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
-    
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    //m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
-    //m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
-
-    //stbi_image_free(pPixels);
-
     LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
 
     std::vector<std::string> skyTextureNames =
     {
-        "Assets\\Textures\\Sky_Right.png",
-        "Assets\\Textures\\Sky_Left.png",
-        "Assets\\Textures\\Sky_Top.png",
-        "Assets\\Textures\\Sky_Bottom.png",
-        "Assets\\Textures\\Sky_Front.png",
-        "Assets\\Textures\\Sky_Back.png",
+        "Assets\\Textures\\Sky_PX.png",
+        "Assets\\Textures\\Sky_NX.png",
+        "Assets\\Textures\\Sky_PY.png",
+        "Assets\\Textures\\Sky_NY.png",
+        "Assets\\Textures\\Sky_PZ.png",
+        "Assets\\Textures\\Sky_NZ.png",
     };
 
     stbi_set_flip_vertically_on_load(false);
 
- #define DSA_SKYBOX 1
- #if DSA_SKYBOX
     m_Texture_Sky.reset(new Texture());
     assert(m_Texture_Sky);
     m_Texture_Sky->Create(GL_TEXTURE_CUBE_MAP);
@@ -451,31 +418,6 @@ bool Application::Init()
     
         m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
     }
- #else
-    glGenTextures(1, &texture_Sky);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_Sky);
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    for (uint32_t i = 0; i < skyTextureNames.size(); i++)
-    {
-        int width, height, channelCount;
-        uint8_t* pPixels = stbi_load(skyTextureNames[i].c_str(), &width, &height, &channelCount, 0);
-        assert(pPixels);
-    
-        //m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
-        glTexImage2D(
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, InternalFormat(channelCount), 
-            width, height, 0, Format(channelCount), GL_UNSIGNED_BYTE, pPixels
-        );
-
-        stbi_image_free(pPixels);
-    }
- #endif
 
     // --- Scene ------------------------------------------
 
@@ -637,26 +579,16 @@ void Application::MainLoop()
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glDepthMask(GL_FALSE);
-
         m_ShaderProg_Sky->Use();
         m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
         m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
-
-     #if DSA_SKYBOX
         m_Texture_Sky->BindUnit(0);
-     #else
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texture_Sky);
-     #endif
         m_ShaderProg_Sky->SetUniform1i("u_Texture", 0);
-
         m_Mesh_Cube->m_VertexArray->Bind();
         glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
-
         glDepthMask(GL_TRUE);
 
         m_ShaderProg_Textured->Use();
