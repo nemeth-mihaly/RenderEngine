@@ -47,18 +47,20 @@ class Application
     bool m_bIsRunning;
 
     StrongShaderProgPtr m_ShaderProg_Textured;
+    StrongShaderProgPtr m_ShaderProg_Sky;
 
-    StrongMeshPtr m_Mesh_Triangle;
-    StrongMeshPtr m_Mesh_Rectangle;
+    //StrongMeshPtr m_Mesh_Triangle;
+    //StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
 
-    StrongBufferPtr m_VertexBuffer_Multiple;
-    StrongVertexArrayPtr m_VertexArray_Multiple;
+    //StrongBufferPtr m_VertexBuffer_Multiple;
+    //StrongVertexArrayPtr m_VertexArray_Multiple;
 
-    StrongBufferPtr m_VertexBuffer;
-    StrongVertexArrayPtr m_VertexArray;
+    //StrongBufferPtr m_VertexBuffer;
+    //StrongVertexArrayPtr m_VertexArray;
 
     StrongTexturePtr m_Texture_Stonebricks;
+    StrongTexturePtr m_Texture_Sky;
 
     SceneNodeList m_SceneNodes; // A SceneNodeList for each render phase?
     std::shared_ptr<CameraNode> m_Camera;

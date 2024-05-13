@@ -80,10 +80,18 @@ void Texture::SetStorage2D(GLsizei levels, GLenum internalformat, GLsizei width,
 
 void Texture::SetSubImage2D(
     GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, 
-    GLenum format, GLenum type, const void *pixels
+    GLenum format, GLenum type, const void *pPixels
 ) const
 {
-    glTextureSubImage2D(m_TextureID, level, xoffset, yoffset, width, height, format, type, pixels);
+    glTextureSubImage2D(m_TextureID, level, xoffset, yoffset, width, height, format, type, pPixels);
+}
+
+void Texture::SetSubImage3D(
+    GLint level, GLint xoffset, GLint yoffset, GLuint zoffset, GLsizei width, GLsizei height, 
+    GLsizei depth, GLenum format, GLenum type, const void *pPixels
+) const
+{
+    glTextureSubImage3D(m_TextureID, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pPixels);
 }
 
 void Texture::BindUnit(GLuint unit) const

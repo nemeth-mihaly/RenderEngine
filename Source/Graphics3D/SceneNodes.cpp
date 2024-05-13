@@ -20,9 +20,15 @@ void SceneNode::VUpdate(const float deltaTime)
 {
 }
 
+void SceneNode::VRender()
+{
+}
+
+#if 0
 void SceneNode::VRender(StrongShaderProgPtr& shader)
 {
 }
+#endif
 
 ////////////////////////////////////////////////////
 //  SceneNode Implementation
@@ -52,8 +58,15 @@ glm::mat4 CameraNode::WorldViewProjection()
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
+#if 0
 MeshNode::MeshNode(const StrongVertexArrayPtr& vertexArray, const StrongMeshPtr& mesh, const StrongTexturePtr& texture)
     : m_VertexArray(vertexArray), m_Mesh(mesh), m_Texture(texture)
+{
+}
+#endif
+
+MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader, const StrongTexturePtr& texture)
+    : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
 {
 }
 
@@ -65,6 +78,22 @@ void MeshNode::VCreate()
 {
 }
 
+void MeshNode::VRender()
+{
+    m_Shader->Use();
+    m_Shader->SetUniform1b("u_bHasTexture", true); 
+
+    m_Texture->BindUnit(0);
+    m_Shader->SetUniform1i("u_Texture", 0);
+
+    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    m_Shader->SetUniformMatrix4f("u_World", world);
+
+    m_Mesh->m_VertexArray->Bind();
+    glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);
+}
+
+#if 0
 void MeshNode::VRender(StrongShaderProgPtr& shader)
 {
     if (m_Texture)
@@ -84,3 +113,4 @@ void MeshNode::VRender(StrongShaderProgPtr& shader)
 
     glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);
 }
+#endif

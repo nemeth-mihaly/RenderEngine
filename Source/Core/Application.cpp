@@ -4,6 +4,8 @@
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
+GLuint texture_Sky = 0;
+
 char* _ReadFile(const std::string& name)
 {
     FILE* fp = fopen(name.c_str(), "rb");
@@ -21,6 +23,68 @@ char* _ReadFile(const std::string& name)
     fclose(fp);
 
     return buf;
+}
+
+void LoadTexture(StrongTexturePtr& texture, const std::string& file)
+{
+    int width, height, channelCount;
+    uint8_t* pPixels = stbi_load(file.c_str(), &width, &height, &channelCount, 0);
+    assert(pPixels);
+
+    //m_Texture_Stonebricks.reset(new Texture());
+    //assert(m_Texture_Stonebricks);
+    //
+    //m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
+    //
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //
+    //m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
+    //m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+
+    texture.reset(new Texture());
+    assert(texture);
+    texture->Create(GL_TEXTURE_2D);
+    
+    texture->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    texture->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    texture->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    texture->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    texture->SetStorage2D(1, InternalFormat(channelCount), width, height);
+    texture->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+
+    stbi_image_free(pPixels);
+}
+
+void LoadShader(StrongShaderProgPtr& shaderProg, const std::string& vsFile, const std::string& fsFile)
+{
+    char* pVertShaderSource = _ReadFile(vsFile);
+    char* pFragShaderSource = _ReadFile(fsFile);
+
+    auto vertShader = std::make_shared<Shader>();
+    assert(vertShader);
+    vertShader->Create(GL_VERTEX_SHADER);
+    vertShader->SetSource(1, &pVertShaderSource, nullptr);
+    vertShader->Compile();
+
+    auto fragShader = std::make_shared<Shader>();
+    assert(fragShader);
+    fragShader->Create(GL_FRAGMENT_SHADER);
+    fragShader->SetSource(1, &pFragShaderSource, nullptr);
+    fragShader->Compile();
+
+    shaderProg.reset(new ShaderProgram());
+    assert(shaderProg);
+    shaderProg->Create();
+    shaderProg->AttachShader(vertShader);
+    shaderProg->AttachShader(fragShader);
+    shaderProg->Link();
+
+    delete[] pFragShaderSource;
+    delete[] pVertShaderSource;
 }
 
 // Window procedure wrapped in C++ class:
@@ -236,7 +300,7 @@ bool Application::Init()
     SetFocus(m_hWindow);
 
     // Vertex inputs
-
+ #if 0
     std::vector<Vertex> triangleVertices = CreateTriangleVertices();
     std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
 
@@ -320,58 +384,111 @@ bool Application::Init()
     m_VertexArray->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
     m_VertexArray->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
     m_VertexArray->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
+ #endif
 
     //  ShaderProgs
-
-    char* pVertShaderSource = _ReadFile("Assets\\Shaders\\Textured_vert.glsl");
-    char* pFragShaderSource = _ReadFile("Assets\\Shaders\\Textured_frag.glsl");
-
-    auto vertShader_Textured = std::make_shared<Shader>();
-    assert(vertShader_Textured);
-    vertShader_Textured->Create(GL_VERTEX_SHADER);
-    vertShader_Textured->SetSource(1, &pVertShaderSource, nullptr);
-    vertShader_Textured->Compile();
-
-    auto fragShader_Textured = std::make_shared<Shader>();
-    assert(fragShader_Textured);
-    fragShader_Textured->Create(GL_FRAGMENT_SHADER);
-    fragShader_Textured->SetSource(1, &pFragShaderSource, nullptr);
-    fragShader_Textured->Compile();
-
-    m_ShaderProg_Textured.reset(new ShaderProgram());
-    assert(m_ShaderProg_Textured);
-    m_ShaderProg_Textured->Create();
-    m_ShaderProg_Textured->AttachShader(vertShader_Textured);
-    m_ShaderProg_Textured->AttachShader(fragShader_Textured);
-    m_ShaderProg_Textured->Link();
-
-    delete[] pFragShaderSource;
-    delete[] pVertShaderSource;
+    LoadShader(m_ShaderProg_Textured, "Assets\\Shaders\\Textured_vert.glsl", "Assets\\Shaders\\Textured_frag.glsl");
+    LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
 
     //  Textures
 
     stbi_set_flip_vertically_on_load(true);
 
-    int width, height, channelCount;
-    uint8_t* pPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &width, &height, &channelCount, 0);
-    assert(pPixels);
+    //int width, height, channelCount;
+    //uint8_t* pPixels = stbi_load("Assets\\Textures\\Stonebricks.png", &width, &height, &channelCount, 0);
+    //assert(pPixels);
 
-    m_Texture_Stonebricks.reset(new Texture());
-    assert(m_Texture_Stonebricks);
+    //m_Texture_Stonebricks.reset(new Texture());
+    //assert(m_Texture_Stonebricks);
 
-    m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
+    //m_Texture_Stonebricks->Create(GL_TEXTURE_2D);
     
-    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //m_Texture_Stonebricks->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
-    m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+    //m_Texture_Stonebricks->SetStorage2D(1, InternalFormat(channelCount), width, height);
+    //m_Texture_Stonebricks->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
 
-    stbi_image_free(pPixels);
+    //stbi_image_free(pPixels);
+
+    LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
+
+    std::vector<std::string> skyTextureNames =
+    {
+        "Assets\\Textures\\Sky_Right.png",
+        "Assets\\Textures\\Sky_Left.png",
+        "Assets\\Textures\\Sky_Top.png",
+        "Assets\\Textures\\Sky_Bottom.png",
+        "Assets\\Textures\\Sky_Front.png",
+        "Assets\\Textures\\Sky_Back.png",
+    };
+
+    stbi_set_flip_vertically_on_load(false);
+
+ #define DSA_SKYBOX 1
+ #if DSA_SKYBOX
+    m_Texture_Sky.reset(new Texture());
+    assert(m_Texture_Sky);
+    m_Texture_Sky->Create(GL_TEXTURE_CUBE_MAP);
+
+    m_Texture_Sky->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_Texture_Sky->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    int width, height, channelCount;
+    stbi_load(skyTextureNames[0].c_str(), &width, &height, &channelCount, 0);
+
+    m_Texture_Sky->SetStorage2D(1, InternalFormat(channelCount), width, height);
+
+    for (uint32_t i = 0; i < skyTextureNames.size(); ++i)
+    {
+        uint8_t* pPixels = stbi_load(skyTextureNames[i].c_str(), &width, &height, &channelCount, 0);
+        assert(pPixels);
+    
+        m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+    }
+ #else
+    glGenTextures(1, &texture_Sky);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_Sky);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    for (uint32_t i = 0; i < skyTextureNames.size(); i++)
+    {
+        int width, height, channelCount;
+        uint8_t* pPixels = stbi_load(skyTextureNames[i].c_str(), &width, &height, &channelCount, 0);
+        assert(pPixels);
+    
+        //m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, InternalFormat(channelCount), 
+            width, height, 0, Format(channelCount), GL_UNSIGNED_BYTE, pPixels
+        );
+
+        stbi_image_free(pPixels);
+    }
+ #endif
 
     // --- Scene ------------------------------------------
+
+    std::vector<Vertex> cubeVertices = CreateCubeVertices();
+
+    m_Mesh_Cube.reset(new Mesh());
+    assert(m_Mesh_Cube);
+    m_Mesh_Cube->VertexCount = cubeVertices.size();
+    m_Mesh_Cube->pVertices = cubeVertices.data();
+    m_Mesh_Cube->VertexBufferOffset = 0;
+    m_Mesh_Cube->Create();
+
+    cubeVertices.clear();
 
     m_SceneNodes.reserve(32);
 
@@ -381,15 +498,18 @@ bool Application::Init()
 
     m_SceneNodes.push_back(m_Camera);
 
-    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray, m_Mesh_Cube, nullptr));
+    //auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray, m_Mesh_Cube, nullptr));
+    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode1->VCreate();
     sceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
 
-    auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Rectangle, m_Texture_Stonebricks));
+    //auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Rectangle, m_Texture_Stonebricks));
+    auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode2->VCreate();
     sceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
-    auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Triangle, m_Texture_Stonebricks));
+    //auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Triangle, m_Texture_Stonebricks));
+    auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode3->VCreate();
     sceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
 
@@ -448,7 +568,7 @@ void Application::MainLoop()
 
         const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.1f;
+        glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.2f;
         m_PrevMousePos = m_CurrentMousePos;
 
         //if (m_bCameraMoving)
@@ -520,12 +640,35 @@ void Application::MainLoop()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glDepthMask(GL_FALSE);
+
+        m_ShaderProg_Sky->Use();
+        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
+        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
+
+     #if DSA_SKYBOX
+        m_Texture_Sky->BindUnit(0);
+     #else
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture_Sky);
+     #endif
+        m_ShaderProg_Sky->SetUniform1i("u_Texture", 0);
+
+        m_Mesh_Cube->m_VertexArray->Bind();
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
+
+        glDepthMask(GL_TRUE);
+
         m_ShaderProg_Textured->Use();
         m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
 
         for (const auto& node : m_SceneNodes) 
         {
+         #if 0
             node->VRender(m_ShaderProg_Textured);
+         #endif
+
+            node->VRender();
         }
 
         wglSwapIntervalEXT(0);

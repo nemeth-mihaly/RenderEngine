@@ -20,7 +20,11 @@ class Texture
     void SetStorage2D(GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) const;
     void SetSubImage2D(
         GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, 
-        GLenum format, GLenum type, const void *pixels
+        GLenum format, GLenum type, const void *pPixels
+    ) const;
+    void SetSubImage3D(
+        GLint level, GLint xoffset, GLint yoffset, GLuint zoffset, GLsizei width, GLsizei height, 
+        GLsizei depth, GLenum format, GLenum type, const void *pPixels
     ) const;
     void BindUnit(GLuint unit) const;
 
