@@ -4,8 +4,6 @@
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
-GLuint texture_Sky = 0;
-
 char* _ReadFile(const std::string& name)
 {
     FILE* fp = fopen(name.c_str(), "rb");
@@ -156,7 +154,7 @@ bool Application::Init()
     m_hWindow = CreateWindowEx(
         0,
         ClassName,
-        TEXT("TestApp"),
+        TEXT("Render Engine | Testbed"),
         WS_OVERLAPPEDWINDOW,
     
         CW_USEDEFAULT, CW_USEDEFAULT, 
@@ -383,6 +381,7 @@ bool Application::Init()
     stbi_set_flip_vertically_on_load(true);
 
     LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
+    LoadTexture(m_Texture_Grass, "Assets\\Textures\\Grass.png");
 
     std::vector<std::string> skyTextureNames =
     {
@@ -421,15 +420,22 @@ bool Application::Init()
 
     // --- Scene ------------------------------------------
 
-    std::vector<Vertex> cubeVertices = CreateCubeVertices();
+    std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
+    m_Mesh_Rectangle.reset(new Mesh());
+    assert(m_Mesh_Rectangle);
+    m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
+    m_Mesh_Rectangle->pVertices = rectangleVertices.data();
+    m_Mesh_Rectangle->VertexBufferOffset = 0;
+    m_Mesh_Rectangle->Create();
+    rectangleVertices.clear();
 
+    std::vector<Vertex> cubeVertices = CreateCubeVertices();
     m_Mesh_Cube.reset(new Mesh());
     assert(m_Mesh_Cube);
     m_Mesh_Cube->VertexCount = cubeVertices.size();
     m_Mesh_Cube->pVertices = cubeVertices.data();
     m_Mesh_Cube->VertexBufferOffset = 0;
     m_Mesh_Cube->Create();
-
     cubeVertices.clear();
 
     m_SceneNodes.reserve(32);
@@ -443,17 +449,17 @@ bool Application::Init()
     //auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray, m_Mesh_Cube, nullptr));
     auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode1->VCreate();
-    sceneNode1->SetPosition(glm::vec3(-2.5f, 0.0f, 0.0f));
+    sceneNode1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
 
     //auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Rectangle, m_Texture_Stonebricks));
     auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode2->VCreate();
-    sceneNode2->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    sceneNode2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
 
     //auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Triangle, m_Texture_Stonebricks));
     auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
     sceneNode3->VCreate();
-    sceneNode3->SetPosition(glm::vec3(2.5f, 0.0f, 0.0f));
+    sceneNode3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
 
     // ----------------------------------------------------
 
@@ -581,15 +587,7 @@ void Application::MainLoop()
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDepthMask(GL_FALSE);
-        m_ShaderProg_Sky->Use();
-        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
-        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
-        m_Texture_Sky->BindUnit(0);
-        m_ShaderProg_Sky->SetUniform1i("u_Texture", 0);
-        m_Mesh_Cube->m_VertexArray->Bind();
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
-        glDepthMask(GL_TRUE);
+        // Geometry phase
 
         m_ShaderProg_Textured->Use();
         m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
@@ -602,6 +600,46 @@ void Application::MainLoop()
 
             node->VRender();
         }
+
+        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true); 
+        m_Texture_Grass->BindUnit(0);
+        m_ShaderProg_Textured->SetUniform1i("u_Texture", 0);
+        m_Mesh_Rectangle->m_VertexArray->Bind();
+
+        std::vector<glm::vec3> grassPositions =
+        {
+            glm::vec3(-1.5f, 0.0f, -0.48f),
+            glm::vec3( 1.5f, 0.0f, 0.51f),
+            glm::vec3( 0.0f, 0.0f, 0.7f),
+            glm::vec3(-0.3f, 0.0f, -2.3f),
+            glm::vec3 (0.5f, 0.0f, -0.6f)
+        };
+
+        for (uint32_t i = 0; i < grassPositions.size(); ++i)
+        {
+            glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]);
+            m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
+            glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
+
+            world = glm::translate(glm::mat4(1.0f), grassPositions[i]) 
+            * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
+            glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
+        }       
+
+        // Sky phase
+
+        glDepthFunc(GL_LEQUAL);
+        m_ShaderProg_Sky->Use();
+        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
+        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
+        m_Texture_Sky->BindUnit(0);
+        m_ShaderProg_Sky->SetUniform1i("u_Texture", 0);
+        m_Mesh_Cube->m_VertexArray->Bind();
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
+        glDepthFunc(GL_LESS);
+
+        // Transparent/Alpha phase
 
         wglSwapIntervalEXT(0);
         wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);

@@ -11,6 +11,7 @@ out vec3 v_Uv;
 
 void main()
 {
-    gl_Position = u_WorldProjection * u_WorldView * vec4(a_Pos, 1.0);
+    vec4 pos = u_WorldProjection * u_WorldView * vec4(a_Pos, 1.0);
+    gl_Position = pos.xyww;
     v_Uv = a_Pos;
 }

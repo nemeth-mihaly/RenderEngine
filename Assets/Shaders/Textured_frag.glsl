@@ -10,11 +10,18 @@ void main()
 {
     if (u_bHasTexture == 1)
     {
+        vec4 color = texture(u_Texture, v_Uv);
+        
+        if (color.a < 0.1)
+        {
+            discard;
+        }
+
         v_FragmentColor = texture(u_Texture, v_Uv);
     }
     else
     {
-        vec3 purple = vec3(1.0, 0.0, 1.0);
-        v_FragmentColor = vec4(purple, 1.0);
+        vec3 color = vec3(1.0, 0.0, 1.0); // Purple
+        v_FragmentColor = vec4(color, 1.0);
     }
 }

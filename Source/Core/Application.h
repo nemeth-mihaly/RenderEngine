@@ -50,7 +50,7 @@ class Application
     StrongShaderProgPtr m_ShaderProg_Sky;
 
     //StrongMeshPtr m_Mesh_Triangle;
-    //StrongMeshPtr m_Mesh_Rectangle;
+    StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
 
     //StrongBufferPtr m_VertexBuffer_Multiple;
@@ -60,6 +60,7 @@ class Application
     //StrongVertexArrayPtr m_VertexArray;
 
     StrongTexturePtr m_Texture_Stonebricks;
+    StrongTexturePtr m_Texture_Grass;
     StrongTexturePtr m_Texture_Sky;
 
     SceneNodeList m_SceneNodes; // A SceneNodeList for each render phase?
