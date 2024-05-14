@@ -10,6 +10,19 @@
 #include "Graphics3D/Texture.h"
 
 ////////////////////////////////////////////////////
+//  struct Material
+////////////////////////////////////////////////////
+
+struct Material
+{
+    glm::vec3 Diffuse;
+    glm::vec3 Ambient;
+    glm::vec3 Specular;
+    glm::vec3 Emissive;
+    float Power;
+};
+
+////////////////////////////////////////////////////
 //  class SceneNode
 ////////////////////////////////////////////////////
 
@@ -31,8 +44,17 @@ class SceneNode
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     const glm::vec3& GetPosition() const { return m_Pos; }
 
+    void SetScale(const glm::vec3& scale) { m_Scale = scale; }
+    const glm::vec3& GetScale() const { return m_Scale; }
+
+    void SetColor(const glm::vec3& color) { m_Color = color; }
+    const glm::vec3& GetColor() const { return m_Color; }
+
  protected:
     glm::vec3 m_Pos;
+    glm::vec3 m_Scale;
+    glm::vec3 m_Color;
+    Material m_Material;
 };
 
 typedef std::vector<std::shared_ptr<SceneNode>> SceneNodeList;
@@ -98,3 +120,26 @@ class MeshNode : public SceneNode
     StrongTexturePtr m_Texture;
  #endif
 };
+
+////////////////////////////////////////////////////
+//  class LightNode
+////////////////////////////////////////////////////
+
+class LightNode : public SceneNode
+{
+ public: 
+    LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader);
+    virtual ~LightNode();
+
+    virtual void VCreate();
+
+    virtual void VUpdate(const float deltaTime);
+ 
+    virtual void VRender();
+
+ protected:
+    StrongMeshPtr m_Mesh;
+    StrongShaderProgPtr m_Shader;
+};
+
+typedef std::vector<std::shared_ptr<LightNode>> LightSceneNodeList;

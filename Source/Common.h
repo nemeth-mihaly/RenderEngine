@@ -21,5 +21,3 @@
 #include <3rdParty/glm/gtc/type_ptr.hpp>
 
 #include <3rdParty/stb/stb_image.h>
-
-constexpr GLuint InvalidGpuID = 0xffffffff;

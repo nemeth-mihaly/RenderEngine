@@ -47,6 +47,7 @@ class ShaderProgram
     
     void SetUniform1i(const std::string& name, int value) const;
     void SetUniform1ui(const std::string& name, uint32_t value) const;
+    void SetUniform3f(const std::string& name, const glm::vec3& value) const;
     void SetUniformMatrix4f(const std::string& name, const glm::mat4& value) const;
 
  private:

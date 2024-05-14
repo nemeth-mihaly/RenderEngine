@@ -6,6 +6,8 @@
 
 SceneNode::SceneNode()
 {
+    m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 SceneNode::~SceneNode()
@@ -81,12 +83,16 @@ void MeshNode::VCreate()
 void MeshNode::VRender()
 {
     m_Shader->Use();
-    m_Shader->SetUniform1b("u_bHasTexture", true); 
+    //m_Shader->SetUniform1b("u_bHasTexture", false); 
 
-    m_Texture->BindUnit(0);
-    m_Shader->SetUniform1i("u_Texture", 0);
+    //m_Texture->BindUnit(0);
+    //m_Shader->SetUniform1i("u_Texture", 0);
+
+    m_Shader->SetUniform3f("u_Color", m_Color);
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    world *= glm::scale(glm::mat4(1.0f), m_Scale);
+
     m_Shader->SetUniformMatrix4f("u_World", world);
 
     m_Mesh->m_VertexArray->Bind();
@@ -114,3 +120,38 @@ void MeshNode::VRender(StrongShaderProgPtr& shader)
     glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);
 }
 #endif
+
+////////////////////////////////////////////////////
+//  MeshNode Implementation
+////////////////////////////////////////////////////
+
+LightNode::LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader)
+    : m_Mesh(mesh), m_Shader(shader)
+{
+}
+
+LightNode::~LightNode()
+{
+}
+
+void LightNode::VCreate()
+{
+}
+
+void LightNode::VUpdate(const float deltaTime)
+{
+}
+
+void LightNode::VRender()
+{
+    m_Shader->Use();
+    m_Shader->SetUniform3f("u_Color", m_Color);
+
+    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    world *= glm::scale(glm::mat4(1.0f), m_Scale);
+
+    m_Shader->SetUniformMatrix4f("u_World", world);
+
+    m_Mesh->m_VertexArray->Bind();
+    glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);   
+}

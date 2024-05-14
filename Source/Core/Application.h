@@ -47,6 +47,8 @@ class Application
     bool m_bIsRunning;
 
     StrongShaderProgPtr m_ShaderProg_Textured;
+    StrongShaderProgPtr m_ShaderProg_Phong;
+    StrongShaderProgPtr m_ShaderProg_LightsDbg;
     StrongShaderProgPtr m_ShaderProg_Sky;
 
     //StrongMeshPtr m_Mesh_Triangle;
@@ -64,7 +66,9 @@ class Application
     StrongTexturePtr m_Texture_Sky;
 
     SceneNodeList m_SceneNodes; // A SceneNodeList for each render phase?
+    LightSceneNodeList m_LightNodes;
     std::shared_ptr<CameraNode> m_Camera;
+    std::shared_ptr<LightNode> m_LightNode;
 
     bool m_bKeyStates[256];
     bool m_bCameraMoving;

@@ -285,95 +285,12 @@ bool Application::Init()
     SetFocus(m_hWindow);
 
     // Vertex inputs
- #if 0
-    std::vector<Vertex> triangleVertices = CreateTriangleVertices();
-    std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
-
-    uint32_t vertexBufferSize_Textured = 0;
-
-    m_Mesh_Triangle.reset(new Mesh());
-    assert(m_Mesh_Triangle);
-    m_Mesh_Triangle->VertexCount = triangleVertices.size();
-    m_Mesh_Triangle->pVertices = triangleVertices.data();
-    m_Mesh_Triangle->VertexBufferOffset = vertexBufferSize_Textured;
-
-    vertexBufferSize_Textured += m_Mesh_Triangle->VertexCount;
-
-    m_Mesh_Rectangle.reset(new Mesh());
-    assert(m_Mesh_Rectangle);
-    m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
-    m_Mesh_Rectangle->pVertices = rectangleVertices.data();
-    m_Mesh_Rectangle->VertexBufferOffset = vertexBufferSize_Textured;
-
-    vertexBufferSize_Textured += m_Mesh_Rectangle->VertexCount;
-
-    m_VertexBuffer_Multiple.reset(new Buffer());
-    assert(m_VertexBuffer_Multiple);
-    m_VertexBuffer_Multiple->Create();
-    m_VertexBuffer_Multiple->SetData(
-        sizeof(Vertex) * vertexBufferSize_Textured,
-        nullptr,
-        GL_STATIC_DRAW
-    );
-
-    m_VertexBuffer_Multiple->SetSubData(
-        sizeof(Vertex) * m_Mesh_Triangle->VertexBufferOffset,
-        sizeof(Vertex) * m_Mesh_Triangle->VertexCount,
-        m_Mesh_Triangle->pVertices
-    );
-
-    m_VertexBuffer_Multiple->SetSubData(
-        sizeof(Vertex) * m_Mesh_Rectangle->VertexBufferOffset, 
-        sizeof(Vertex) * m_Mesh_Rectangle->VertexCount, 
-        m_Mesh_Rectangle->pVertices
-    );
-
-    triangleVertices.clear();
-    rectangleVertices.clear();
-
-    m_VertexArray_Multiple.reset(new VertexArray());
-    assert(m_VertexArray_Multiple);
-    m_VertexArray_Multiple->Create();
-    m_VertexArray_Multiple->SetVertexBuffer(m_VertexBuffer_Multiple, sizeof(Vertex));
-    m_VertexArray_Multiple->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray_Multiple->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
-    m_VertexArray_Multiple->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
-
-    std::vector<Vertex> cubeVertices = CreateCubeVertices();
-
-    uint32_t vertexBufferSize_Position = 0;
-
-    m_Mesh_Cube.reset(new Mesh());
-    assert(m_Mesh_Cube);
-    m_Mesh_Cube->VertexCount = cubeVertices.size();
-    m_Mesh_Cube->pVertices = cubeVertices.data();
-    m_Mesh_Cube->VertexBufferOffset = vertexBufferSize_Position;
-
-    vertexBufferSize_Position += m_Mesh_Cube->VertexCount;
-
-    m_VertexBuffer.reset(new Buffer());
-    assert(m_VertexBuffer);
-    m_VertexBuffer->Create();
-    m_VertexBuffer->SetData(
-        sizeof(Vertex) * vertexBufferSize_Position, 
-        m_Mesh_Cube->pVertices, 
-        GL_STATIC_DRAW
-    );
-
-    cubeVertices.clear();
-
-    m_VertexArray.reset(new VertexArray());
-    assert(m_VertexArray);
-    m_VertexArray->Create();
-    m_VertexArray->SetVertexBuffer(m_VertexBuffer, sizeof(Vertex));
-    m_VertexArray->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
-    m_VertexArray->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
- #endif
 
     //  ShaderProgs
 
     LoadShader(m_ShaderProg_Textured, "Assets\\Shaders\\Textured_vert.glsl", "Assets\\Shaders\\Textured_frag.glsl");
+    LoadShader(m_ShaderProg_Phong, "Assets\\Shaders\\Phong_vert.glsl", "Assets\\Shaders\\Phong_frag.glsl");
+    LoadShader(m_ShaderProg_LightsDbg, "Assets\\Shaders\\Lights_dbg_vert.glsl", "Assets\\Shaders\\Lights_dbg_frag.glsl");
     LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
 
     //  Textures
@@ -446,24 +363,27 @@ bool Application::Init()
 
     m_SceneNodes.push_back(m_Camera);
 
-    //auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray, m_Mesh_Cube, nullptr));
-    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
+    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
     sceneNode1->VCreate();
-    sceneNode1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
+    sceneNode1->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    sceneNode1->SetColor(glm::vec3(1.0f, 0.5f, 0.31f));
 
-    //auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Rectangle, m_Texture_Stonebricks));
-    auto sceneNode2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
-    sceneNode2->VCreate();
-    sceneNode2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
+    m_LightNode.reset(new LightNode(m_Mesh_Cube, m_ShaderProg_LightsDbg));
+    m_LightNodes.push_back(m_LightNode);
+    m_SceneNodes.push_back(m_LightNode);
+    m_LightNode->VCreate();
+    m_LightNode->SetPosition(glm::vec3(1.2f, 1.0f, 2.0f));
+    m_LightNode->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
+    m_LightNode->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
 
-    //auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_VertexArray_Multiple, m_Mesh_Triangle, m_Texture_Stonebricks));
-    auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
-    sceneNode3->VCreate();
-    sceneNode3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
+    //auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
+    //sceneNode3->VCreate();
+    //sceneNode3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
 
     // ----------------------------------------------------
 
     m_bIsRunning = true;
+
     return true;
 }
 
@@ -575,12 +495,17 @@ void Application::MainLoop()
 
                 glm::vec3 newForwardDirection;
                 newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                newForwardDirection.y = sin(glm::radians(m_Pitch));
+                newForwardDirection.y = sinf(glm::radians(m_Pitch));
                 newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
                 
                 m_Camera->SetForwardDir(glm::normalize(newForwardDirection));
             }
         //}
+
+        for (const auto& node : m_SceneNodes)
+        {
+            node->VUpdate(deltaTime);
+        }
 
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
@@ -589,8 +514,14 @@ void Application::MainLoop()
 
         // Geometry phase
 
-        m_ShaderProg_Textured->Use();
-        m_ShaderProg_Textured->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+        m_ShaderProg_Phong->Use();
+        m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+        m_ShaderProg_Phong->SetUniform3f("u_LightColor", m_LightNode->GetColor());
+        m_ShaderProg_Phong->SetUniform3f("u_LightPos", m_LightNode->GetPosition());
+        m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+
+        m_ShaderProg_LightsDbg->Use();
+        m_ShaderProg_LightsDbg->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
 
         for (const auto& node : m_SceneNodes) 
         {
@@ -601,6 +532,7 @@ void Application::MainLoop()
             node->VRender();
         }
 
+     #if 0
         m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true); 
         m_Texture_Grass->BindUnit(0);
         m_ShaderProg_Textured->SetUniform1i("u_Texture", 0);
@@ -612,7 +544,7 @@ void Application::MainLoop()
             glm::vec3( 1.5f, 0.0f, 0.51f),
             glm::vec3( 0.0f, 0.0f, 0.7f),
             glm::vec3(-0.3f, 0.0f, -2.3f),
-            glm::vec3 (0.5f, 0.0f, -0.6f)
+            glm::vec3(0.5f, 0.0f, -0.6f)
         };
 
         for (uint32_t i = 0; i < grassPositions.size(); ++i)
@@ -626,6 +558,7 @@ void Application::MainLoop()
             m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
         }       
+     #endif
 
         // Sky phase
 
@@ -656,11 +589,6 @@ LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 PostQuitMessage(0);
             }
-            //else
-            //if (wParam == VK_F1)
-            //{
-            //    m_bWireframeEnabled = !m_bWireframeEnabled;
-            //}
 
             m_bKeyStates[wParam] = true;
 
