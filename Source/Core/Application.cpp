@@ -366,19 +366,19 @@ bool Application::Init()
     auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
     sceneNode1->VCreate();
     sceneNode1->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    sceneNode1->SetColor(glm::vec3(1.0f, 0.5f, 0.31f));
+    //sceneNode1->SetColor(glm::vec3(1.0f, 0.5f, 0.31f));
+
+    // LightNode
+
+    glm::vec3 lightPos = glm::vec3(1.2f, 1.5f, 2.0f);
 
     m_LightNode.reset(new LightNode(m_Mesh_Cube, m_ShaderProg_LightsDbg));
     m_LightNodes.push_back(m_LightNode);
     m_SceneNodes.push_back(m_LightNode);
     m_LightNode->VCreate();
-    m_LightNode->SetPosition(glm::vec3(1.2f, 1.0f, 2.0f));
-    m_LightNode->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
-    m_LightNode->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
-
-    //auto sceneNode3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Textured, m_Texture_Stonebricks));
-    //sceneNode3->VCreate();
-    //sceneNode3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
+    
+    m_LightNode->SetPosition(lightPos);
+    //m_LightNode->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
 
     // ----------------------------------------------------
 
@@ -517,8 +517,12 @@ void Application::MainLoop()
         m_ShaderProg_Phong->Use();
         m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
         m_ShaderProg_Phong->SetUniform3f("u_LightColor", m_LightNode->GetColor());
-        m_ShaderProg_Phong->SetUniform3f("u_LightPos", m_LightNode->GetPosition());
         m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
 
         m_ShaderProg_LightsDbg->Use();
         m_ShaderProg_LightsDbg->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());

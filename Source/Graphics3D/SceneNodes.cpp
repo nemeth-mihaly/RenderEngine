@@ -8,6 +8,14 @@ SceneNode::SceneNode()
 {
     m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
     m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    m_Color = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    m_Material.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Material.Diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Material.Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Material.Power = 0.0f;
 }
 
 SceneNode::~SceneNode()
@@ -78,6 +86,11 @@ MeshNode::~MeshNode()
 
 void MeshNode::VCreate()
 {
+    m_Material.Ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+    m_Material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+    m_Material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+    m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_Material.Power = 32.0f;
 }
 
 void MeshNode::VRender()
@@ -89,6 +102,12 @@ void MeshNode::VRender()
     //m_Shader->SetUniform1i("u_Texture", 0);
 
     m_Shader->SetUniform3f("u_Color", m_Color);
+
+    m_Shader->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
+    m_Shader->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
+    m_Shader->SetUniform3f("u_Material.Specular", m_Material.Specular);
+    m_Shader->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
+    m_Shader->SetUniform1f("u_Material.Power", m_Material.Power);
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
     world *= glm::scale(glm::mat4(1.0f), m_Scale);
@@ -136,6 +155,15 @@ LightNode::~LightNode()
 
 void LightNode::VCreate()
 {
+    m_Color = glm::vec3(1.0f, 1.0f, 1.0f); 
+
+    m_Scale = glm::vec3(0.1f, 0.1f, 0.1f);
+
+    m_Material.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+    m_Material.Diffuse = m_Color;
+    m_Material.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    //m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
+    //m_Material.Power = 0.0f;
 }
 
 void LightNode::VUpdate(const float deltaTime)
@@ -146,6 +174,12 @@ void LightNode::VRender()
 {
     m_Shader->Use();
     m_Shader->SetUniform3f("u_Color", m_Color);
+
+    m_Shader->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
+    m_Shader->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
+    m_Shader->SetUniform3f("u_Material.Specular", m_Material.Specular);
+    m_Shader->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
+    m_Shader->SetUniform1f("u_Material.Power", m_Material.Power);
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
     world *= glm::scale(glm::mat4(1.0f), m_Scale);
