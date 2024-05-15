@@ -41,6 +41,10 @@ class ShaderProgram
     void Link() const;
     void Use() const;
 
+    // TODO: Perform type checks in the uniform setter functions.
+    // Why though? Because for some reason, neither the c++ compiler nor the glsl compiler notifies 
+    // if you pass the wrong type as parameter, resulting in bugs.
+
     // NOTE: The Uniform1b should be interpreted as an integer 
     // in the shader source because GLSL lacks a boolean type.
     void SetUniform1b(const std::string& name, bool value) const;

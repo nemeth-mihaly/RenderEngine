@@ -354,12 +354,21 @@ bool Application::Init()
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_Camera);
 
+    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    floorNode->VCreate();
+    floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
+    floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
+    floorNode->GetMaterial().Diffuse = glm::vec3(0.22f, 0.28f, 0.13f);
+    floorNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    floorNode->GetMaterial().bUseTexture = false;
+
     auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
     node1->VCreate();
     node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
     node1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
     node1->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node1->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    node1->GetMaterial().bUseTexture = true;
 
     auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
     node2->VCreate();
@@ -367,6 +376,7 @@ bool Application::Init()
     node2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
     node2->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node2->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    node2->GetMaterial().bUseTexture = true;
 
     auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
     node3->VCreate();
@@ -374,11 +384,12 @@ bool Application::Init()
     node3->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
     node3->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    node3->GetMaterial().bUseTexture = true;
 
     // LightNode
     m_LightNode.reset(new LightNode(m_Mesh_Cube, m_ShaderProg_LightsDbg));
     m_LightNode->VCreate();
-    m_LightNode->SetPosition(glm::vec3(-1.4f, 1.5f, 1.0f));
+    m_LightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
     m_LightNode->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
     m_LightNode->GetMaterial().Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     m_LightNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -405,6 +416,8 @@ void Application::MainLoop()
 
     std::chrono::_V2::system_clock::time_point previous;
     previous = std::chrono::high_resolution_clock::now();
+
+    glm::vec3 lightDir = glm::vec3(0.0f, -1.0f, 0.0);
 
     while (m_bIsRunning)
     {
@@ -524,9 +537,11 @@ void Application::MainLoop()
         m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Dir", lightDir);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
+        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Falloff", glm::cos(glm::radians(30.5f)));
 
         m_ShaderProg_LightsDbg->Use();
         m_ShaderProg_LightsDbg->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
@@ -546,9 +561,13 @@ void Application::MainLoop()
         m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Dir", lightDir);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
+        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation0", 1.0f);
+        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation1", 0.09f);
+        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation2", 0.032f);
 
         m_ShaderProg_Phong->SetUniform1b("u_bUseTexture", true); 
         m_Texture_Grass->BindUnit(0);
@@ -560,6 +579,7 @@ void Application::MainLoop()
         m_ShaderProg_Phong->SetUniform3f("u_Material.Specular", glm::vec3(0.0f, 0.0f, 0.0f));
         m_ShaderProg_Phong->SetUniform3f("u_Material.Emissive", glm::vec3(0.0f, 0.0f, 0.0f));
         m_ShaderProg_Phong->SetUniform1f("u_Material.Power", 32.0f);
+        m_ShaderProg_Phong->SetUniform1i("u_Material.bUseTexture", true);
 
         std::vector<glm::vec3> grassPositions =
         {

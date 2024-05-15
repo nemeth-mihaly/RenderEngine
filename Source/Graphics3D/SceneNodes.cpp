@@ -9,11 +9,12 @@ SceneNode::SceneNode()
     m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
     m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    m_Material.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+    m_Material.Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
     m_Material.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     m_Material.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
     m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
     m_Material.Power = 16.00f; // NOTE: Should never be 0!!
+    m_Material.bUseTexture = false;
 }
 
 SceneNode::~SceneNode()
@@ -89,16 +90,19 @@ void MeshNode::VCreate()
 void MeshNode::VRender()
 {
     m_Shader->Use();
-    m_Shader->SetUniform1b("u_bUseTexture", true); 
-
-    m_Texture->BindUnit(0);
-    m_Shader->SetUniform1i("u_Texture", 0);
 
     m_Shader->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
     m_Shader->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
     m_Shader->SetUniform3f("u_Material.Specular", m_Material.Specular);
     m_Shader->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
     m_Shader->SetUniform1f("u_Material.Power", m_Material.Power);
+    m_Shader->SetUniform1i("u_Material.bUseTexture", m_Material.bUseTexture);
+
+    if (m_Material.bUseTexture)
+    {
+        m_Texture->BindUnit(0);
+        m_Shader->SetUniform1i("u_Texture", 0);
+    }
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
     world *= glm::scale(glm::mat4(1.0f), m_Scale);

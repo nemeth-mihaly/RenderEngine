@@ -20,6 +20,7 @@ struct Material
     glm::vec3 Specular;
     glm::vec3 Emissive;
     float Power;
+    bool bUseTexture;
 };
 
 ////////////////////////////////////////////////////
