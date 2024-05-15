@@ -9,6 +9,7 @@ uniform mat4 u_World;
 
 out vec3 v_FragmentPos;
 out vec3 v_Normal;
+out vec2 v_Uv;
 
 void main()
 {
@@ -16,4 +17,5 @@ void main()
     gl_Position = u_WorldViewProjection * worldPos;
     v_FragmentPos = vec3(worldPos);
     v_Normal = mat3(transpose(inverse(u_World))) * a_Normal; // TODO: Move the calculation to the CPU.
+    v_Uv = a_Uv;
 }

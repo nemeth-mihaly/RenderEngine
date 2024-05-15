@@ -284,19 +284,12 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
-    // Vertex inputs
-
-    //  ShaderProgs
-
     LoadShader(m_ShaderProg_Textured, "Assets\\Shaders\\Textured_vert.glsl", "Assets\\Shaders\\Textured_frag.glsl");
     LoadShader(m_ShaderProg_Phong, "Assets\\Shaders\\Phong_vert.glsl", "Assets\\Shaders\\Phong_frag.glsl");
     LoadShader(m_ShaderProg_LightsDbg, "Assets\\Shaders\\Lights_dbg_vert.glsl", "Assets\\Shaders\\Lights_dbg_frag.glsl");
     LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
 
-    //  Textures
-
     stbi_set_flip_vertically_on_load(true);
-
     LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
     LoadTexture(m_Texture_Grass, "Assets\\Textures\\Grass.png");
 
@@ -335,8 +328,6 @@ bool Application::Init()
         m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
     }
 
-    // --- Scene ------------------------------------------
-
     std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
     m_Mesh_Rectangle.reset(new Mesh());
     assert(m_Mesh_Rectangle);
@@ -356,29 +347,43 @@ bool Application::Init()
     cubeVertices.clear();
 
     m_SceneNodes.reserve(32);
+    m_LightNodes.reserve(32);
 
     m_Camera.reset(new CameraNode());
     m_Camera->VCreate();
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
-
     m_SceneNodes.push_back(m_Camera);
 
-    auto sceneNode1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
-    sceneNode1->VCreate();
-    sceneNode1->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    //sceneNode1->SetColor(glm::vec3(1.0f, 0.5f, 0.31f));
+    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    node1->VCreate();
+    node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
+    node1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node1->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    node1->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    node2->VCreate();
+    node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
+    node2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node2->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    node2->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    node3->VCreate();
+    node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
+    node3->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node3->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // LightNode
-
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.5f, 2.0f);
-
     m_LightNode.reset(new LightNode(m_Mesh_Cube, m_ShaderProg_LightsDbg));
-    m_LightNodes.push_back(m_LightNode);
-    m_SceneNodes.push_back(m_LightNode);
     m_LightNode->VCreate();
-    
-    m_LightNode->SetPosition(lightPos);
-    //m_LightNode->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_LightNode->SetPosition(glm::vec3(-1.4f, 1.5f, 1.0f));
+    m_LightNode->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
+    m_LightNode->GetMaterial().Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    m_LightNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    m_SceneNodes.push_back(m_LightNode);
+    m_LightNodes.push_back(m_LightNode);
 
     // ----------------------------------------------------
 
@@ -516,7 +521,6 @@ void Application::MainLoop()
 
         m_ShaderProg_Phong->Use();
         m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-        m_ShaderProg_Phong->SetUniform3f("u_LightColor", m_LightNode->GetColor());
         m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
         m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
@@ -536,11 +540,26 @@ void Application::MainLoop()
             node->VRender();
         }
 
-     #if 0
-        m_ShaderProg_Textured->SetUniform1b("u_bHasTexture", true); 
+     #if 1
+        m_ShaderProg_Phong->Use();
+        m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+        m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
+        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
+
+        m_ShaderProg_Phong->SetUniform1b("u_bUseTexture", true); 
         m_Texture_Grass->BindUnit(0);
-        m_ShaderProg_Textured->SetUniform1i("u_Texture", 0);
+        m_ShaderProg_Phong->SetUniform1i("u_Texture", 0);
         m_Mesh_Rectangle->m_VertexArray->Bind();
+
+        m_ShaderProg_Phong->SetUniform3f("u_Material.Ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_ShaderProg_Phong->SetUniform3f("u_Material.Diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_ShaderProg_Phong->SetUniform3f("u_Material.Specular", glm::vec3(0.0f, 0.0f, 0.0f));
+        m_ShaderProg_Phong->SetUniform3f("u_Material.Emissive", glm::vec3(0.0f, 0.0f, 0.0f));
+        m_ShaderProg_Phong->SetUniform1f("u_Material.Power", 32.0f);
 
         std::vector<glm::vec3> grassPositions =
         {
@@ -554,12 +573,12 @@ void Application::MainLoop()
         for (uint32_t i = 0; i < grassPositions.size(); ++i)
         {
             glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]);
-            m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
+            m_ShaderProg_Phong->SetUniformMatrix4f("u_World", world);
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
             world = glm::translate(glm::mat4(1.0f), grassPositions[i]) 
             * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            m_ShaderProg_Textured->SetUniformMatrix4f("u_World", world);
+            m_ShaderProg_Phong->SetUniformMatrix4f("u_World", world);
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
         }       
      #endif

@@ -51,21 +51,14 @@ class Application
     StrongShaderProgPtr m_ShaderProg_LightsDbg;
     StrongShaderProgPtr m_ShaderProg_Sky;
 
-    //StrongMeshPtr m_Mesh_Triangle;
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
-
-    //StrongBufferPtr m_VertexBuffer_Multiple;
-    //StrongVertexArrayPtr m_VertexArray_Multiple;
-
-    //StrongBufferPtr m_VertexBuffer;
-    //StrongVertexArrayPtr m_VertexArray;
 
     StrongTexturePtr m_Texture_Stonebricks;
     StrongTexturePtr m_Texture_Grass;
     StrongTexturePtr m_Texture_Sky;
 
-    SceneNodeList m_SceneNodes; // A SceneNodeList for each render phase?
+    SceneNodeList m_SceneNodes;
     LightSceneNodeList m_LightNodes;
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<LightNode> m_LightNode;

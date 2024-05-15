@@ -47,15 +47,11 @@ class SceneNode
     void SetScale(const glm::vec3& scale) { m_Scale = scale; }
     const glm::vec3& GetScale() const { return m_Scale; }
 
-    void SetColor(const glm::vec3& color) { m_Color = color; }
-    const glm::vec3& GetColor() const { return m_Color; }
-
     Material& GetMaterial() { return m_Material; }
 
  protected:
     glm::vec3 m_Pos;
     glm::vec3 m_Scale;
-    glm::vec3 m_Color;
     Material m_Material;
 };
 
