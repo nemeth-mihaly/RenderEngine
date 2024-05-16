@@ -121,24 +121,59 @@ class MeshNode : public SceneNode
 };
 
 ////////////////////////////////////////////////////
+//  enum class LightType
+////////////////////////////////////////////////////
+
+enum class LightType
+{
+    Directional = 0,
+    Point = 1,
+    Spot = 2,
+};
+
+////////////////////////////////////////////////////
+//  struct LightProperties
+////////////////////////////////////////////////////
+
+struct LightProperties
+{
+    LightType Type;
+    glm::vec3 Position;
+    glm::vec3 Direction;
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Specular;
+    float Range;
+    float Falloff;
+    float ConstantAttenuation;
+    float LinearAttenuation;
+    float QuadraticAttenuation;
+    float Theta;
+    float Phi;
+};
+
+////////////////////////////////////////////////////
 //  class LightNode
 ////////////////////////////////////////////////////
 
 class LightNode : public SceneNode
 {
  public: 
-    LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader);
+    //LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader);
+    LightNode();
     virtual ~LightNode();
 
     virtual void VCreate();
-
     virtual void VUpdate(const float deltaTime);
- 
-    virtual void VRender();
+
+    void SetLightProperties(const LightProperties& properties) { m_LightProperties = properties; }
+    const LightProperties& GetLightProperties() const { return m_LightProperties; }
 
  protected:
-    StrongMeshPtr m_Mesh;
-    StrongShaderProgPtr m_Shader;
+    LightProperties m_LightProperties;
+
+    //StrongMeshPtr m_Mesh;
+    //StrongShaderProgPtr m_Shader;
 };
 
 typedef std::vector<std::shared_ptr<LightNode>> LightSceneNodeList;

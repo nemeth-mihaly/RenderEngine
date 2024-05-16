@@ -1,6 +1,7 @@
 #include "Application.h"
 
-#include <cstdio>
+#include <format>
+#include <iostream>
 
 const wchar_t ClassName[] = TEXT("MyWindow");
 
@@ -253,7 +254,7 @@ bool Application::Init()
         WGL_ALPHA_BITS_ARB, 8,
         WGL_DEPTH_BITS_ARB, 24,
         WGL_STENCIL_BITS_ARB, 8,
-        0, // End
+        0, // End.
     };
 
     int pixelformat;
@@ -284,9 +285,7 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
-    LoadShader(m_ShaderProg_Textured, "Assets\\Shaders\\Textured_vert.glsl", "Assets\\Shaders\\Textured_frag.glsl");
-    LoadShader(m_ShaderProg_Phong, "Assets\\Shaders\\Phong_vert.glsl", "Assets\\Shaders\\Phong_frag.glsl");
-    LoadShader(m_ShaderProg_LightsDbg, "Assets\\Shaders\\Lights_dbg_vert.glsl", "Assets\\Shaders\\Lights_dbg_frag.glsl");
+    LoadShader(m_ShaderProg_TexturedLit, "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
     LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
 
     stbi_set_flip_vertically_on_load(true);
@@ -354,7 +353,7 @@ bool Application::Init()
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_Camera);
 
-    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     floorNode->VCreate();
     floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
     floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
@@ -362,7 +361,7 @@ bool Application::Init()
     floorNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     floorNode->GetMaterial().bUseTexture = false;
 
-    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node1->VCreate();
     node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
     node1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -370,7 +369,7 @@ bool Application::Init()
     node1->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node1->GetMaterial().bUseTexture = true;
 
-    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node2->VCreate();
     node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
     node2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -378,7 +377,7 @@ bool Application::Init()
     node2->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node2->GetMaterial().bUseTexture = true;
 
-    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_Phong, m_Texture_Stonebricks));
+    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node3->VCreate();
     node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
     node3->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -386,15 +385,66 @@ bool Application::Init()
     node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node3->GetMaterial().bUseTexture = true;
 
-    // LightNode
-    m_LightNode.reset(new LightNode(m_Mesh_Cube, m_ShaderProg_LightsDbg));
-    m_LightNode->VCreate();
-    m_LightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
-    m_LightNode->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
-    m_LightNode->GetMaterial().Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-    m_LightNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    m_SceneNodes.push_back(m_LightNode);
-    m_LightNodes.push_back(m_LightNode);
+    // DirectionalLightNode
+    LightProperties directionalLightProperties;
+    directionalLightProperties.Type = LightType::Directional;
+    directionalLightProperties.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    directionalLightProperties.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    directionalLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    directionalLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);;
+
+    m_DirectionalLightNode.reset(new LightNode());
+    m_DirectionalLightNode->VCreate();
+    m_DirectionalLightNode->SetLightProperties(directionalLightProperties);
+    m_SceneNodes.push_back(m_DirectionalLightNode);
+    m_LightNodes.push_back(m_DirectionalLightNode);
+
+    // PointLightNode
+    LightProperties pointLightProperties;
+    pointLightProperties.Type = LightType::Point;
+    pointLightProperties.Position = glm::vec3(0.0f, 0.5f, -2.0f);
+    pointLightProperties.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    pointLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    pointLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);;
+    pointLightProperties.ConstantAttenuation = 1.0f;
+    pointLightProperties.LinearAttenuation = 0.09f;
+    pointLightProperties.QuadraticAttenuation = 0.032f;
+
+    m_PointLightNode.reset(new LightNode());
+    m_PointLightNode->VCreate();
+    m_PointLightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
+    m_PointLightNode->SetLightProperties(pointLightProperties);
+    m_SceneNodes.push_back(m_PointLightNode);
+    m_LightNodes.push_back(m_PointLightNode);
+
+    // SpotLightNode
+    LightProperties spotLightProperties;
+    spotLightProperties.Type = LightType::Spot;
+    spotLightProperties.Position = glm::vec3(3.4f, 1.0f, 3.0f);
+    spotLightProperties.Direction = glm::vec3(0.0f, -1.0f, 0.0f);
+    spotLightProperties.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLightProperties.Falloff = cosf(glm::radians(30.0f));
+    spotLightProperties.ConstantAttenuation = 1.0f;
+    spotLightProperties.LinearAttenuation = 0.09f;
+    spotLightProperties.QuadraticAttenuation = 0.032f;
+
+    m_SpotLightNode.reset(new LightNode());
+    m_SpotLightNode->VCreate();
+    m_SpotLightNode->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
+    m_SpotLightNode->SetLightProperties(spotLightProperties);
+    m_SceneNodes.push_back(m_SpotLightNode);
+    m_LightNodes.push_back(m_SpotLightNode);
+
+    auto lightBulb = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    lightBulb->VCreate();
+    lightBulb->SetPosition(pointLightProperties.Position);
+    lightBulb->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
+    lightBulb->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    lightBulb->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    lightBulb->GetMaterial().Emissive = glm::vec3(1.0f, 1.0f, 1.0f);
+    lightBulb->GetMaterial().bUseTexture = false;
 
     // ----------------------------------------------------
 
@@ -416,8 +466,6 @@ void Application::MainLoop()
 
     std::chrono::_V2::system_clock::time_point previous;
     previous = std::chrono::high_resolution_clock::now();
-
-    glm::vec3 lightDir = glm::vec3(0.0f, -1.0f, 0.0);
 
     while (m_bIsRunning)
     {
@@ -532,19 +580,26 @@ void Application::MainLoop()
 
         // Geometry phase
 
-        m_ShaderProg_Phong->Use();
-        m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-        m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+        m_ShaderProg_TexturedLit->Use();
+        m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+        m_ShaderProg_TexturedLit->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Dir", lightDir);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
-        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Falloff", glm::cos(glm::radians(30.5f)));
+        for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
+        {
+            const std::string index = std::to_string(i);
+            const LightProperties& lp = m_LightNodes[i]->GetLightProperties();
 
-        m_ShaderProg_LightsDbg->Use();
-        m_ShaderProg_LightsDbg->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+            m_ShaderProg_TexturedLit->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
+            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
+            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
+            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
+            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
+            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Specular"), lp.Specular);
+            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
+            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
+            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
+            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].QuadraticAttenuation"), lp.QuadraticAttenuation);
+        }
 
         for (const auto& node : m_SceneNodes) 
         {
@@ -556,31 +611,6 @@ void Application::MainLoop()
         }
 
      #if 1
-        m_ShaderProg_Phong->Use();
-        m_ShaderProg_Phong->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-        m_ShaderProg_Phong->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
-
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Pos", m_LightNode->GetPosition());
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Dir", lightDir);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Ambient", m_LightNode->GetMaterial().Ambient);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Diffuse", m_LightNode->GetMaterial().Diffuse);
-        m_ShaderProg_Phong->SetUniform3f("u_LightProps.Specular", m_LightNode->GetMaterial().Specular);
-        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation0", 1.0f);
-        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation1", 0.09f);
-        m_ShaderProg_Phong->SetUniform1f("u_LightProps.Attenuation2", 0.032f);
-
-        m_ShaderProg_Phong->SetUniform1b("u_bUseTexture", true); 
-        m_Texture_Grass->BindUnit(0);
-        m_ShaderProg_Phong->SetUniform1i("u_Texture", 0);
-        m_Mesh_Rectangle->m_VertexArray->Bind();
-
-        m_ShaderProg_Phong->SetUniform3f("u_Material.Ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderProg_Phong->SetUniform3f("u_Material.Diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderProg_Phong->SetUniform3f("u_Material.Specular", glm::vec3(0.0f, 0.0f, 0.0f));
-        m_ShaderProg_Phong->SetUniform3f("u_Material.Emissive", glm::vec3(0.0f, 0.0f, 0.0f));
-        m_ShaderProg_Phong->SetUniform1f("u_Material.Power", 32.0f);
-        m_ShaderProg_Phong->SetUniform1i("u_Material.bUseTexture", true);
-
         std::vector<glm::vec3> grassPositions =
         {
             glm::vec3(-1.5f, 0.0f, -0.48f),
@@ -592,13 +622,29 @@ void Application::MainLoop()
 
         for (uint32_t i = 0; i < grassPositions.size(); ++i)
         {
+            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Specular", glm::vec3(0.0f, 0.0f, 0.0f));
+            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Emissive", glm::vec3(0.0f, 0.0f, 0.0f));
+            m_ShaderProg_TexturedLit->SetUniform1f("u_Material.Power", 32.0f);
+            m_ShaderProg_TexturedLit->SetUniform1b("u_Material.bUseTexture", true);
+            
+            if (true) // Normally this would be: if(Material.bUseTexture) {}
+            {
+                m_Texture_Grass->BindUnit(0);
+                m_ShaderProg_TexturedLit->SetUniform1i("u_Texture", 0);
+            }
+
+            m_Mesh_Rectangle->m_VertexArray->Bind();
+
             glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]);
-            m_ShaderProg_Phong->SetUniformMatrix4f("u_World", world);
+            m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
             world = glm::translate(glm::mat4(1.0f), grassPositions[i]) 
             * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            m_ShaderProg_Phong->SetUniformMatrix4f("u_World", world);
+            m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
+
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
         }       
      #endif

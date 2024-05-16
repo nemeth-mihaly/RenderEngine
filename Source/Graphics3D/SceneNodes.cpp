@@ -96,7 +96,7 @@ void MeshNode::VRender()
     m_Shader->SetUniform3f("u_Material.Specular", m_Material.Specular);
     m_Shader->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
     m_Shader->SetUniform1f("u_Material.Power", m_Material.Power);
-    m_Shader->SetUniform1i("u_Material.bUseTexture", m_Material.bUseTexture);
+    m_Shader->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
 
     if (m_Material.bUseTexture)
     {
@@ -139,8 +139,12 @@ void MeshNode::VRender(StrongShaderProgPtr& shader)
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-LightNode::LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader)
-    : m_Mesh(mesh), m_Shader(shader)
+//LightNode::LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader)
+//    : m_Mesh(mesh), m_Shader(shader)
+//{
+//}
+
+LightNode::LightNode()
 {
 }
 
@@ -154,18 +158,4 @@ void LightNode::VCreate()
 
 void LightNode::VUpdate(const float deltaTime)
 {
-}
-
-void LightNode::VRender()
-{
-    m_Shader->Use();
-    m_Shader->SetUniform3f("u_Color", m_Material.Diffuse);
-
-    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
-    world *= glm::scale(glm::mat4(1.0f), m_Scale);
-
-    m_Shader->SetUniformMatrix4f("u_World", world);
-
-    m_Mesh->m_VertexArray->Bind();
-    glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);   
 }
