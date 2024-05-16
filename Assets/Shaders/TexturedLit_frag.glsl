@@ -56,133 +56,134 @@ uniform vec3 u_ViewPos;
 
 float ComputeAttenuation(Light light, float _distance)
 {
-    //float _distance = length(light.Position - v_FragmentPos);
     return (1.0 / (light.ConstantAttenuation + light.LinearAttenuation * _distance + light.QuadraticAttenuation * (_distance * _distance)));
 }
 
-void main()
+vec3 ComputeDiffuse(Light light, vec3 lightDirection, vec3 normal)
 {
-    // Result color.
-    vec3 litDiffuse = vec3(0, 0, 0);
-    vec3 litSpecular = vec3(0, 0, 0);
+    // If the angle between the normal and the light's position is greater than 90 degrees, 
+    // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
+    return ((max(dot(normal, lightDirection), 0.0)) * light.Diffuse);
+}
+
+vec3 ComputeSpecular(Light light, vec3 viewDirection, vec3 lightDirection, vec3 normal)
+{
+    vec3 reflectDirection = reflect(-lightDirection, normal);
+    return (pow(max(dot(viewDirection, reflectDirection), 0.0), u_Material.Power) * light.Specular);
+}
+
+struct LightingResult
+{
+    vec3 Diffuse;
+    vec3 Specular;
+};
+
+LightingResult ComputeDirectionalLight(Light light, vec3 viewDirection, vec3 normal)
+{
+    LightingResult result;
+    result.Diffuse = vec3(0, 0, 0);
+    result.Specular = vec3(0, 0, 0);
+
+    vec3 lightDirection = normalize(-light.Direction);  
+
+    result.Diffuse += ComputeDiffuse(light, lightDirection, normal);
+    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal);
+
+    return result;
+}
+
+LightingResult ComputePointLight(Light light, vec3 viewDirection, vec3 normal)
+{
+    LightingResult result;
+    result.Diffuse = vec3(0, 0, 0);
+    result.Specular = vec3(0, 0, 0);
+
+    vec3 lightDirection = normalize(light.Position - v_FragmentPos);  
+
+    float _distance = length(light.Position - v_FragmentPos);
+    float attenuation = ComputeAttenuation(light, _distance);
+
+    result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation;
+    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation;
+
+    return result;
+}
+
+LightingResult ComputeSpotLight(Light light, vec3 viewDirection, vec3 normal)
+{
+    LightingResult result;
+    result.Diffuse = vec3(0, 0, 0);
+    result.Specular = vec3(0, 0, 0);
+
+    vec3 lightDirection = normalize(light.Position - v_FragmentPos);
+    float theta = dot(lightDirection, normalize(-light.Direction)); 
+
+    if (theta > light.Falloff)
+    {
+        float _distance = length(light.Position - v_FragmentPos);
+        float attenuation = ComputeAttenuation(light, _distance);
+
+        result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation;
+        result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation;
+    }
+
+    return result;
+}
+
+LightingResult ComputeLighting()
+{
+    LightingResult result;
+    result.Diffuse = vec3(0, 0, 0);
+    result.Specular = vec3(0, 0, 0);
+
+    vec3 normal = normalize(v_Normal);
+    vec3 viewDirection = normalize(u_ViewPos - v_FragmentPos);
 
     // Compute lights.
     for (int i = 0; i < MAX_LIGHTS; ++i)
     {
-        switch (u_Lights[i].Type)
+        Light light = u_Lights[i];
+
+        switch (light.Type)
         {
             case LightType_Directional:
             {
-                // Ambient.
-                //vec3 ambient = u_Material.Ambient * u_Lights[i].Ambient;
-
-                // Diffuse.
-                vec3 normal = normalize(v_Normal);
-
-                vec3 lightDir = normalize(-u_Lights[i].Direction);  
-                // If the angle between the normal and the light's position is greater than 90 degrees, 
-                // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
-                vec3 diffuse = (u_Material.Diffuse * max(dot(normal, lightDir), 0.0)) * u_Lights[i].Diffuse; 
-
-                // Specular.
-                vec3 viewDir = normalize(u_ViewPos - v_FragmentPos);
-                vec3 reflectDir = reflect(-lightDir, normal);
-                vec3 specular = (u_Material.Specular * pow(max(dot(viewDir, reflectDir), 0.0), u_Material.Power)) * u_Lights[i].Specular;
-
-                // Emissive.
-                //vec3 emissive = u_Material.Emissive;
-
-                // End.
-                litDiffuse += diffuse;
-                litSpecular += specular;
+                LightingResult r = ComputeDirectionalLight(light, viewDirection, normal);
+                result.Diffuse += r.Diffuse;
+                result.Specular += r.Specular;
 
                 break;
             }
 
             case LightType_Point:
             {
-                // Ambient.
-                //vec3 ambient = u_Material.Ambient * u_Lights[i].Ambient;
-
-                // Diffuse.
-                vec3 normal = normalize(v_Normal);
-
-                vec3 lightDir = normalize(u_Lights[i].Position - v_FragmentPos);
-                // If the angle between the normal and the light's position is greater than 90 degrees, 
-                // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
-                vec3 diffuse = (u_Material.Diffuse * max(dot(normal, lightDir), 0.0)) * u_Lights[i].Diffuse; 
-
-                // Specular.
-                vec3 viewDir = normalize(u_ViewPos - v_FragmentPos);
-                vec3 reflectDir = reflect(-lightDir, normal);
-                vec3 specular = (u_Material.Specular * pow(max(dot(viewDir, reflectDir), 0.0), u_Material.Power)) * u_Lights[i].Specular;
-
-                // Attenuation.
-                float _distance = length(u_Lights[i].Position - v_FragmentPos);
-                float attenuation = ComputeAttenuation(u_Lights[i], _distance);
-
-                diffuse *= attenuation;
-                specular *= attenuation;
-        
-                // End.
-                litDiffuse += diffuse;
-                litSpecular += specular;
+                LightingResult r = ComputePointLight(light, viewDirection, normal);
+                result.Diffuse += r.Diffuse;
+                result.Specular += r.Specular;
 
                 break;
             }
 
             case LightType_Spot:
             {
-                vec3 normal = normalize(v_Normal);
-
-                vec3 lightDir = normalize(u_Lights[i].Position - v_FragmentPos);
-                float theta = dot(lightDir, normalize(-u_Lights[i].Direction)); 
-                
-                if (theta > u_Lights[i].Falloff)
-                {
-                    // Diffuse.
-                    // If the angle between the normal and the light's position is greater than 90 degrees, 
-                    // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
-                    vec3 diffuse = (u_Material.Diffuse * max(dot(normal, lightDir), 0.0)) * u_Lights[i].Diffuse; 
-
-                    // Specular.
-                    vec3 viewDir = normalize(u_ViewPos - v_FragmentPos);
-                    vec3 reflectDir = reflect(-lightDir, normal);
-                    vec3 specular = (u_Material.Specular * pow(max(dot(viewDir, reflectDir), 0.0), u_Material.Power)) * u_Lights[i].Specular;
-
-                    // Attenuation.
-                    float _distance = length(u_Lights[i].Position - v_FragmentPos);
-                    float attenuation = ComputeAttenuation(u_Lights[i], _distance);
-
-                    diffuse *= attenuation;
-                    specular *= attenuation;
-
-                    // End
-                    litDiffuse += diffuse;
-                    litSpecular += specular;
-                }
-                else
-                {
-                    // Diffuse.
-                    // If the angle between the normal and the light's position is greater than 90 degrees, 
-                    // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
-                    vec3 diffuse = vec3(0, 0, 0);
-
-                    // Specular.
-                    vec3 specular = vec3(0, 0, 0);
-
-                    // Emissive.
-                    //vec3 emissive = u_Material.Emissive;
-
-                    // End.
-                    litDiffuse += diffuse;
-                    litSpecular += specular;
-                }
-
+                LightingResult r = ComputeSpotLight(light, viewDirection, normal);
+                result.Diffuse += r.Diffuse;
+                result.Specular += r.Specular;   
+ 
                 break;
             }
         }
     }
+
+    result.Diffuse = clamp(result.Diffuse, vec3(0, 0, 0), vec3(1, 1, 1));
+    result.Specular = clamp(result.Specular, vec3(0, 0, 0), vec3(1, 1, 1));
+
+    return result;
+}
+
+void main()
+{
+    LightingResult litColor = ComputeLighting();
 
     // Texture.
     vec4 texColor = vec4(1, 1, 1, 1);
@@ -197,8 +198,13 @@ void main()
         }
     }
 
+    vec3 ambient = u_Material.Ambient * vec3(0.2, 0.2, 0.2);
+    vec3 diffuse = u_Material.Diffuse * litColor.Diffuse;
+    vec3 specular = u_Material.Specular * litColor.Specular;
+    vec3 emissive = u_Material.Emissive;
+
     // Final color.
-    vec4 finalColor = vec4(((u_Material.Ambient * 0.2) + litDiffuse + litSpecular + u_Material.Emissive), 1.0) * texColor;
+    vec4 finalColor = vec4((ambient + diffuse + specular + emissive), 1.0) * texColor;
 
     // End.
     v_FragmentColor = finalColor;

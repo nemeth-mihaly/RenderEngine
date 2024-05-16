@@ -388,7 +388,7 @@ bool Application::Init()
     // DirectionalLightNode
     LightProperties directionalLightProperties;
     directionalLightProperties.Type = LightType::Directional;
-    directionalLightProperties.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    directionalLightProperties.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
     directionalLightProperties.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     directionalLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     directionalLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);;
@@ -402,7 +402,7 @@ bool Application::Init()
     // PointLightNode
     LightProperties pointLightProperties;
     pointLightProperties.Type = LightType::Point;
-    pointLightProperties.Position = glm::vec3(0.0f, 0.5f, -2.0f);
+    pointLightProperties.Position = glm::vec3(0.0f, 0.2f, -2.0f);
     pointLightProperties.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     pointLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     pointLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);;
