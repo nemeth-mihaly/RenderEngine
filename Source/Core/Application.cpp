@@ -426,6 +426,7 @@ bool Application::Init()
     spotLightProperties.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     spotLightProperties.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
     spotLightProperties.Falloff = cosf(glm::radians(30.0f));
+    spotLightProperties.Phi = cosf(glm::radians(36.0f));
     spotLightProperties.ConstantAttenuation = 1.0f;
     spotLightProperties.LinearAttenuation = 0.09f;
     spotLightProperties.QuadraticAttenuation = 0.032f;

@@ -116,16 +116,15 @@ LightingResult ComputeSpotLight(Light light, vec3 viewDirection, vec3 normal)
     result.Specular = vec3(0, 0, 0);
 
     vec3 lightDirection = normalize(light.Position - v_FragmentPos);
-    float theta = dot(lightDirection, normalize(-light.Direction)); 
+    float theta = dot(lightDirection, normalize(-light.Direction));
+    float epsilon = light.Falloff - light.Phi;
+    float intensity = clamp((theta - light.Phi) / epsilon, 0.0, 1.0); 
 
-    if (theta > light.Falloff)
-    {
-        float _distance = length(light.Position - v_FragmentPos);
-        float attenuation = ComputeAttenuation(light, _distance);
+    float _distance = length(light.Position - v_FragmentPos);
+    float attenuation = ComputeAttenuation(light, _distance);
 
-        result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation;
-        result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation;
-    }
+    result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation * intensity;
+    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation * intensity;
 
     return result;
 }
