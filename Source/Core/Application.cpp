@@ -227,6 +227,8 @@ bool Application::Init()
 
     RECT wr = {0, 0, m_ScreenWidth, m_ScreenHeight};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+    m_ScreenWidth = (wr.right - wr.left);
+    m_ScreenHeight = (wr.bottom - wr.top);
 
     m_hWindow = CreateWindowEx(
         0,
@@ -363,6 +365,7 @@ bool Application::Init()
 
     LoadShader(m_ShaderProg_TexturedLit, "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
     LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
+    LoadShader(m_ShaderProg_FramebufferTest, "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
 
     stbi_set_flip_vertically_on_load(true);
     LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
@@ -434,6 +437,17 @@ bool Application::Init()
     m_WavefrontMesh_Cube->Create();
     wavefrontCubeVertices.clear();
 
+    std::vector<Vertex> wavefrontMonkeyVertices;
+    LoadWavefrontModel(wavefrontMonkeyVertices, "Assets\\Models\\Monkey.obj");
+
+    m_WavefrontMesh_Monkey.reset(new Mesh());
+    assert(m_WavefrontMesh_Monkey);
+    m_WavefrontMesh_Monkey->VertexCount = wavefrontMonkeyVertices.size();
+    m_WavefrontMesh_Monkey->pVertices = wavefrontMonkeyVertices.data();
+    m_WavefrontMesh_Monkey->VertexBufferOffset = 0;
+    m_WavefrontMesh_Monkey->Create();
+    wavefrontMonkeyVertices.clear();
+
     m_SceneNodes.reserve(32);
     m_LightNodes.reserve(32);
 
@@ -473,6 +487,14 @@ bool Application::Init()
     node3->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node3->GetMaterial().bUseTexture = true;
+
+    auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Monkey, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    monkeyNode->VCreate();
+    monkeyNode->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
+    monkeyNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+    monkeyNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    monkeyNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    monkeyNode->GetMaterial().bUseTexture = false;
 
     // DirectionalLightNode
     LightProperties directionalLightProperties;
@@ -537,6 +559,27 @@ bool Application::Init()
     lightBulb->GetMaterial().bUseTexture = false;
 
     // ----------------------------------------------------
+
+    glGenFramebuffers(1, &m_FramebufferID);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
+
+    glGenTextures(1, &m_TextureID_ColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ScreenWidth, m_ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureID_ColorBuffer, 0);
+
+    glGenRenderbuffers(1, &m_RenderBufferID);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, m_ScreenWidth, m_ScreenHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferID);
+    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     m_bIsRunning = true;
 
@@ -663,6 +706,9 @@ void Application::MainLoop()
             node->VUpdate(deltaTime);
         }
 
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
+
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
@@ -727,12 +773,13 @@ void Application::MainLoop()
 
             m_Mesh_Rectangle->m_VertexArray->Bind();
 
-            glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]);
+            glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
             m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
             world = glm::translate(glm::mat4(1.0f), grassPositions[i]) 
-            * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) 
+            * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
             m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
 
             glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
@@ -751,7 +798,17 @@ void Application::MainLoop()
         glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
         glDepthFunc(GL_LESS);
 
-        // Transparent/Alpha phase
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        m_ShaderProg_FramebufferTest->Use();
+        m_Mesh_Rectangle->m_VertexArray->Bind();
+        glDisable(GL_DEPTH_TEST);
+        glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
+        glActiveTexture(GL_TEXTURE0);
+        m_ShaderProg_FramebufferTest->SetUniform1i("u_Texture", 0);
+        glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
         wglSwapIntervalEXT(1);
         wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);

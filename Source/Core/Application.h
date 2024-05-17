@@ -48,10 +48,12 @@ class Application
 
     StrongShaderProgPtr m_ShaderProg_TexturedLit;
     StrongShaderProgPtr m_ShaderProg_Sky;
+    StrongShaderProgPtr m_ShaderProg_FramebufferTest;
 
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
     StrongMeshPtr m_WavefrontMesh_Cube;
+    StrongMeshPtr m_WavefrontMesh_Monkey;
 
     StrongTexturePtr m_Texture_Stonebricks;
     StrongTexturePtr m_Texture_Grass;
@@ -63,6 +65,11 @@ class Application
     std::shared_ptr<LightNode> m_DirectionalLightNode;
     std::shared_ptr<LightNode> m_PointLightNode;
     std::shared_ptr<LightNode> m_SpotLightNode;
+
+    GLuint m_FramebufferID;
+    GLuint m_TextureID_ColorBuffer;
+    GLuint m_RenderBufferID;
+    StrongTexturePtr m_Texture_ColorBuffer;
 
     bool m_bKeyStates[256];
     bool m_bCameraMoving;
