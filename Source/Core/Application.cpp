@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include <cstring>
 #include <format>
 #include <iostream>
 
@@ -22,6 +23,81 @@ char* _ReadFile(const std::string& name)
     fclose(fp);
 
     return buf;
+}
+
+void LoadWavefrontModel(std::vector<Vertex>& vertices, const std::string& file)
+{
+    FILE* fp = fopen(file.c_str(), "r");
+    assert(fp != nullptr);
+
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvs;
+
+    while (true)
+    {
+        char line[512];
+        int result = fscanf(fp, "%s", line);
+        
+        if (result == EOF)
+        {
+            break;
+        }
+
+        if (strcmp(line, "v") == 0)
+        {
+            glm::vec3 pos;
+            fscanf(fp, "%f %f %f\n", &pos.x, &pos.y, &pos.z);
+            positions.push_back(pos);
+        }
+        else
+        if (strcmp(line, "vn") == 0)
+        {
+            glm::vec3 normal;
+            fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+            normals.push_back(normal);
+        }
+        else
+        if (strcmp(line, "vt") == 0)
+        {
+            glm::vec2 uv;
+            fscanf(fp, "%f %f\n", &uv.x, &uv.y);
+            uvs.push_back(uv);
+        }
+        else
+        if (strcmp(line, "f") == 0)
+        {
+            // [0]: v; [1]: vt; [2]: vn;
+            uint32_t faceIndices1[3];
+            uint32_t faceIndices2[3];
+            uint32_t faceIndices3[3];
+
+            fscanf(
+                fp, 
+                "%u/%u/%u %u/%u/%u %u/%u/%u\n", 
+                &faceIndices1[0], &faceIndices1[1], &faceIndices1[2],
+                &faceIndices2[0], &faceIndices2[1], &faceIndices2[2], 
+                &faceIndices3[0], &faceIndices3[1], &faceIndices3[2]
+            );
+
+            auto GetVertexFromFace = [&positions, &normals, &uvs](uint32_t indices[3])
+            {
+                Vertex vertex;
+
+                vertex.Pos = positions[(indices[0] - 1)];
+                vertex.Normal = normals[(indices[2] - 1)];
+                vertex.Uv = uvs[(indices[1] - 1)];  
+
+                return vertex;
+            };
+
+            vertices.push_back(GetVertexFromFace(faceIndices1));
+            vertices.push_back(GetVertexFromFace(faceIndices2));
+            vertices.push_back(GetVertexFromFace(faceIndices3));
+        }
+    }
+
+    fclose(fp);
 }
 
 void LoadTexture(StrongTexturePtr& texture, const std::string& file)
@@ -328,6 +404,7 @@ bool Application::Init()
     }
 
     std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
+
     m_Mesh_Rectangle.reset(new Mesh());
     assert(m_Mesh_Rectangle);
     m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
@@ -337,6 +414,7 @@ bool Application::Init()
     rectangleVertices.clear();
 
     std::vector<Vertex> cubeVertices = CreateCubeVertices();
+
     m_Mesh_Cube.reset(new Mesh());
     assert(m_Mesh_Cube);
     m_Mesh_Cube->VertexCount = cubeVertices.size();
@@ -344,6 +422,17 @@ bool Application::Init()
     m_Mesh_Cube->VertexBufferOffset = 0;
     m_Mesh_Cube->Create();
     cubeVertices.clear();
+
+    std::vector<Vertex> wavefrontCubeVertices;
+    LoadWavefrontModel(wavefrontCubeVertices, "Assets\\Models\\Cube.obj");
+
+    m_WavefrontMesh_Cube.reset(new Mesh());
+    assert(m_WavefrontMesh_Cube);
+    m_WavefrontMesh_Cube->VertexCount = wavefrontCubeVertices.size();
+    m_WavefrontMesh_Cube->pVertices = wavefrontCubeVertices.data();
+    m_WavefrontMesh_Cube->VertexBufferOffset = 0;
+    m_WavefrontMesh_Cube->Create();
+    wavefrontCubeVertices.clear();
 
     m_SceneNodes.reserve(32);
     m_LightNodes.reserve(32);
@@ -353,7 +442,7 @@ bool Application::Init()
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_Camera);
 
-    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     floorNode->VCreate();
     floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
     floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
@@ -361,26 +450,26 @@ bool Application::Init()
     floorNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     floorNode->GetMaterial().bUseTexture = false;
 
-    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node1->VCreate();
     node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
-    node1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
     node1->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node1->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node1->GetMaterial().bUseTexture = true;
 
-    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node2->VCreate();
     node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
-    node2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
     node2->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node2->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node2->GetMaterial().bUseTexture = true;
 
-    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
     node3->VCreate();
     node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
-    node3->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    node3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
     node3->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node3->GetMaterial().bUseTexture = true;
@@ -664,7 +753,7 @@ void Application::MainLoop()
 
         // Transparent/Alpha phase
 
-        wglSwapIntervalEXT(0);
+        wglSwapIntervalEXT(1);
         wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
     }
 }

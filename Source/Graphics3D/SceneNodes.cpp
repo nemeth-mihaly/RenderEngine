@@ -13,7 +13,7 @@ SceneNode::SceneNode()
     m_Material.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     m_Material.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
     m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_Material.Power = 16.00f; // NOTE: Should never be 0!!
+    m_Material.Power = 16.00f; // NOTE: Should never be 0 or 1!!
     m_Material.bUseTexture = false;
 }
 
@@ -138,11 +138,6 @@ void MeshNode::VRender(StrongShaderProgPtr& shader)
 ////////////////////////////////////////////////////
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
-
-//LightNode::LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader)
-//    : m_Mesh(mesh), m_Shader(shader)
-//{
-//}
 
 LightNode::LightNode()
 {

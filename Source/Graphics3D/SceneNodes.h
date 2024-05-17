@@ -159,7 +159,6 @@ struct LightProperties
 class LightNode : public SceneNode
 {
  public: 
-    //LightNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader);
     LightNode();
     virtual ~LightNode();
 
@@ -171,9 +170,6 @@ class LightNode : public SceneNode
 
  protected:
     LightProperties m_LightProperties;
-
-    //StrongMeshPtr m_Mesh;
-    //StrongShaderProgPtr m_Shader;
 };
 
 typedef std::vector<std::shared_ptr<LightNode>> LightSceneNodeList;

@@ -51,6 +51,7 @@ class Application
 
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
+    StrongMeshPtr m_WavefrontMesh_Cube;
 
     StrongTexturePtr m_Texture_Stonebricks;
     StrongTexturePtr m_Texture_Grass;
