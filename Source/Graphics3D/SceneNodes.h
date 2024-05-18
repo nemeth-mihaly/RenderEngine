@@ -92,32 +92,17 @@ class CameraNode : public SceneNode
 class MeshNode : public SceneNode
 {
  public:
- #if 0
-    // FIXME: It's impossible to determine which mesh is uploaded to which vertex buffers without looking it up.
-    MeshNode(const StrongVertexArrayPtr& vertexArray, const StrongMeshPtr& mesh, const StrongTexturePtr& texture);
-#endif
-
-    MeshNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader, const StrongTexturePtr& texture);
+    MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
 
     virtual ~MeshNode();
 
     virtual void VCreate();
-
     virtual void VRender();
- #if 0
-    // FIXME: Kurva OpenGL.
-    virtual void VRender(StrongShaderProgPtr& shader);
- #endif
 
  private:
-    StrongMeshPtr m_Mesh;
-    StrongShaderProgPtr m_Shader;
-    StrongTexturePtr m_Texture;
-
- #if 0
-    StrongVertexArrayPtr m_VertexArray;
-    StrongTexturePtr m_Texture;
- #endif
+    std::string m_MeshName;
+    std::string m_ShaderProgName;
+    std::string m_TextureName;
 };
 
 ////////////////////////////////////////////////////

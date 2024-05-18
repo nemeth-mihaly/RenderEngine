@@ -4,150 +4,9 @@
 #include <format>
 #include <iostream>
 
-const wchar_t ClassName[] = TEXT("MyWindow");
+Application* g_pApp = nullptr;
 
-char* _ReadFile(const std::string& name)
-{
-    FILE* fp = fopen(name.c_str(), "rb");
-    assert(fp != nullptr);
-
-    fseek(fp, 0, SEEK_END);
-    size_t size = ftell(fp);
-    rewind(fp);
-
-    char* buf = new char[size + 1];
-    size_t bytesRead = fread(buf, sizeof(char), size, fp);
-    assert(bytesRead >= size);
-
-    buf[size] = '\0';
-    fclose(fp);
-
-    return buf;
-}
-
-void LoadWavefrontModel(std::vector<Vertex>& vertices, const std::string& file)
-{
-    FILE* fp = fopen(file.c_str(), "r");
-    assert(fp != nullptr);
-
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
-
-    while (true)
-    {
-        char line[512];
-        int result = fscanf(fp, "%s", line);
-        
-        if (result == EOF)
-        {
-            break;
-        }
-
-        if (strcmp(line, "v") == 0)
-        {
-            glm::vec3 pos;
-            fscanf(fp, "%f %f %f\n", &pos.x, &pos.y, &pos.z);
-            positions.push_back(pos);
-        }
-        else
-        if (strcmp(line, "vn") == 0)
-        {
-            glm::vec3 normal;
-            fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-            normals.push_back(normal);
-        }
-        else
-        if (strcmp(line, "vt") == 0)
-        {
-            glm::vec2 uv;
-            fscanf(fp, "%f %f\n", &uv.x, &uv.y);
-            uvs.push_back(uv);
-        }
-        else
-        if (strcmp(line, "f") == 0)
-        {
-            // [0]: v; [1]: vt; [2]: vn;
-            uint32_t faceIndices1[3];
-            uint32_t faceIndices2[3];
-            uint32_t faceIndices3[3];
-
-            fscanf(
-                fp, 
-                "%u/%u/%u %u/%u/%u %u/%u/%u\n", 
-                &faceIndices1[0], &faceIndices1[1], &faceIndices1[2],
-                &faceIndices2[0], &faceIndices2[1], &faceIndices2[2], 
-                &faceIndices3[0], &faceIndices3[1], &faceIndices3[2]
-            );
-
-            auto GetVertexFromFace = [&positions, &normals, &uvs](uint32_t indices[3])
-            {
-                Vertex vertex;
-
-                vertex.Pos = positions[(indices[0] - 1)];
-                vertex.Normal = normals[(indices[2] - 1)];
-                vertex.Uv = uvs[(indices[1] - 1)];  
-
-                return vertex;
-            };
-
-            vertices.push_back(GetVertexFromFace(faceIndices1));
-            vertices.push_back(GetVertexFromFace(faceIndices2));
-            vertices.push_back(GetVertexFromFace(faceIndices3));
-        }
-    }
-
-    fclose(fp);
-}
-
-void LoadTexture(StrongTexturePtr& texture, const std::string& file)
-{
-    int width, height, channelCount;
-    uint8_t* pPixels = stbi_load(file.c_str(), &width, &height, &channelCount, 0);
-    assert(pPixels);
-
-    texture.reset(new Texture());
-    assert(texture);
-    texture->Create(GL_TEXTURE_2D);
-    
-    texture->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    texture->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    texture->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    texture->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    texture->SetStorage2D(1, InternalFormat(channelCount), width, height);
-    texture->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
-
-    stbi_image_free(pPixels);
-}
-
-void LoadShader(StrongShaderProgPtr& shaderProg, const std::string& vsFile, const std::string& fsFile)
-{
-    char* pVertShaderSource = _ReadFile(vsFile);
-    char* pFragShaderSource = _ReadFile(fsFile);
-
-    auto vertShader = std::make_shared<Shader>();
-    assert(vertShader);
-    vertShader->Create(GL_VERTEX_SHADER);
-    vertShader->SetSource(1, &pVertShaderSource, nullptr);
-    vertShader->Compile();
-
-    auto fragShader = std::make_shared<Shader>();
-    assert(fragShader);
-    fragShader->Create(GL_FRAGMENT_SHADER);
-    fragShader->SetSource(1, &pFragShaderSource, nullptr);
-    fragShader->Compile();
-
-    shaderProg.reset(new ShaderProgram());
-    assert(shaderProg);
-    shaderProg->Create();
-    shaderProg->AttachShader(vertShader);
-    shaderProg->AttachShader(fragShader);
-    shaderProg->Link();
-
-    delete[] pFragShaderSource;
-    delete[] pVertShaderSource;
-}
+static const wchar_t ClassName[] = TEXT("MyWindow");
 
 // Window procedure wrapped in C++ class:
 //      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
@@ -184,6 +43,8 @@ LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lPara
 Application::Application(HINSTANCE hInstance)
     : m_hInstance(hInstance)
 {
+    g_pApp = this;
+
     m_ScreenWidth = 1280;
     m_ScreenHeight = 720;
 
@@ -196,6 +57,8 @@ Application::Application(HINSTANCE hInstance)
 
     m_bIsRunning = false;
 
+    m_AssetManager = nullptr;
+
     m_bCameraMoving = false;
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
@@ -205,6 +68,11 @@ Application::Application(HINSTANCE hInstance)
 
 Application::~Application()
 {
+    if (m_AssetManager)
+    {
+        delete m_AssetManager;
+    }
+
     wglDeleteContext(m_hGLRenderContext);
     ReleaseDC(m_hWindow, m_hDeviceContext);
 
@@ -363,13 +231,18 @@ bool Application::Init()
     ShowWindow(m_hWindow, SW_SHOW);
     SetFocus(m_hWindow);
 
-    LoadShader(m_ShaderProg_TexturedLit, "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
-    LoadShader(m_ShaderProg_Sky, "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
-    LoadShader(m_ShaderProg_FramebufferTest, "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
+    m_AssetManager = new AssetManager();
 
-    stbi_set_flip_vertically_on_load(true);
-    LoadTexture(m_Texture_Stonebricks, "Assets\\Textures\\Stonebricks.png");
-    LoadTexture(m_Texture_Grass, "Assets\\Textures\\Grass.png");
+    m_AssetManager->LoadShaderProgram("TexturedLit", "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
+    m_AssetManager->LoadShaderProgram("Sky", "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
+    m_AssetManager->LoadShaderProgram("FramebufferTest", "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
+
+    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Cube.obj");
+    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Monkey.obj");
+    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Grass.obj");
+
+    m_AssetManager->LoadTexture("Assets\\Textures\\UvGrid.png");
+    m_AssetManager->LoadTexture("Assets\\Textures\\Grass.png");
 
     std::vector<std::string> skyTextureNames =
     {
@@ -407,7 +280,6 @@ bool Application::Init()
     }
 
     std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
-
     m_Mesh_Rectangle.reset(new Mesh());
     assert(m_Mesh_Rectangle);
     m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
@@ -426,28 +298,6 @@ bool Application::Init()
     m_Mesh_Cube->Create();
     cubeVertices.clear();
 
-    std::vector<Vertex> wavefrontCubeVertices;
-    LoadWavefrontModel(wavefrontCubeVertices, "Assets\\Models\\Cube.obj");
-
-    m_WavefrontMesh_Cube.reset(new Mesh());
-    assert(m_WavefrontMesh_Cube);
-    m_WavefrontMesh_Cube->VertexCount = wavefrontCubeVertices.size();
-    m_WavefrontMesh_Cube->pVertices = wavefrontCubeVertices.data();
-    m_WavefrontMesh_Cube->VertexBufferOffset = 0;
-    m_WavefrontMesh_Cube->Create();
-    wavefrontCubeVertices.clear();
-
-    std::vector<Vertex> wavefrontMonkeyVertices;
-    LoadWavefrontModel(wavefrontMonkeyVertices, "Assets\\Models\\Monkey.obj");
-
-    m_WavefrontMesh_Monkey.reset(new Mesh());
-    assert(m_WavefrontMesh_Monkey);
-    m_WavefrontMesh_Monkey->VertexCount = wavefrontMonkeyVertices.size();
-    m_WavefrontMesh_Monkey->pVertices = wavefrontMonkeyVertices.data();
-    m_WavefrontMesh_Monkey->VertexBufferOffset = 0;
-    m_WavefrontMesh_Monkey->Create();
-    wavefrontMonkeyVertices.clear();
-
     m_SceneNodes.reserve(32);
     m_LightNodes.reserve(32);
 
@@ -456,15 +306,15 @@ bool Application::Init()
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_Camera);
 
-    auto floorNode = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto floorNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     floorNode->VCreate();
     floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
     floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
-    floorNode->GetMaterial().Diffuse = glm::vec3(0.22f, 0.28f, 0.13f);
-    floorNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
-    floorNode->GetMaterial().bUseTexture = false;
+    floorNode->GetMaterial().Diffuse = glm::vec3(0.5, 0.5, 0.5);
+    floorNode->GetMaterial().Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+    floorNode->GetMaterial().bUseTexture = true;
 
-    auto node1 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node1 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     node1->VCreate();
     node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
     node1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -472,7 +322,7 @@ bool Application::Init()
     node1->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node1->GetMaterial().bUseTexture = true;
 
-    auto node2 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node2 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     node2->VCreate();
     node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
     node2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -480,7 +330,7 @@ bool Application::Init()
     node2->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node2->GetMaterial().bUseTexture = true;
 
-    auto node3 = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto node3 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     node3->VCreate();
     node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
     node3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -488,13 +338,33 @@ bool Application::Init()
     node3->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
     node3->GetMaterial().bUseTexture = true;
 
-    auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode(m_WavefrontMesh_Monkey, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Monkey.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     monkeyNode->VCreate();
     monkeyNode->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
     monkeyNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
     monkeyNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     monkeyNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
-    monkeyNode->GetMaterial().bUseTexture = false;
+    monkeyNode->GetMaterial().bUseTexture = true;
+
+    std::vector<glm::vec3> grassPositions =
+    {
+        glm::vec3(-1.5f, 0.0f, -0.48f),
+        glm::vec3( 1.5f, 0.0f, 0.51f),
+        glm::vec3( 0.0f, 0.0f, 0.7f),
+        glm::vec3(-0.3f, 0.0f, -2.3f),
+        glm::vec3(0.5f, 0.0f, -0.6f)
+    };
+
+    for (uint32_t i = 0; i < grassPositions.size(); ++i)
+    {
+        auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Grass.obj", "TexturedLit", "Assets\\Textures\\Grass.png"));
+        monkeyNode->VCreate();
+        monkeyNode->SetPosition(grassPositions[i]);
+        monkeyNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+        monkeyNode->GetMaterial().Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+        monkeyNode->GetMaterial().Specular = glm::vec3(0.0f, 0.0f, 0.0f);
+        monkeyNode->GetMaterial().bUseTexture = true; 
+    }
 
     // DirectionalLightNode
     LightProperties directionalLightProperties;
@@ -549,7 +419,7 @@ bool Application::Init()
     m_SceneNodes.push_back(m_SpotLightNode);
     m_LightNodes.push_back(m_SpotLightNode);
 
-    auto lightBulb = m_SceneNodes.emplace_back(new MeshNode(m_Mesh_Cube, m_ShaderProg_TexturedLit, m_Texture_Stonebricks));
+    auto lightBulb = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
     lightBulb->VCreate();
     lightBulb->SetPosition(pointLightProperties.Position);
     lightBulb->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
@@ -715,85 +585,42 @@ void Application::MainLoop()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Geometry phase
-
-        m_ShaderProg_TexturedLit->Use();
-        m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-        m_ShaderProg_TexturedLit->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+        StrongShaderProgPtr shaderProgram = m_AssetManager->GetShaderProgram("TexturedLit");
+        shaderProgram->Use();
+        shaderProgram->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+        shaderProgram->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
         for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
         {
             const std::string index = std::to_string(i);
             const LightProperties& lp = m_LightNodes[i]->GetLightProperties();
 
-            m_ShaderProg_TexturedLit->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
-            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
-            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
-            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
-            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
-            m_ShaderProg_TexturedLit->SetUniform3f(("u_Lights[" + index + "].Specular"), lp.Specular);
-            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
-            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
-            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
-            m_ShaderProg_TexturedLit->SetUniform1f(("u_Lights[" + index + "].QuadraticAttenuation"), lp.QuadraticAttenuation);
+            shaderProgram->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
+            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
+            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
+            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
+            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
+            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Specular"), lp.Specular);
+            shaderProgram->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
+            shaderProgram->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
+            shaderProgram->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
+            shaderProgram->SetUniform1f(("u_Lights[" + index + "].QuadraticAttenuation"), lp.QuadraticAttenuation);
         }
 
         for (const auto& node : m_SceneNodes) 
         {
-         #if 0
-            node->VRender(m_ShaderProg_Textured);
-         #endif
-
             node->VRender();
         }
-
-     #if 1
-        std::vector<glm::vec3> grassPositions =
-        {
-            glm::vec3(-1.5f, 0.0f, -0.48f),
-            glm::vec3( 1.5f, 0.0f, 0.51f),
-            glm::vec3( 0.0f, 0.0f, 0.7f),
-            glm::vec3(-0.3f, 0.0f, -2.3f),
-            glm::vec3(0.5f, 0.0f, -0.6f)
-        };
-
-        for (uint32_t i = 0; i < grassPositions.size(); ++i)
-        {
-            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Specular", glm::vec3(0.0f, 0.0f, 0.0f));
-            m_ShaderProg_TexturedLit->SetUniform3f("u_Material.Emissive", glm::vec3(0.0f, 0.0f, 0.0f));
-            m_ShaderProg_TexturedLit->SetUniform1f("u_Material.Power", 32.0f);
-            m_ShaderProg_TexturedLit->SetUniform1b("u_Material.bUseTexture", true);
-            
-            if (true) // Normally this would be: if(Material.bUseTexture) {}
-            {
-                m_Texture_Grass->BindUnit(0);
-                m_ShaderProg_TexturedLit->SetUniform1i("u_Texture", 0);
-            }
-
-            m_Mesh_Rectangle->m_VertexArray->Bind();
-
-            glm::mat4 world = glm::translate(glm::mat4(1.0f), grassPositions[i]) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-            m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
-            glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
-
-            world = glm::translate(glm::mat4(1.0f), grassPositions[i]) 
-            * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) 
-            * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-            m_ShaderProg_TexturedLit->SetUniformMatrix4f("u_World", world);
-
-            glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
-        }       
-     #endif
 
         // Sky phase
 
         glDepthFunc(GL_LEQUAL);
-        m_ShaderProg_Sky->Use();
-        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
-        m_ShaderProg_Sky->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
+        StrongShaderProgPtr skyShaderProgram = m_AssetManager->GetShaderProgram("Sky");
+        skyShaderProgram->Use();
+        skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
+        skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
         m_Texture_Sky->BindUnit(0);
-        m_ShaderProg_Sky->SetUniform1i("u_Texture", 0);
+        skyShaderProgram->SetUniform1i("u_Texture", 0);
         m_Mesh_Cube->m_VertexArray->Bind();
         glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
         glDepthFunc(GL_LESS);
@@ -802,12 +629,13 @@ void Application::MainLoop()
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        m_ShaderProg_FramebufferTest->Use();
+        StrongShaderProgPtr framebufferTestShaderProgram = m_AssetManager->GetShaderProgram("FramebufferTest");
+        framebufferTestShaderProgram->Use();
         m_Mesh_Rectangle->m_VertexArray->Bind();
         glDisable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
         glActiveTexture(GL_TEXTURE0);
-        m_ShaderProg_FramebufferTest->SetUniform1i("u_Texture", 0);
+        framebufferTestShaderProgram->SetUniform1i("u_Texture", 0);
         glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
         wglSwapIntervalEXT(1);

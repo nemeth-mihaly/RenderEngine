@@ -1,4 +1,5 @@
 #include "Graphics3D/SceneNodes.h"
+#include "Core/Application.h"
 
 ////////////////////////////////////////////////////
 //  SceneNode Implementation
@@ -67,17 +68,11 @@ glm::mat4 CameraNode::WorldViewProjection()
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-#if 0
-MeshNode::MeshNode(const StrongVertexArrayPtr& vertexArray, const StrongMeshPtr& mesh, const StrongTexturePtr& texture)
-    : m_VertexArray(vertexArray), m_Mesh(mesh), m_Texture(texture)
+MeshNode::MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
+    : m_MeshName(meshName), m_ShaderProgName(shaderProgName), m_TextureName(textureName)
 {
 }
-#endif
 
-MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderProgPtr& shader, const StrongTexturePtr& texture)
-    : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
-{
-}
 
 MeshNode::~MeshNode()
 {
@@ -89,51 +84,34 @@ void MeshNode::VCreate()
 
 void MeshNode::VRender()
 {
-    m_Shader->Use();
+    StrongShaderProgPtr shaderProgram = g_pApp->GetAssetManager().GetShaderProgram(m_ShaderProgName);
 
-    m_Shader->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
-    m_Shader->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
-    m_Shader->SetUniform3f("u_Material.Specular", m_Material.Specular);
-    m_Shader->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
-    m_Shader->SetUniform1f("u_Material.Power", m_Material.Power);
-    m_Shader->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
+    shaderProgram->Use();
+
+    shaderProgram->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
+    shaderProgram->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
+    shaderProgram->SetUniform3f("u_Material.Specular", m_Material.Specular);
+    shaderProgram->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
+    shaderProgram->SetUniform1f("u_Material.Power", m_Material.Power);
+    shaderProgram->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
 
     if (m_Material.bUseTexture)
     {
-        m_Texture->BindUnit(0);
-        m_Shader->SetUniform1i("u_Texture", 0);
+        StrongTexturePtr texture = g_pApp->GetAssetManager().GetTexture(m_TextureName);
+        texture->BindUnit(0);
+        shaderProgram->SetUniform1i("u_Texture", 0);
     }
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
     world *= glm::scale(glm::mat4(1.0f), m_Scale);
 
-    m_Shader->SetUniformMatrix4f("u_World", world);
+    shaderProgram->SetUniformMatrix4f("u_World", world);
 
-    m_Mesh->m_VertexArray->Bind();
-    glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);
+    StrongMeshPtr mesh = g_pApp->GetAssetManager().GetMesh(m_MeshName);
+
+    mesh->m_VertexArray->Bind();
+    glDrawArrays(GL_TRIANGLES, mesh->VertexBufferOffset, mesh->VertexCount);
 }
-
-#if 0
-void MeshNode::VRender(StrongShaderProgPtr& shader)
-{
-    if (m_Texture)
-    {
-        m_Texture->BindUnit(0);
-        shader->SetUniform1b("u_bHasTexture", true); 
-    }
-    else
-    {
-        shader->SetUniform1b("u_bHasTexture", false); 
-    }
-
-    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
-    shader->SetUniformMatrix4f("u_World", world);
-
-    m_VertexArray->Bind();
-
-    glDrawArrays(GL_TRIANGLES, m_Mesh->VertexBufferOffset, m_Mesh->VertexCount);
-}
-#endif
 
 ////////////////////////////////////////////////////
 //  MeshNode Implementation

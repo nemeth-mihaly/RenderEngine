@@ -1,0 +1,12 @@
+Set normal vectors to perfectly point toward (0, 0, 1)
+
+1) Enable "Shade smooth".
+
+2) Open the script panel and run this script in Object mode:
+
+```py
+    import bpy
+    mesh = bpy.constext.object.data
+    mesh.update()
+    mesh.normals_split_custom_set([ (0,0,1) for i in mesh.loops ])
+```

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "AssetManager.h"
 #include "Graphics3D/Buffer.h"
 #include "Graphics3D/VertexArray.h"
 #include "Graphics3D/Geometry.h"
@@ -14,8 +15,6 @@
 #include "Graphics3D/Texture.h"
 #include "Graphics3D/Mesh.h"
 #include "Graphics3D/SceneNodes.h"
-
-extern char* _ReadFile(const std::string& name);
 
 ////////////////////////////////////////////////////
 //  class Application
@@ -34,6 +33,8 @@ class Application
 
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    AssetManager& GetAssetManager() { return *m_AssetManager; }
+
  private:
     int m_ScreenWidth;
     int m_ScreenHeight;
@@ -46,17 +47,11 @@ class Application
 
     bool m_bIsRunning;
 
-    StrongShaderProgPtr m_ShaderProg_TexturedLit;
-    StrongShaderProgPtr m_ShaderProg_Sky;
-    StrongShaderProgPtr m_ShaderProg_FramebufferTest;
+    AssetManager* m_AssetManager;
 
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
-    StrongMeshPtr m_WavefrontMesh_Cube;
-    StrongMeshPtr m_WavefrontMesh_Monkey;
 
-    StrongTexturePtr m_Texture_Stonebricks;
-    StrongTexturePtr m_Texture_Grass;
     StrongTexturePtr m_Texture_Sky;
 
     SceneNodeList m_SceneNodes;
@@ -80,3 +75,5 @@ class Application
     float m_Yaw;
     float m_Pitch;
 };
+
+extern Application* g_pApp;
