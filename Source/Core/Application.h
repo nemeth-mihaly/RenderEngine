@@ -36,6 +36,10 @@ class Application
     AssetManager& GetAssetManager() { return *m_AssetManager; }
 
  private:
+    void InitWindow();
+    void InitOpenGL();
+
+ private:
     int m_ScreenWidth;
     int m_ScreenHeight;
 
@@ -51,10 +55,12 @@ class Application
 
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
+    StrongMeshPtr m_Mesh_Terrain;
 
     StrongTexturePtr m_Texture_Sky;
 
     SceneNodeList m_SceneNodes;
+    AlphaSceneList m_AlphaSceneNodes;
     LightSceneNodeList m_LightNodes;
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<LightNode> m_DirectionalLightNode;
@@ -70,7 +76,6 @@ class Application
     bool m_bCameraMoving;
     glm::vec2 m_PrevMousePos;
     glm::vec2 m_CurrentMousePos;
-    bool m_bWireframeEnabled;
 
     float m_Yaw;
     float m_Pitch;

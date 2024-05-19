@@ -9,13 +9,7 @@ SceneNode::SceneNode()
 {
     m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
     m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
-
-    m_Material.Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-    m_Material.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    m_Material.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    m_Material.Emissive = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_Material.Power = 16.00f; // NOTE: Should never be 0 or 1!!
-    m_Material.bUseTexture = false;
+    m_Rotation = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
 }
 
 SceneNode::~SceneNode()
@@ -88,11 +82,11 @@ void MeshNode::VRender()
 
     shaderProgram->Use();
 
-    shaderProgram->SetUniform3f("u_Material.Ambient", m_Material.Ambient);
-    shaderProgram->SetUniform3f("u_Material.Diffuse", m_Material.Diffuse);
-    shaderProgram->SetUniform3f("u_Material.Specular", m_Material.Specular);
-    shaderProgram->SetUniform3f("u_Material.Emissive", m_Material.Emissive);
-    shaderProgram->SetUniform1f("u_Material.Power", m_Material.Power);
+    shaderProgram->SetUniform4f("u_Material.Ambient", m_Material.Ambient);
+    shaderProgram->SetUniform4f("u_Material.Diffuse", m_Material.Diffuse);
+    shaderProgram->SetUniform4f("u_Material.Specular", m_Material.Specular);
+    shaderProgram->SetUniform4f("u_Material.Emissive", m_Material.Emissive);
+    shaderProgram->SetUniform1f("u_Material.SpecularPower", m_Material.SpecularPower);
     shaderProgram->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
 
     if (m_Material.bUseTexture)
@@ -103,6 +97,7 @@ void MeshNode::VRender()
     }
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    world *= glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.w), glm::vec3(m_Rotation.x, m_Rotation.y, m_Rotation.z));
     world *= glm::scale(glm::mat4(1.0f), m_Scale);
 
     shaderProgram->SetUniformMatrix4f("u_World", world);

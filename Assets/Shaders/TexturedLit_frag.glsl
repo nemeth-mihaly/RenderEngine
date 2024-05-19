@@ -5,11 +5,11 @@ out vec4 v_FragmentColor;
 
 struct Material
 {
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
-    vec3 Emissive;
-    float Power;
+    vec4 Ambient;
+    vec4 Diffuse;
+    vec4 Specular;
+    vec4 Emissive;
+    float SpecularPower;
     int bUseTexture;
 };
 
@@ -26,9 +26,9 @@ struct Light
     int Type;
     vec3 Position;
     vec3 Direction;
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
+    vec4 Ambient;
+    vec4 Diffuse;
+    vec4 Specular;
     float Range;
     float Falloff;
     float ConstantAttenuation;
@@ -63,31 +63,31 @@ vec3 ComputeDiffuse(Light light, vec3 lightDirection, vec3 normal)
 {
     // If the angle between the normal and the light's position is greater than 90 degrees, 
     // the dot() function produces a negative value. To resolve this issue, use: max(dot(), 0.0).
-    return ((max(dot(normal, lightDirection), 0.0)) * light.Diffuse);
+    return ((max(dot(normal, lightDirection), 0.0)) * vec3(light.Diffuse));
 }
 
 vec3 ComputeSpecular(Light light, vec3 viewDirection, vec3 lightDirection, vec3 normal)
 {
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    return (pow(max(dot(viewDirection, reflectDirection), 0.0), u_Material.Power) * light.Specular);
+    return (pow(max(dot(viewDirection, reflectDirection), 0.0), u_Material.SpecularPower) * vec3(light.Specular));
 }
 
 struct LightingResult
 {
-    vec3 Diffuse;
-    vec3 Specular;
+    vec4 Diffuse;
+    vec4 Specular;
 };
 
 LightingResult ComputeDirectionalLight(Light light, vec3 viewDirection, vec3 normal)
 {
     LightingResult result;
-    result.Diffuse = vec3(0, 0, 0);
-    result.Specular = vec3(0, 0, 0);
+    result.Diffuse = vec4(0, 0, 0, 0);
+    result.Specular = vec4(0, 0, 0, 0);
 
     vec3 lightDirection = normalize(-light.Direction);  
 
-    result.Diffuse += ComputeDiffuse(light, lightDirection, normal);
-    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal);
+    result.Diffuse += vec4(ComputeDiffuse(light, lightDirection, normal), 1);
+    result.Specular += vec4(ComputeSpecular(light, viewDirection, lightDirection, normal), 1);
 
     return result;
 }
@@ -95,16 +95,16 @@ LightingResult ComputeDirectionalLight(Light light, vec3 viewDirection, vec3 nor
 LightingResult ComputePointLight(Light light, vec3 viewDirection, vec3 normal)
 {
     LightingResult result;
-    result.Diffuse = vec3(0, 0, 0);
-    result.Specular = vec3(0, 0, 0);
+    result.Diffuse = vec4(0, 0, 0, 0);
+    result.Specular = vec4(0, 0, 0, 0);
 
     vec3 lightDirection = normalize(light.Position - v_FragmentPos);  
 
     float _distance = length(light.Position - v_FragmentPos);
     float attenuation = ComputeAttenuation(light, _distance);
 
-    result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation;
-    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation;
+    result.Diffuse += vec4(ComputeDiffuse(light, lightDirection, normal), 1.0) * attenuation;
+    result.Specular += vec4(ComputeSpecular(light, viewDirection, lightDirection, normal), 1.0) * attenuation;
 
     return result;
 }
@@ -112,8 +112,8 @@ LightingResult ComputePointLight(Light light, vec3 viewDirection, vec3 normal)
 LightingResult ComputeSpotLight(Light light, vec3 viewDirection, vec3 normal)
 {
     LightingResult result;
-    result.Diffuse = vec3(0, 0, 0);
-    result.Specular = vec3(0, 0, 0);
+    result.Diffuse = vec4(0, 0, 0, 0);
+    result.Specular = vec4(0, 0, 0, 0);
 
     vec3 lightDirection = normalize(light.Position - v_FragmentPos);
     float theta = dot(lightDirection, normalize(-light.Direction));
@@ -123,8 +123,8 @@ LightingResult ComputeSpotLight(Light light, vec3 viewDirection, vec3 normal)
     float _distance = length(light.Position - v_FragmentPos);
     float attenuation = ComputeAttenuation(light, _distance);
 
-    result.Diffuse += ComputeDiffuse(light, lightDirection, normal) * attenuation * intensity;
-    result.Specular += ComputeSpecular(light, viewDirection, lightDirection, normal) * attenuation * intensity;
+    result.Diffuse += vec4(ComputeDiffuse(light, lightDirection, normal), 1.0) * attenuation * intensity;
+    result.Specular += vec4(ComputeSpecular(light, viewDirection, lightDirection, normal), 1.0) * attenuation * intensity;
 
     return result;
 }
@@ -132,8 +132,8 @@ LightingResult ComputeSpotLight(Light light, vec3 viewDirection, vec3 normal)
 LightingResult ComputeLighting()
 {
     LightingResult result;
-    result.Diffuse = vec3(0, 0, 0);
-    result.Specular = vec3(0, 0, 0);
+    result.Diffuse = vec4(0, 0, 0, 0);
+    result.Specular = vec4(0, 0, 0, 0);
 
     vec3 normal = normalize(v_Normal);
     vec3 viewDirection = normalize(u_ViewPos - v_FragmentPos);
@@ -174,8 +174,8 @@ LightingResult ComputeLighting()
         }
     }
 
-    result.Diffuse = clamp(result.Diffuse, vec3(0, 0, 0), vec3(1, 1, 1));
-    result.Specular = clamp(result.Specular, vec3(0, 0, 0), vec3(1, 1, 1));
+    result.Diffuse = clamp(result.Diffuse, vec4(0, 0, 0, 0), vec4(1, 1, 1, 1));
+    result.Specular = clamp(result.Specular, vec4(0, 0, 0, 0), vec4(1, 1, 1, 1));
 
     return result;
 }
@@ -191,19 +191,20 @@ void main()
     {
         texColor = texture(u_Texture, v_Uv);
 
-        if (texColor.a < 0.1)
+        if (texColor.a < 0.01)
         {
             discard;
         }
     }
 
-    vec3 ambient = u_Material.Ambient * vec3(0.2, 0.2, 0.2);
-    vec3 diffuse = u_Material.Diffuse * litColor.Diffuse;
-    vec3 specular = u_Material.Specular * litColor.Specular;
-    vec3 emissive = u_Material.Emissive;
+    vec4 globalAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+    vec4 ambient = u_Material.Ambient * globalAmbient;
+    vec4 diffuse = u_Material.Diffuse * litColor.Diffuse;
+    vec4 specular = u_Material.Specular * litColor.Specular;
+    vec4 emissive = u_Material.Emissive;
 
     // Final color.
-    vec4 finalColor = vec4((ambient + diffuse + specular + emissive), 1.0) * texColor;
+    vec4 finalColor = vec4((ambient + diffuse + specular + emissive)) * texColor;
 
     // End.
     v_FragmentColor = finalColor;

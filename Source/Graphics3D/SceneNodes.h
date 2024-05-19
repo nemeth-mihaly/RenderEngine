@@ -15,11 +15,21 @@
 
 struct Material
 {
-    glm::vec3 Diffuse;
-    glm::vec3 Ambient;
-    glm::vec3 Specular;
-    glm::vec3 Emissive;
-    float Power;
+    Material()
+        : Ambient(0.1f, 0.1f, 0.1f, 1.0f),
+        Diffuse(1.0f, 1.0f, 1.0f, 1.0f),
+        Specular(0.5f, 0.5f, 0.5f, 1.0f),
+        Emissive(0.0f, 0.0f, 0.0f, 1.0f),
+        SpecularPower(32.0f),
+        bUseTexture(false)
+    {
+    }
+
+    glm::vec4 Ambient;
+    glm::vec4 Diffuse;
+    glm::vec4 Specular;
+    glm::vec4 Emissive;
+    float SpecularPower;
     bool bUseTexture;
 };
 
@@ -36,11 +46,7 @@ class SceneNode
     virtual void VCreate();
 
     virtual void VUpdate(const float deltaTime);
- 
     virtual void VRender();
- #if 0
-    virtual void VRender(StrongShaderProgPtr& shader);
- #endif
 
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     const glm::vec3& GetPosition() const { return m_Pos; }
@@ -48,11 +54,15 @@ class SceneNode
     void SetScale(const glm::vec3& scale) { m_Scale = scale; }
     const glm::vec3& GetScale() const { return m_Scale; }
 
+    void SetRotation(const glm::vec3& axis, float degrees) { m_Rotation = glm::vec4(axis, degrees); }
+    const glm::vec4& GetRotation() const { return m_Rotation; }
+
     Material& GetMaterial() { return m_Material; }
 
  protected:
     glm::vec3 m_Pos;
     glm::vec3 m_Scale;
+    glm::vec4 m_Rotation;
     Material m_Material;
 };
 
@@ -125,9 +135,9 @@ struct LightProperties
     LightType Type;
     glm::vec3 Position;
     glm::vec3 Direction;
-    glm::vec3 Ambient;
-    glm::vec3 Diffuse;
-    glm::vec3 Specular;
+    glm::vec4 Ambient;
+    glm::vec4 Diffuse;
+    glm::vec4 Specular;
     float Range;
     float Falloff;
     float ConstantAttenuation;
@@ -158,3 +168,14 @@ class LightNode : public SceneNode
 };
 
 typedef std::vector<std::shared_ptr<LightNode>> LightSceneNodeList;
+
+////////////////////////////////////////////////////
+//  struct AlphaSceneNode
+////////////////////////////////////////////////////
+
+struct AlphaSceneNode
+{
+    std::shared_ptr<SceneNode> Node;
+};
+
+typedef std::vector<AlphaSceneNode*> AlphaSceneList;
