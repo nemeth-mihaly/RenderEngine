@@ -7,7 +7,7 @@
 
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Mesh.h"
-#include "Graphics3D/Texture.h"
+#include "Graphics3D/OpenGL/Texture.h"
 
 ////////////////////////////////////////////////////
 //  class AssetManager

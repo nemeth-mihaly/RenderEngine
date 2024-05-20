@@ -127,14 +127,12 @@ bool Application::Init()
     int width, height, channelCount;
     stbi_load(skyTextureNames[0].c_str(), &width, &height, &channelCount, 0);
 
-    m_Texture_Sky->SetStorage2D(1, InternalFormat(channelCount), width, height);
-
     for (uint32_t i = 0; i < skyTextureNames.size(); ++i)
     {
         uint8_t* pPixels = stbi_load(skyTextureNames[i].c_str(), &width, &height, &channelCount, 0);
         assert(pPixels);
     
-        m_Texture_Sky->SetSubImage3D(0, 0, 0, i, width, height, 1, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+        m_Texture_Sky->SetImage2DForSpecialTarget(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, TextureInternalFormat(channelCount), width, height, 0, TextureFormat(channelCount), pPixels);
     }
 
     std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
@@ -522,11 +520,13 @@ void Application::MainLoop()
         skyShaderProgram->Use();
         skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
         skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
-        m_Texture_Sky->BindUnit(0);
+        //m_Texture_Sky->BindUnit(0);
+        m_Texture_Sky->SetActiveUnit(0);
         skyShaderProgram->SetUniform1i("u_Texture", 0);
         m_Mesh_Cube->m_VertexArray->Bind();
         glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
         glDepthFunc(GL_LESS);
+        m_Texture_Sky->SetActive(GL_FALSE);
 
         // Render Alpha scene nodes.
         glEnable(GL_BLEND);

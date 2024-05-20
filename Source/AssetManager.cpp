@@ -174,7 +174,7 @@ void AssetManager::LoadTexture(const std::string& name)
 
     StrongTexturePtr texture;
     texture.reset(new Texture());
-    assert(texture);
+
     texture->Create(GL_TEXTURE_2D);
     
     texture->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -182,11 +182,9 @@ void AssetManager::LoadTexture(const std::string& name)
     texture->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     texture->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    texture->SetStorage2D(1, InternalFormat(channelCount), width, height);
-    texture->SetSubImage2D(0, 0, 0, width, height, Format(channelCount), GL_UNSIGNED_BYTE, pPixels);
+    texture->SetImage2D(0, TextureInternalFormat(channelCount), width, height, 0, TextureFormat(channelCount), pPixels);
 
     stbi_image_free(pPixels);
-
     m_Textures[name] = texture;
 }
 

@@ -12,7 +12,7 @@
 #include "Graphics3D/VertexArray.h"
 #include "Graphics3D/Geometry.h"
 #include "Graphics3D/ShaderProgram.h"
-#include "Graphics3D/Texture.h"
+#include "Graphics3D/OpenGL/Texture.h"
 #include "Graphics3D/Mesh.h"
 #include "Graphics3D/SceneNodes.h"
 

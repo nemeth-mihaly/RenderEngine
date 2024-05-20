@@ -92,7 +92,8 @@ void MeshNode::VRender()
     if (m_Material.bUseTexture)
     {
         StrongTexturePtr texture = g_pApp->GetAssetManager().GetTexture(m_TextureName);
-        texture->BindUnit(0);
+        //texture->BindUnit(0);
+        texture->SetActiveUnit(0);
         shaderProgram->SetUniform1i("u_Texture", 0);
     }
 
