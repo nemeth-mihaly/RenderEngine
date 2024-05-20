@@ -8,30 +8,7 @@
 #include "Graphics3D/Mesh.h"
 #include "Graphics3D/ShaderProgram.h"
 #include "Graphics3D/Texture.h"
-
-////////////////////////////////////////////////////
-//  struct Material
-////////////////////////////////////////////////////
-
-struct Material
-{
-    Material()
-        : Ambient(0.1f, 0.1f, 0.1f, 1.0f),
-        Diffuse(1.0f, 1.0f, 1.0f, 1.0f),
-        Specular(0.5f, 0.5f, 0.5f, 1.0f),
-        Emissive(0.0f, 0.0f, 0.0f, 1.0f),
-        SpecularPower(32.0f),
-        bUseTexture(false)
-    {
-    }
-
-    glm::vec4 Ambient;
-    glm::vec4 Diffuse;
-    glm::vec4 Specular;
-    glm::vec4 Emissive;
-    float SpecularPower;
-    bool bUseTexture;
-};
+#include "Graphics3D/Material.h"
 
 ////////////////////////////////////////////////////
 //  class SceneNode
