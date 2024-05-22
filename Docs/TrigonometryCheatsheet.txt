@@ -1,0 +1,13 @@
+
+sin(yaw)    z     +             
+            |   / |                       
+            | /   |                       
+            ++ -  + x                     
+               cos(yaw)                        
+
+
+sin(pitch)  y     + 
+            |   / |
+            | /   |
+            ++ -  + x/z
+                cos(pitch)

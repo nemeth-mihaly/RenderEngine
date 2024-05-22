@@ -1,108 +1,44 @@
-#include "Application.h"
+#include "Core/App.h"
 
 #include <cstring>
 #include <format>
 #include <iostream>
 
-Application* g_pApp = nullptr;
-
-void GlfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS)
-    {
-        if (key == GLFW_KEY_ESCAPE)
-        {
-            glfwSetWindowShouldClose(pWindow, GLFW_TRUE);
-        }
-
-        g_pApp->m_bKeyStates[key] = true;
-    }
-    else
-    if (action == GLFW_RELEASE)
-    {
-        g_pApp->m_bKeyStates[key] = false;
-    }
-}
-
-void GlfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos)
-{
-    g_pApp->m_CurrentMousePos = glm::vec2(xpos, ypos);
-}
-
-void GlfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
-{
-    if (action == GLFW_PRESS)
-    {
-        if (button == GLFW_MOUSE_BUTTON_LEFT)
-            g_pApp->m_bCameraMoving = true;
-    }
-    else
-    if (action == GLFW_RELEASE)
-    {
-        if (button == GLFW_MOUSE_BUTTON_LEFT)
-            g_pApp->m_bCameraMoving = false;
-    }
-}
+#include "Core/Engine.h"
 
 ////////////////////////////////////////////////////
-//  Application Implementation
+//  App Implementation
 ////////////////////////////////////////////////////
 
-Application::Application()
+App::App()
 {
-    g_pApp = this;
-
     memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
-
-    m_bIsRunning = false;
-
-    m_AssetManager = nullptr;
 
     m_bCameraMoving = false;
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 }
 
-Application::~Application()
+App::~App()
 {
-    if (m_AssetManager)
-    {
-        delete m_AssetManager;
-    }
-
-    if (m_pWindow)
-        glfwDestroyWindow(m_pWindow);
-    
-    glfwTerminate();
 }
 
-bool Application::Initialize()
+bool App::Init()
 {
-    glfwInit();
-    m_pWindow = glfwCreateWindow(1280, 720, "Render Engine | Testbed", nullptr, nullptr);
-    glfwMakeContextCurrent(m_pWindow);
-    gladLoadGL();
+    g_pEngine->m_pAssetManager->LoadShaderProgram("TexturedLit", "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
+    g_pEngine->m_pAssetManager->LoadShaderProgram("Sky", "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
+    g_pEngine->m_pAssetManager->LoadShaderProgram("FramebufferTest", "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
 
-    glfwSetKeyCallback(m_pWindow, GlfwKeyCallback);
-    glfwSetCursorPosCallback(m_pWindow, GlfwCursorPosCallback);
-    glfwSetMouseButtonCallback(m_pWindow, GlfwMouseButtonCallback);
+    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Rectangle.obj");
+    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Cube.obj");
+    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Monkey.obj");
+    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Grass.obj");
 
-    m_AssetManager = new AssetManager();
-
-    m_AssetManager->LoadShaderProgram("TexturedLit", "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
-    m_AssetManager->LoadShaderProgram("Sky", "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
-    m_AssetManager->LoadShaderProgram("FramebufferTest", "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
-
-    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Rectangle.obj");
-    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Cube.obj");
-    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Monkey.obj");
-    m_AssetManager->LoadWavefrontMesh("Assets\\Models\\Grass.obj");
-
-    m_AssetManager->LoadTexture("Assets\\Textures\\UvGrid.png");
-    m_AssetManager->LoadTexture("Assets\\Textures\\Stonebricks.png");
-    m_AssetManager->LoadTexture("Assets\\Textures\\Grass.png");
-    m_AssetManager->LoadTexture("Assets\\Textures\\SphereGlow.png");
-    m_AssetManager->LoadTexture("Assets\\Textures\\AlphaWindow.png");
+    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\UvGrid.png");
+    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\Stonebricks.png");
+    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\Grass.png");
+    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\SphereGlow.png");
+    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\AlphaWindow.png");
 
     std::vector<std::string> skyTextureNames =
     {
@@ -341,211 +277,216 @@ bool Application::Initialize()
     assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // ----------------------------------------------------
-
-    m_bIsRunning = true;
-
     return true;
 }
 
-void Application::Run()
+void App::UpdateAndRender(const float fDeltaTime)
 {
-    float fPreviousTime = static_cast<float>(glfwGetTime());
+    const float cameraSpeed = 2.5f;
 
-    while (m_bIsRunning && !glfwWindowShouldClose(m_pWindow))
+    const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.2f;
+    m_PrevMousePos = m_CurrentMousePos;
+
+    //if (m_bCameraMoving)
+    //{
+        if (m_bKeyStates[0x57]) //  W key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+        else
+        if (m_bKeyStates[0x53]) // 	S key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+
+        const glm::vec3 rightDirection = glm::cross(m_Camera->GetForwardDir(), upDirection);
+
+        if (m_bKeyStates[0x41]) //  A key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+        else
+        if (m_bKeyStates[0x44]) //  D key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+
+        if (m_bKeyStates[0x51]) //     Q key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+        else
+        if (m_bKeyStates[0x45])  //  E key
+        {
+            glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * fDeltaTime);
+            m_Camera->SetPosition(newPos);
+        }
+
+        if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+        {
+            const float rotationSpeed = 0.55f;
+            m_Yaw += deltaMousePos.x * rotationSpeed;
+            m_Pitch += (-deltaMousePos.y) * rotationSpeed;
+
+            glm::vec3 newForwardDirection;
+            newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+            newForwardDirection.y = sinf(glm::radians(m_Pitch));
+            newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+            
+            m_Camera->SetForwardDir(glm::normalize(newForwardDirection));
+        }
+    //}
+
+    for (const auto& node : m_SceneNodes)
     {
-        float fCurrentTime = static_cast<float>(glfwGetTime());
-        float fDeltaTime = fCurrentTime - fPreviousTime;
-        fPreviousTime = fCurrentTime;
-
-        glfwPollEvents();
-
-        const float cameraSpeed = 2.5f;
-
-        const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
-
-        glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.2f;
-        m_PrevMousePos = m_CurrentMousePos;
-
-        //if (m_bCameraMoving)
-        //{
-            if (m_bKeyStates[0x57]) //  W key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeyStates[0x53]) // 	S key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-
-            const glm::vec3 rightDirection = glm::cross(m_Camera->GetForwardDir(), upDirection);
-
-            if (m_bKeyStates[0x41]) //  A key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeyStates[0x44]) //  D key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-
-            if (m_bKeyStates[0x51]) //     Q key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeyStates[0x45])  //  E key
-            {
-                glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * fDeltaTime);
-                m_Camera->SetPosition(newPos);
-            }
-
-            /*
-            //  sin(yaw) z     +            sin(pitch) y     +  
-            //           |   / |                       |   / |
-            //           | /   |                       | /   |
-            //           ++ -  + x                     ++ -  + x/z
-            //              cos(yaw)                        cos(pitch)
-            */    
-
-            if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
-            {
-                const float rotationSpeed = 0.55f;
-                m_Yaw += deltaMousePos.x * rotationSpeed;
-                m_Pitch += (-deltaMousePos.y) * rotationSpeed;
-
-                glm::vec3 newForwardDirection;
-                newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                newForwardDirection.y = sinf(glm::radians(m_Pitch));
-                newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                
-                m_Camera->SetForwardDir(glm::normalize(newForwardDirection));
-            }
-        //}
-
-        for (const auto& node : m_SceneNodes)
-        {
-            node->VUpdate(fDeltaTime);
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
-
-        glEnable(GL_DEPTH_TEST);
-        //glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
-        glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Geometry phase
-        StrongProgramPipelinePtr shaderProgram = m_AssetManager->GetShaderProgram("TexturedLit");
-        shaderProgram->SetActive();
-        shaderProgram->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-        shaderProgram->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
-
-        for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
-        {
-            const std::string index = std::to_string(i);
-            const LightProperties& lp = m_LightNodes[i]->GetLightProperties();
-
-            shaderProgram->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
-            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
-            shaderProgram->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
-            shaderProgram->SetUniform4f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
-            shaderProgram->SetUniform4f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
-            shaderProgram->SetUniform4f(("u_Lights[" + index + "].Specular"), lp.Specular);
-            shaderProgram->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
-            shaderProgram->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
-            shaderProgram->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
-            shaderProgram->SetUniform1f(("u_Lights[" + index + "].QuadraticAttenuation"), lp.QuadraticAttenuation);
-        }
-
-        for (const auto& node : m_SceneNodes) 
-        {
-            // Render scene nodes if not transparent, else add to the alpha scene node "queue".
-            const float alpha = node->GetMaterial().Diffuse.a;
-
-            if (alpha == 1.0f)
-            {
-                node->VRender();
-            }
-            else if (alpha == 0.0f)
-            {
-                AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
-                pAlphaSceneNode->Node = node;
-
-                m_AlphaSceneNodes.push_back(pAlphaSceneNode);
-            }
-        }
-
-        // Render Skybox/Cubemap.
-        glDepthFunc(GL_LEQUAL);
-        StrongProgramPipelinePtr skyShaderProgram = m_AssetManager->GetShaderProgram("Sky");
-        skyShaderProgram->SetActive();
-        skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
-        skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
-        //m_Texture_Sky->BindUnit(0);
-        m_Texture_Sky->SetActiveUnit(0);
-        skyShaderProgram->SetUniform1i("u_Texture", 0);
-        m_Mesh_Cube->m_VertexArray->SetActive();
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
-        glDepthFunc(GL_LESS);
-        m_Texture_Sky->SetActive(GL_FALSE);
-
-        // Render Alpha scene nodes.
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- 
-        for (uint32_t i = 0; i < m_AlphaSceneNodes.size(); i++)
-        {
-            for (uint32_t j = (i + 1); j < m_AlphaSceneNodes.size(); j++)
-            {
-                auto Vec3Length = [](const glm::vec3& p) -> float
-                {
-                    return (p.x * p.x + p.y * p.y + p.z * p.z);
-                };
-
-                if (Vec3Length(m_Camera->GetPosition() - m_AlphaSceneNodes[i]->Node->GetPosition()) 
-                > Vec3Length(m_Camera->GetPosition() - m_AlphaSceneNodes[j]->Node->GetPosition()))
-                {
-                    AlphaSceneNode* pTempAlphaSceneNode = new AlphaSceneNode();
-                    pTempAlphaSceneNode->Node = m_AlphaSceneNodes[i]->Node;
-
-                    m_AlphaSceneNodes[i] = m_AlphaSceneNodes[j];
-                    m_AlphaSceneNodes[j] = pTempAlphaSceneNode;
-                }
-            }
-        }
-
-        for (int i = (m_AlphaSceneNodes.size() - 1); i >= 0; i--)
-        {
-            m_AlphaSceneNodes[i]->Node->VRender();
-            delete m_AlphaSceneNodes[i];
-        }
-
-        m_AlphaSceneNodes.clear();
-
-        glDisable(GL_BLEND);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        StrongProgramPipelinePtr framebufferTestShaderProgram = m_AssetManager->GetShaderProgram("FramebufferTest");
-        framebufferTestShaderProgram->SetActive();
-        m_Mesh_Rectangle->m_VertexArray->SetActive();
-        glDisable(GL_DEPTH_TEST);
-        glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
-        glActiveTexture(GL_TEXTURE0);
-        framebufferTestShaderProgram->SetUniform1i("u_Texture", 0);
-        glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
-
-        glfwSwapInterval(1);
-        glfwSwapBuffers(m_pWindow);
+        node->VUpdate(fDeltaTime);
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
+
+    glEnable(GL_DEPTH_TEST);
+    //glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
+    glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Geometry phase
+    StrongProgramPipelinePtr shaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("TexturedLit");
+    shaderProgram->SetActive();
+    shaderProgram->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
+    shaderProgram->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
+
+    for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
+    {
+        const std::string index = std::to_string(i);
+        const LightProperties& lp = m_LightNodes[i]->GetLightProperties();
+
+        shaderProgram->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
+        shaderProgram->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
+        shaderProgram->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Specular"), lp.Specular);
+        shaderProgram->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
+        shaderProgram->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
+        shaderProgram->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
+        shaderProgram->SetUniform1f(("u_Lights[" + index + "].QuadraticAttenuation"), lp.QuadraticAttenuation);
+    }
+
+    for (const auto& node : m_SceneNodes) 
+    {
+        // Render scene nodes if not transparent, else add to the alpha scene node "queue".
+        const float alpha = node->GetMaterial().Diffuse.a;
+
+        if (alpha == 1.0f)
+        {
+            node->VRender();
+        }
+        else if (alpha == 0.0f)
+        {
+            AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
+            pAlphaSceneNode->Node = node;
+
+            m_AlphaSceneNodes.push_back(pAlphaSceneNode);
+        }
+    }
+
+    // Render Skybox/Cubemap.
+    glDepthFunc(GL_LEQUAL);
+    StrongProgramPipelinePtr skyShaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("Sky");
+    skyShaderProgram->SetActive();
+    skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
+    skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
+    //m_Texture_Sky->BindUnit(0);
+    m_Texture_Sky->SetActiveUnit(0);
+    skyShaderProgram->SetUniform1i("u_Texture", 0);
+    m_Mesh_Cube->m_VertexArray->SetActive();
+    glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
+    glDepthFunc(GL_LESS);
+    m_Texture_Sky->SetActive(GL_FALSE);
+
+    // Render Alpha scene nodes.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    for (uint32_t i = 0; i < m_AlphaSceneNodes.size(); i++)
+    {
+        for (uint32_t j = (i + 1); j < m_AlphaSceneNodes.size(); j++)
+        {
+            auto Vec3Length = [](const glm::vec3& p) -> float
+            {
+                return (p.x * p.x + p.y * p.y + p.z * p.z);
+            };
+
+            if (Vec3Length(m_Camera->GetPosition() - m_AlphaSceneNodes[i]->Node->GetPosition()) 
+            > Vec3Length(m_Camera->GetPosition() - m_AlphaSceneNodes[j]->Node->GetPosition()))
+            {
+                AlphaSceneNode* pTempAlphaSceneNode = new AlphaSceneNode();
+                pTempAlphaSceneNode->Node = m_AlphaSceneNodes[i]->Node;
+
+                m_AlphaSceneNodes[i] = m_AlphaSceneNodes[j];
+                m_AlphaSceneNodes[j] = pTempAlphaSceneNode;
+            }
+        }
+    }
+
+    for (int i = (m_AlphaSceneNodes.size() - 1); i >= 0; i--)
+    {
+        m_AlphaSceneNodes[i]->Node->VRender();
+        delete m_AlphaSceneNodes[i];
+    }
+
+    m_AlphaSceneNodes.clear();
+
+    glDisable(GL_BLEND);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    StrongProgramPipelinePtr framebufferTestShaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("FramebufferTest");
+    framebufferTestShaderProgram->SetActive();
+    m_Mesh_Rectangle->m_VertexArray->SetActive();
+    glDisable(GL_DEPTH_TEST);
+    glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
+    glActiveTexture(GL_TEXTURE0);
+    framebufferTestShaderProgram->SetUniform1i("u_Texture", 0);
+    glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
+}
+
+void App::OnKeyDown(int key)
+{
+    if (key == GLFW_KEY_ESCAPE)
+        g_pEngine->QuitApp();
+
+    m_bKeyStates[key] = true;
+}
+
+void App::OnKeyUp(int key)
+{
+    m_bKeyStates[key] = false;
+}
+
+void App::OnMouseMove(float x, float y)
+{
+    m_CurrentMousePos.x = x;
+    m_CurrentMousePos.y = y;
+}
+
+void App::OnMouseButtonDown(int button)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+        m_bCameraMoving = true;
+}
+
+void App::OnMouseButtonUp(int button)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+        m_bCameraMoving = false;
 }

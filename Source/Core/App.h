@@ -16,31 +16,25 @@
 #include "Graphics3D/Light.h"
 
 ////////////////////////////////////////////////////
-//  class Application
+//  class App
 ////////////////////////////////////////////////////
 
-class Application
+class App
 {
-    friend void GlfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods);
-    friend void GlfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos);
-    friend void GlfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-
  public:
-    Application();
-    ~Application();
+    App();
+    ~App();
 
-    bool Initialize();
-    void Run();
+    bool Init();
+    void UpdateAndRender(const float fDeltaTime);
 
-    AssetManager& GetAssetManager() { return *m_AssetManager; }
+    void OnKeyDown(int key);
+    void OnKeyUp(int key);
+    void OnMouseMove(float x, float y);
+    void OnMouseButtonDown(int button);
+    void OnMouseButtonUp(int button);
 
  private:
-    GLFWwindow* m_pWindow;
-
-    bool m_bIsRunning;
-
-    AssetManager* m_AssetManager;
-
     StrongMeshPtr m_Mesh_Rectangle;
     StrongMeshPtr m_Mesh_Cube;
     StrongMeshPtr m_Mesh_Terrain;
@@ -68,5 +62,3 @@ class Application
     float m_Yaw;
     float m_Pitch;
 };
-
-extern Application* g_pApp;
