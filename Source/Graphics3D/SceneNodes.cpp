@@ -108,23 +108,3 @@ void MeshNode::VRender()
     mesh->m_VertexArray->SetActive();
     glDrawArrays(GL_TRIANGLES, mesh->VertexBufferOffset, mesh->VertexCount);
 }
-
-////////////////////////////////////////////////////
-//  MeshNode Implementation
-////////////////////////////////////////////////////
-
-LightNode::LightNode()
-{
-}
-
-LightNode::~LightNode()
-{
-}
-
-void LightNode::VCreate()
-{
-}
-
-void LightNode::VUpdate(const float deltaTime)
-{
-}

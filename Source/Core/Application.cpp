@@ -6,54 +6,53 @@
 
 Application* g_pApp = nullptr;
 
-static const wchar_t ClassName[] = TEXT("MyWindow");
-
-// Window procedure wrapped in C++ class:
-//      https://devblogs.microsoft.com/oldnewthing/20191014-00/?p=102992
-
-LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
+void GlfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
 {
-    Application* pApp = nullptr;
-
-    if (uMsg == WM_NCCREATE)
+    if (action == GLFW_PRESS)
     {
-        LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        pApp = static_cast<Application*>(lpcs->lpCreateParams);
-        SetWindowLongPtr(hWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pApp));
+        if (key == GLFW_KEY_ESCAPE)
+        {
+            glfwSetWindowShouldClose(pWindow, GLFW_TRUE);
+        }
 
-        pApp->m_hWindow = hWindow;
+        g_pApp->m_bKeyStates[key] = true;
     }
     else
+    if (action == GLFW_RELEASE)
     {
-        pApp = reinterpret_cast<Application*>(GetWindowLongPtr(hWindow, GWLP_USERDATA));
+        g_pApp->m_bKeyStates[key] = false;
     }
+}
 
-    if (pApp)
+void GlfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+{
+    g_pApp->m_CurrentMousePos = glm::vec2(xpos, ypos);
+}
+
+void GlfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+{
+    if (action == GLFW_PRESS)
     {
-        return pApp->HandleMessage(uMsg, wParam, lParam);
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            g_pApp->m_bCameraMoving = true;
     }
-
-    return DefWindowProc(hWindow, uMsg, wParam, lParam);
+    else
+    if (action == GLFW_RELEASE)
+    {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            g_pApp->m_bCameraMoving = false;
+    }
 }
 
 ////////////////////////////////////////////////////
 //  Application Implementation
 ////////////////////////////////////////////////////
 
-Application::Application(HINSTANCE hInstance)
-    : m_hInstance(hInstance)
+Application::Application()
 {
     g_pApp = this;
 
-    m_ScreenWidth = 1280;
-    m_ScreenHeight = 720;
-
-    m_hWindow = nullptr;
-
     memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
-
-    m_hDeviceContext = nullptr;
-    m_hGLRenderContext = nullptr;
 
     m_bIsRunning = false;
 
@@ -71,19 +70,22 @@ Application::~Application()
         delete m_AssetManager;
     }
 
-    wglDeleteContext(m_hGLRenderContext);
-    ReleaseDC(m_hWindow, m_hDeviceContext);
-
-    DestroyWindow(m_hWindow);
+    if (m_pWindow)
+        glfwDestroyWindow(m_pWindow);
+    
+    glfwTerminate();
 }
 
 bool Application::Initialize()
 {
-    InitWindow();
-    InitOpenGL();
- 
-    ShowWindow(m_hWindow, SW_SHOW);
-    SetFocus(m_hWindow);
+    glfwInit();
+    m_pWindow = glfwCreateWindow(1280, 720, "Render Engine | Testbed", nullptr, nullptr);
+    glfwMakeContextCurrent(m_pWindow);
+    gladLoadGL();
+
+    glfwSetKeyCallback(m_pWindow, GlfwKeyCallback);
+    glfwSetCursorPosCallback(m_pWindow, GlfwCursorPosCallback);
+    glfwSetMouseButtonCallback(m_pWindow, GlfwMouseButtonCallback);
 
     m_AssetManager = new AssetManager();
 
@@ -323,7 +325,7 @@ bool Application::Initialize()
 
     glGenTextures(1, &m_TextureID_ColorBuffer);
     glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ScreenWidth, m_ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -332,7 +334,7 @@ bool Application::Initialize()
 
     glGenRenderbuffers(1, &m_RenderBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, m_ScreenWidth, m_ScreenHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, 1280, 720);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferID);
@@ -348,48 +350,15 @@ bool Application::Initialize()
 
 void Application::Run()
 {
-    MSG msg;
-    memset(&msg, 0, sizeof(msg));
+    float fPreviousTime = static_cast<float>(glfwGetTime());
 
-    //LARGE_INTEGER frequency;
-    //QueryPerformanceFrequency(&frequency);
-
-    //LARGE_INTEGER previousTickCount;
-    //QueryPerformanceCounter(&previousTickCount);
-
-    std::chrono::_V2::system_clock::time_point previous;
-    previous = std::chrono::high_resolution_clock::now();
-
-    while (m_bIsRunning)
+    while (m_bIsRunning && !glfwWindowShouldClose(m_pWindow))
     {
-        //LARGE_INTEGER currentTickCount;
-        //QueryPerformanceCounter(&currentTickCount);
+        float fCurrentTime = static_cast<float>(glfwGetTime());
+        float fDeltaTime = fCurrentTime - fPreviousTime;
+        fPreviousTime = fCurrentTime;
 
-        //ULONGLONG elapsedTickCount = currentTickCount.QuadPart - previousTickCount.QuadPart;
-
-        //ULONGLONG elapsedMicroseconds = (elapsedTickCount * 1'000'000);
-        //elapsedMicroseconds /= frequency.QuadPart;
-
-        //previousTickCount = currentTickCount;
-
-        //float deltaTime = (elapsedMicroseconds * 0.001f) * 0.001f;
-
-        std::chrono::_V2::system_clock::time_point current;
-        current = std::chrono::high_resolution_clock::now();
-
-        float deltaTime = std::chrono::duration<float>(current - previous).count();
-        previous = current;
-
-        while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-        {
-            if (msg.message == WM_QUIT)
-            {
-                m_bIsRunning = false;
-            }
-
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+        glfwPollEvents();
 
         const float cameraSpeed = 2.5f;
 
@@ -402,13 +371,13 @@ void Application::Run()
         //{
             if (m_bKeyStates[0x57]) //  W key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x53]) // 	S key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
 
@@ -416,25 +385,25 @@ void Application::Run()
 
             if (m_bKeyStates[0x41]) //  A key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x44]) //  D key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
 
             if (m_bKeyStates[0x51]) //     Q key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[0x45])  //  E key
             {
-                glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * fDeltaTime);
                 m_Camera->SetPosition(newPos);
             }
 
@@ -463,13 +432,13 @@ void Application::Run()
 
         for (const auto& node : m_SceneNodes)
         {
-            node->VUpdate(deltaTime);
+            node->VUpdate(fDeltaTime);
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 
         glEnable(GL_DEPTH_TEST);
-        glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
+        //glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
         glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -576,233 +545,7 @@ void Application::Run()
         framebufferTestShaderProgram->SetUniform1i("u_Texture", 0);
         glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 
-        wglSwapIntervalEXT(1);
-        wglSwapLayerBuffers(m_hDeviceContext, WGL_SWAP_MAIN_PLANE);
+        glfwSwapInterval(1);
+        glfwSwapBuffers(m_pWindow);
     }
-}
-
-LRESULT Application::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-        case WM_KEYDOWN:
-        {
-            if (wParam == VK_ESCAPE)
-            {
-                PostQuitMessage(0);
-            }
-
-            m_bKeyStates[wParam] = true;
-
-            //if (wParam == VK_F1)
-            //{
-            //    ShowCursor(FALSE);
-            //    
-            //}
-            //else
-            //if (wParam == VK_F2)
-            //{
-            //    ShowCursor(TRUE);
-            //}
-
-            //printf("Key Down: %llu \n", wParam);
-
-            return 0;
-        };
-
-        case WM_KEYUP:
-        {
-            m_bKeyStates[wParam] = false;
-            return 0;
-        };
-
-        case WM_MOUSEMOVE:
-        {
-            POINT pos;
-
-            if (GetCursorPos(&pos))
-            {
-                ScreenToClient(m_hWindow, &pos);
-                m_CurrentMousePos = glm::vec2(pos.x, pos.y);
-            }
-
-            //printf("Current Mouse Pos: x{%g} y{%g} \n", m_CurrentMousePos.x, m_CurrentMousePos.y);
-
-            return 0;
-        }
-
-        case WM_RBUTTONDOWN:
-        {
-            m_bCameraMoving = true;
-            return 0;
-        }
-
-        case WM_RBUTTONUP:
-        {
-            m_bCameraMoving = false;
-            return 0;
-        }
-
-        case WM_CLOSE:
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-            return 0;
-        }
-    }
-
-    return DefWindowProc(m_hWindow, uMsg, wParam, lParam);
-}
-
-void Application::InitWindow()
-{
-    WNDCLASSEX wcex;
-    memset(&wcex, 0, sizeof(wcex));
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wcex.lpfnWndProc = WindowProc;
-    wcex.hInstance = m_hInstance;
-    wcex.lpszClassName = ClassName;
-
-    ATOM wcexClassID = RegisterClassEx(&wcex);
-    assert(wcexClassID);
-
-    RECT wr = {0, 0, m_ScreenWidth, m_ScreenHeight};
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-    m_ScreenWidth = (wr.right - wr.left);
-    m_ScreenHeight = (wr.bottom - wr.top);
-
-    m_hWindow = CreateWindowEx(
-        0,
-        ClassName,
-        TEXT("Render Engine | Testbed"),
-        WS_OVERLAPPEDWINDOW,
-    
-        CW_USEDEFAULT, CW_USEDEFAULT, 
-        (wr.right - wr.left), 
-        (wr.bottom - wr.top),
-    
-        nullptr,
-        nullptr,
-        m_hInstance,
-        this
-    );
-
-    assert(m_hWindow);
-}
-
-void Application::InitOpenGL()
-{
-    // Proper OpenGL context creation:
-    //      https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
-    //      ˘˘˘
-
-    // Temp context:
-
-    WNDCLASSEX wcex;
-    memset(&wcex, 0, sizeof(wcex));
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wcex.lpfnWndProc = DefWindowProc;
-    wcex.hInstance = m_hInstance;
-    wcex.lpszClassName = TEXT("OpenGLContextCreation");
-
-    ATOM wcexClassID = RegisterClassEx(&wcex);
-    assert(wcexClassID);
-
-    HWND hWindow = CreateWindowEx(
-        0,
-        TEXT("OpenGLContextCreation"),
-        TEXT(""),
-        WS_OVERLAPPEDWINDOW,
-    
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-    
-        nullptr,
-        nullptr,
-        m_hInstance,
-        nullptr
-    );
-
-    HDC hDeviceContext = GetDC(hWindow);
-    assert(hDeviceContext);
-
-    PIXELFORMATDESCRIPTOR temp_pixelformatDescriptor;
-    memset(&temp_pixelformatDescriptor, 0, sizeof(temp_pixelformatDescriptor));
-
-    temp_pixelformatDescriptor.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    temp_pixelformatDescriptor.nVersion = 1;
-    temp_pixelformatDescriptor.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    temp_pixelformatDescriptor.iPixelType = PFD_TYPE_RGBA;
-    temp_pixelformatDescriptor.cColorBits = 32;
-    temp_pixelformatDescriptor.cAlphaBits = 8;
-    temp_pixelformatDescriptor.cDepthBits = 24;
-    temp_pixelformatDescriptor.cStencilBits = 8;
-    temp_pixelformatDescriptor.iLayerType = PFD_MAIN_PLANE;
-
-    int temp_pixelformat = ChoosePixelFormat(hDeviceContext, &temp_pixelformatDescriptor);
-    SetPixelFormat(hDeviceContext, temp_pixelformat, &temp_pixelformatDescriptor);
-
-    HGLRC temp_hGLRenderContext = wglCreateContext(hDeviceContext);
-    assert(temp_hGLRenderContext);
-
-    WINBOOL bResult = wglMakeCurrent(hDeviceContext, temp_hGLRenderContext);
-    assert(bResult);
-
-    bResult = gladLoadWGL(hDeviceContext);
-    assert(bResult);
-
-    bResult = gladLoadGL();
-    assert(bResult);
-
-    wglDeleteContext(temp_hGLRenderContext);
-    ReleaseDC(hWindow, hDeviceContext);
-
-    DestroyWindow(hWindow);
-
-    // Final context:
-
-    m_hDeviceContext = GetDC(m_hWindow);
-    assert(m_hDeviceContext);
-
-    const int choosePixelformatAttribs[] =
-    {
-        WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-        WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-        WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-        WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-        WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-        WGL_COLOR_BITS_ARB, 32,
-        WGL_ALPHA_BITS_ARB, 8,
-        WGL_DEPTH_BITS_ARB, 24,
-        WGL_STENCIL_BITS_ARB, 8,
-        0, // End.
-    };
-
-    int pixelformat;
-    UINT pixelformatCount;
-    bResult = wglChoosePixelFormatARB(m_hDeviceContext, choosePixelformatAttribs, nullptr, 1, &pixelformat, &pixelformatCount);
-    assert(bResult);
-
-    PIXELFORMATDESCRIPTOR pixelformatDescriptor;
-    DescribePixelFormat(m_hDeviceContext, pixelformat, sizeof(PIXELFORMATDESCRIPTOR), &pixelformatDescriptor);
-    SetPixelFormat(m_hDeviceContext, pixelformat, &pixelformatDescriptor);
-
-    int createContextAttribs[] =
-    {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 6,
-		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-		0
-    };
-
-    m_hGLRenderContext = wglCreateContextAttribsARB(m_hDeviceContext, nullptr, createContextAttribs);
-    assert(m_hGLRenderContext);
-
-    bResult = wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext);
-    assert(bResult);
-
-    printf("OpenGL Version: %s \n", glGetString(GL_VERSION));
 }

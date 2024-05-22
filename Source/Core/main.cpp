@@ -1,9 +1,9 @@
 #include "Common.h"
 #include "Core/Application.h"
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+int main()
 {
-    Application app(hInstance);
+    Application app;
     
     if (app.Initialize())
         app.Run();

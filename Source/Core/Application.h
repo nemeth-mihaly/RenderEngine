@@ -2,19 +2,18 @@
 
 #include "Common.h"
 
-#include <memory>
-#include <chrono>
 #include <string>
 #include <vector>
 
 #include "AssetManager.h"
 #include "Graphics3D/API/VertexBuffer.h"
 #include "Graphics3D/API/VertexArray.h"
-#include "Graphics3D/Geometry.h"
 #include "Graphics3D/API/ProgramPipeline.h"
 #include "Graphics3D/API/Texture.h"
+#include "Graphics3D/Geometry.h"
 #include "Graphics3D/Mesh.h"
 #include "Graphics3D/SceneNodes.h"
+#include "Graphics3D/Light.h"
 
 ////////////////////////////////////////////////////
 //  class Application
@@ -22,32 +21,21 @@
 
 class Application
 {
-    friend LRESULT CALLBACK WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    friend void GlfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods);
+    friend void GlfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos);
+    friend void GlfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 
  public:
-    Application(HINSTANCE hInstance);
+    Application();
     ~Application();
 
     bool Initialize();
     void Run();
 
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
     AssetManager& GetAssetManager() { return *m_AssetManager; }
 
  private:
-    void InitWindow();
-    void InitOpenGL();
-
- private:
-    int m_ScreenWidth;
-    int m_ScreenHeight;
-
-    HINSTANCE m_hInstance;
-    HWND m_hWindow;
-
-    HDC m_hDeviceContext;
-    HGLRC m_hGLRenderContext;
+    GLFWwindow* m_pWindow;
 
     bool m_bIsRunning;
 

@@ -1,19 +1,14 @@
 #pragma once
 
-#ifndef UNICODE
-    #define UNICODE
-#endif 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
 #include <memory>
 
-#include <3rdParty/KHR/khrplatform.h>
+#define GLFW_INCLUDE_NONE
+#include <3rdParty/GLFW/glfw3.h>
 
-#include <3rdParty/glad/glad_wgl.h>
+#include <3rdParty/KHR/khrplatform.h>
 #include <3rdParty/glad/glad.h>
 
 #include <3rdParty/glm/glm.hpp>
