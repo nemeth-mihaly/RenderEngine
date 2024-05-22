@@ -17,10 +17,10 @@ Mesh::~Mesh()
 
 void Mesh::Create()
 {
-    m_VertexBuffer.reset(new Buffer());
+    m_VertexBuffer.reset(new VertexBuffer());
     assert(m_VertexBuffer);
     m_VertexBuffer->Create();
-    m_VertexBuffer->SetData(
+    m_VertexBuffer->SetBufferData(
         sizeof(Vertex) * VertexCount, 
         pVertices, 
         GL_STATIC_DRAW
@@ -30,7 +30,7 @@ void Mesh::Create()
     assert(m_VertexArray);
     m_VertexArray->Create();
     m_VertexArray->SetVertexBuffer(m_VertexBuffer, sizeof(Vertex));
-    m_VertexArray->SetVertexInputAttribute(0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexInputAttribute(1, 3, GL_FLOAT, 12);
-    m_VertexArray->SetVertexInputAttribute(2, 2, GL_FLOAT, 24);
+    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12);
+    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24);
 }

@@ -36,27 +36,27 @@ AssetManager::~AssetManager()
 
 void AssetManager::LoadShaderProgram(const std::string& shaderProgName, const std::string& vertShaderName, const std::string& fragShaderName)
 {
-    StrongShaderProgPtr shaderProgram;
-    shaderProgram.reset(new ShaderProgram());
+    StrongProgramPipelinePtr shaderProgram;
+    shaderProgram.reset(new ProgramPipeline());
 
     char* pVertShaderSource = _ReadFile(vertShaderName);
     char* pFragShaderSource = _ReadFile(fragShaderName);
 
-    auto vertShader = std::make_shared<Shader>();
+    auto vertShader = std::make_shared<ShaderProgram>();
     assert(vertShader);
     vertShader->Create(GL_VERTEX_SHADER);
     vertShader->SetSource(1, &pVertShaderSource, nullptr);
     vertShader->Compile();
 
-    auto fragShader = std::make_shared<Shader>();
+    auto fragShader = std::make_shared<ShaderProgram>();
     assert(fragShader);
     fragShader->Create(GL_FRAGMENT_SHADER);
     fragShader->SetSource(1, &pFragShaderSource, nullptr);
     fragShader->Compile();
 
     shaderProgram->Create();
-    shaderProgram->AttachShader(vertShader);
-    shaderProgram->AttachShader(fragShader);
+    shaderProgram->AttachShaderProgramStage(vertShader);
+    shaderProgram->AttachShaderProgramStage(fragShader);
     shaderProgram->Link();
 
     delete[] pFragShaderSource;
@@ -65,7 +65,7 @@ void AssetManager::LoadShaderProgram(const std::string& shaderProgName, const st
     m_ShaderPrograms[shaderProgName] = shaderProgram;
 }
 
-StrongShaderProgPtr AssetManager::GetShaderProgram(const std::string& name)
+StrongProgramPipelinePtr AssetManager::GetShaderProgram(const std::string& name)
 {
     return m_ShaderPrograms.at(name);
 }

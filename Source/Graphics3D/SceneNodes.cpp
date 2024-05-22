@@ -78,9 +78,9 @@ void MeshNode::VCreate()
 
 void MeshNode::VRender()
 {
-    StrongShaderProgPtr shaderProgram = g_pApp->GetAssetManager().GetShaderProgram(m_ShaderProgName);
+    StrongProgramPipelinePtr shaderProgram = g_pApp->GetAssetManager().GetShaderProgram(m_ShaderProgName);
 
-    shaderProgram->Use();
+    shaderProgram->SetActive();
 
     shaderProgram->SetUniform4f("u_Material.Ambient", m_Material.Ambient);
     shaderProgram->SetUniform4f("u_Material.Diffuse", m_Material.Diffuse);
@@ -105,7 +105,7 @@ void MeshNode::VRender()
 
     StrongMeshPtr mesh = g_pApp->GetAssetManager().GetMesh(m_MeshName);
 
-    mesh->m_VertexArray->Bind();
+    mesh->m_VertexArray->SetActive();
     glDrawArrays(GL_TRIANGLES, mesh->VertexBufferOffset, mesh->VertexCount);
 }
 

@@ -77,7 +77,7 @@ Application::~Application()
     DestroyWindow(m_hWindow);
 }
 
-bool Application::Init()
+bool Application::Initialize()
 {
     InitWindow();
     InitOpenGL();
@@ -346,7 +346,7 @@ bool Application::Init()
     return true;
 }
 
-void Application::MainLoop()
+void Application::Run()
 {
     MSG msg;
     memset(&msg, 0, sizeof(msg));
@@ -474,8 +474,8 @@ void Application::MainLoop()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Geometry phase
-        StrongShaderProgPtr shaderProgram = m_AssetManager->GetShaderProgram("TexturedLit");
-        shaderProgram->Use();
+        StrongProgramPipelinePtr shaderProgram = m_AssetManager->GetShaderProgram("TexturedLit");
+        shaderProgram->SetActive();
         shaderProgram->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
         shaderProgram->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
@@ -516,14 +516,14 @@ void Application::MainLoop()
 
         // Render Skybox/Cubemap.
         glDepthFunc(GL_LEQUAL);
-        StrongShaderProgPtr skyShaderProgram = m_AssetManager->GetShaderProgram("Sky");
-        skyShaderProgram->Use();
+        StrongProgramPipelinePtr skyShaderProgram = m_AssetManager->GetShaderProgram("Sky");
+        skyShaderProgram->SetActive();
         skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
         skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
         //m_Texture_Sky->BindUnit(0);
         m_Texture_Sky->SetActiveUnit(0);
         skyShaderProgram->SetUniform1i("u_Texture", 0);
-        m_Mesh_Cube->m_VertexArray->Bind();
+        m_Mesh_Cube->m_VertexArray->SetActive();
         glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
         glDepthFunc(GL_LESS);
         m_Texture_Sky->SetActive(GL_FALSE);
@@ -567,9 +567,9 @@ void Application::MainLoop()
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        StrongShaderProgPtr framebufferTestShaderProgram = m_AssetManager->GetShaderProgram("FramebufferTest");
-        framebufferTestShaderProgram->Use();
-        m_Mesh_Rectangle->m_VertexArray->Bind();
+        StrongProgramPipelinePtr framebufferTestShaderProgram = m_AssetManager->GetShaderProgram("FramebufferTest");
+        framebufferTestShaderProgram->SetActive();
+        m_Mesh_Rectangle->m_VertexArray->SetActive();
         glDisable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
         glActiveTexture(GL_TEXTURE0);

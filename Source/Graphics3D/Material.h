@@ -16,7 +16,7 @@ class Material
     Color       Ambient;
     Color       Diffuse;
     Color       Specular;
-    glm::vec4   Emissive;
+    Color       Emissive;
     float       SpecularPower;
 
     bool        bUseTexture;

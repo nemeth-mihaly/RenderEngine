@@ -5,9 +5,9 @@
 #include <string>
 #include <unordered_map>
 
-#include "Graphics3D/ShaderProgram.h"
+#include "Graphics3D/API/ProgramPipeline.h"
 #include "Graphics3D/Mesh.h"
-#include "Graphics3D/OpenGL/Texture.h"
+#include "Graphics3D/API/Texture.h"
 
 ////////////////////////////////////////////////////
 //  class AssetManager
@@ -20,7 +20,7 @@ class AssetManager
     ~AssetManager();
 
     void LoadShaderProgram(const std::string& shaderProgName, const std::string& vertShaderName, const std::string& fragShaderName);
-    StrongShaderProgPtr GetShaderProgram(const std::string& name);
+    StrongProgramPipelinePtr GetShaderProgram(const std::string& name);
 
     void LoadWavefrontMesh(const std::string& name);
     StrongMeshPtr GetMesh(const std::string& name);
@@ -29,7 +29,7 @@ class AssetManager
     StrongTexturePtr GetTexture(const std::string& name);
 
  private:
-    std::unordered_map<std::string, StrongShaderProgPtr> m_ShaderPrograms;
+    std::unordered_map<std::string, StrongProgramPipelinePtr> m_ShaderPrograms;
     std::unordered_map<std::string, StrongMeshPtr> m_Meshes;
     std::unordered_map<std::string, StrongTexturePtr> m_Textures;
 };

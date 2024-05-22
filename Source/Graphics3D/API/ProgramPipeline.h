@@ -4,42 +4,22 @@
 
 #include <string>
 
-////////////////////////////////////////////////////
-//  class Shader
-////////////////////////////////////////////////////
-
-class Shader
-{
-    friend class ShaderProgram;
-
- public:
-    Shader();
-    ~Shader();
-
-    void Create(GLenum type);
-    void SetSource(GLsizei count, const GLchar* const* string, const GLint* length) const;
-    void Compile() const;
-
- private:
-    GLuint m_ShaderID;
-};
-
-typedef std::shared_ptr<Shader> StrongShaderPtr;
+#include "Graphics3D/API/ShaderProgram.h"
 
 ////////////////////////////////////////////////////
-//  class ShaderProgram
+//  class ProgramPipeline
 ////////////////////////////////////////////////////
 
-class ShaderProgram
+class ProgramPipeline
 {
  public:
-    ShaderProgram();
-    ~ShaderProgram();
+    ProgramPipeline();
+    ~ProgramPipeline();
 
     void Create();
-    void AttachShader(const StrongShaderPtr& shader) const;
+    void SetActive(GLboolean bActive = GL_TRUE) const;
+    void AttachShaderProgramStage(StrongShaderProgramPtr& shaderprogram) const;
     void Link() const;
-    void Use() const;
 
     // TODO: Perform type checks in the uniform setter functions.
     // Why though? Because for some reason, neither the c++ compiler nor the glsl compiler notifies 
@@ -60,7 +40,7 @@ class ShaderProgram
     GLint GetUniformLocation(const std::string& name) const;
 
  private:
-    GLuint m_ProgramID;
+    GLuint      m_ProgramPipelineID;
 };
 
-typedef std::shared_ptr<ShaderProgram> StrongShaderProgPtr;
+typedef std::shared_ptr<ProgramPipeline> StrongProgramPipelinePtr;

@@ -8,11 +8,11 @@
 #include <vector>
 
 #include "AssetManager.h"
-#include "Graphics3D/Buffer.h"
-#include "Graphics3D/VertexArray.h"
+#include "Graphics3D/API/VertexBuffer.h"
+#include "Graphics3D/API/VertexArray.h"
 #include "Graphics3D/Geometry.h"
-#include "Graphics3D/ShaderProgram.h"
-#include "Graphics3D/OpenGL/Texture.h"
+#include "Graphics3D/API/ProgramPipeline.h"
+#include "Graphics3D/API/Texture.h"
 #include "Graphics3D/Mesh.h"
 #include "Graphics3D/SceneNodes.h"
 
@@ -28,8 +28,8 @@ class Application
     Application(HINSTANCE hInstance);
     ~Application();
 
-    bool Init();
-    void MainLoop();
+    bool Initialize();
+    void Run();
 
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

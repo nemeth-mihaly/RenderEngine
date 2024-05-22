@@ -2,7 +2,7 @@
 
 #include "Common.h"
 
-#include "Graphics3D/Buffer.h"
+#include "Graphics3D/API/VertexBuffer.h"
 
 ////////////////////////////////////////////////////
 //  class VertexArray
@@ -15,12 +15,12 @@ class VertexArray
     ~VertexArray();
 
     void Create();
-    void SetVertexBuffer(const StrongBufferPtr& buffer, GLsizei stride) const;
-    void SetVertexInputAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset) const;
-    void Bind() const;
+    void SetActive(GLboolean bActive = GL_TRUE) const;
+    void SetVertexBuffer(StrongVertexBufferPtr& vbo, GLsizei stride) const;
+    void SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset) const;
 
  private:
-    GLuint m_VertexArrayID;
+    GLuint      m_VertexArrayID;
 };
 
 typedef std::shared_ptr<VertexArray> StrongVertexArrayPtr;

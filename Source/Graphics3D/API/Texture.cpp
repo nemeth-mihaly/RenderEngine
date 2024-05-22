@@ -1,4 +1,4 @@
-#include "Graphics3D/OpenGL/Texture.h"
+#include "Graphics3D/API/Texture.h"
 
 GLenum TextureInternalFormat(int channelCount)
 {

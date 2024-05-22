@@ -4,10 +4,10 @@
 
 #include <vector>
 
-#include "Graphics3D/VertexArray.h"
+#include "Graphics3D/API/VertexArray.h"
 #include "Graphics3D/Mesh.h"
-#include "Graphics3D/ShaderProgram.h"
-#include "Graphics3D/OpenGL/Texture.h"
+#include "Graphics3D/API/ProgramPipeline.h"
+#include "Graphics3D/API/Texture.h"
 #include "Graphics3D/Material.h"
 
 ////////////////////////////////////////////////////
