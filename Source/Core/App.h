@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "AssetManager.h"
 #include "Graphics3D/API/VertexBuffer.h"
 #include "Graphics3D/API/VertexArray.h"
 #include "Graphics3D/API/ProgramPipeline.h"

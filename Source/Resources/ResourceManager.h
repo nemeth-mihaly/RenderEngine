@@ -10,17 +10,17 @@
 #include "Graphics3D/API/Texture.h"
 
 ////////////////////////////////////////////////////
-//  class AssetManager
+//  class ResourceManager
 ////////////////////////////////////////////////////
 
-class AssetManager
+class ResourceManager
 {
  public:
-    AssetManager();
-    ~AssetManager();
+    ResourceManager();
+    ~ResourceManager();
 
-    void LoadShaderProgram(const std::string& shaderProgName, const std::string& vertShaderName, const std::string& fragShaderName);
-    StrongProgramPipelinePtr GetShaderProgram(const std::string& name);
+    void LoadProgramPipeline(const std::string& shaderProgName);
+    StrongProgramPipelinePtr GetProgramPipeline(const std::string& name);
 
     void LoadWavefrontMesh(const std::string& name);
     StrongMeshPtr GetMesh(const std::string& name);

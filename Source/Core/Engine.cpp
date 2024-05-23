@@ -16,7 +16,7 @@ Engine::Engine()
     
     m_pApp = nullptr;
 
-    m_pAssetManager = nullptr;
+    m_pResManager = nullptr;
 }
 
 Engine::~Engine()
@@ -24,8 +24,8 @@ Engine::~Engine()
     if (m_pApp)
         delete m_pApp;
 
-    if (m_pAssetManager)
-        delete m_pAssetManager;
+    if (m_pResManager)
+        delete m_pResManager;
 
     if (m_pWindow)
         glfwDestroyWindow(m_pWindow);
@@ -38,8 +38,8 @@ Engine::~Engine()
 
 bool Engine::Init()
 {
-    m_pAssetManager = new AssetManager();
-    if (!m_pAssetManager)
+    m_pResManager = new ResourceManager();
+    if (!m_pResManager)
         return false;
 
     if (!glfwInit())
@@ -116,4 +116,14 @@ void Engine::Run()
 void Engine::QuitApp()
 {
     m_bRunning = false;
+}
+
+void Engine::ShowCursor()
+{
+    glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void Engine::HideCursor()
+{
+    glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }

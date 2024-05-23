@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "Core/App.h"
+#include "Resources/ResourceManager.h"
 
 ////////////////////////////////////////////////////
 //  class Engine
@@ -22,9 +23,16 @@ class Engine
 
     App* m_pApp;
     
-    AssetManager* m_pAssetManager;
+
+    ResourceManager& GetResourceManager() const { return *(m_pResManager); }
 
     void QuitApp();
+
+    void ShowCursor();
+    void HideCursor();
+
+ private:
+    ResourceManager* m_pResManager;
 };
 
 extern Engine* g_pEngine;

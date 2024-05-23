@@ -25,20 +25,38 @@ App::~App()
 
 bool App::Init()
 {
-    g_pEngine->m_pAssetManager->LoadShaderProgram("TexturedLit", "Assets\\Shaders\\TexturedLit_vert.glsl", "Assets\\Shaders\\TexturedLit_frag.glsl");
-    g_pEngine->m_pAssetManager->LoadShaderProgram("Sky", "Assets\\Shaders\\Sky_vert.glsl", "Assets\\Shaders\\Sky_frag.glsl");
-    g_pEngine->m_pAssetManager->LoadShaderProgram("FramebufferTest", "Assets\\Shaders\\Framebuffer_test_vert.glsl", "Assets\\Shaders\\Framebuffer_test_frag.glsl");
+    const std::vector<std::string> programPipelineResources =
+    {
+        "Assets/Shaders/TexturedLit.progpipeline",
+        "Assets/Shaders/Sky.progpipeline",
+        "Assets/Shaders/Framebuffer_test.progpipeline"
+    };
 
-    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Rectangle.obj");
-    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Cube.obj");
-    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Monkey.obj");
-    g_pEngine->m_pAssetManager->LoadWavefrontMesh("Assets\\Models\\Grass.obj");
+    for (const auto& programPipelineResource : programPipelineResources)
+        g_pEngine->GetResourceManager().LoadProgramPipeline(programPipelineResource);
 
-    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\UvGrid.png");
-    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\Stonebricks.png");
-    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\Grass.png");
-    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\SphereGlow.png");
-    g_pEngine->m_pAssetManager->LoadTexture("Assets\\Textures\\AlphaWindow.png");
+    const std::vector<std::string> wavefrontModelResources =
+    {
+        "Assets\\Models\\Rectangle.obj",
+        "Assets\\Models\\Cube.obj",
+        "Assets\\Models\\Monkey.obj",
+        "Assets\\Models\\Grass.obj"
+    };
+
+    for (const auto& wavefrontModelResource : wavefrontModelResources)
+        g_pEngine->GetResourceManager().LoadWavefrontMesh(wavefrontModelResource);
+
+    const std::vector<std::string> textureResources =
+    {
+        "Assets\\Textures\\UvGrid.png",
+        "Assets\\Textures\\Stonebricks.png",
+        "Assets\\Textures\\Grass.png",
+        "Assets\\Textures\\SphereGlow.png",
+        "Assets\\Textures\\AlphaWindow.png"
+    };
+
+    for (const auto& textureResource : textureResources)
+        g_pEngine->GetResourceManager().LoadTexture(textureResource);
 
     std::vector<std::string> skyTextureNames =
     {
@@ -104,7 +122,7 @@ bool App::Init()
     m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_Camera);
 
-    auto floorNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto floorNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     floorNode->VCreate();
     floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
     floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
@@ -112,7 +130,7 @@ bool App::Init()
     floorNode->GetMaterial().Specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
     floorNode->GetMaterial().bUseTexture = false;
 
-    auto node1 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto node1 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     node1->VCreate();
     node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
     node1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -120,7 +138,7 @@ bool App::Init()
     node1->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     node1->GetMaterial().bUseTexture = true;
 
-    auto node2 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto node2 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     node2->VCreate();
     node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
     node2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -128,7 +146,7 @@ bool App::Init()
     node2->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     node2->GetMaterial().bUseTexture = true;
 
-    auto node3 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto node3 = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     node3->VCreate();
     node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
     node3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -136,7 +154,7 @@ bool App::Init()
     node3->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     node3->GetMaterial().bUseTexture = true;
 
-    auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Monkey.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto monkeyNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     monkeyNode->VCreate();
     monkeyNode->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
     monkeyNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -155,7 +173,7 @@ bool App::Init()
 
     for (uint32_t i = 0; i < grassPositions.size(); ++i)
     {
-        auto grassNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Grass.obj", "TexturedLit", "Assets\\Textures\\Grass.png"));
+        auto grassNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Grass.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\Grass.png"));
         grassNode->VCreate();
         grassNode->SetPosition(grassPositions[i]);
         grassNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -182,7 +200,7 @@ bool App::Init()
             textureName = "Assets\\Textures\\AlphaWindow.png";
         }
 
-        auto grassNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Rectangle.obj", "TexturedLit", textureName));
+        auto grassNode = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Rectangle.obj", "Assets/Shaders/TexturedLit.progpipeline", textureName));
         grassNode->VCreate();
         grassNode->SetPosition(glowPositions[i]);
         grassNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -245,7 +263,7 @@ bool App::Init()
     m_SceneNodes.push_back(m_SpotLightNode);
     m_LightNodes.push_back(m_SpotLightNode);
 
-    auto lightBulb = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "TexturedLit", "Assets\\Textures\\UvGrid.png"));
+    auto lightBulb = m_SceneNodes.emplace_back(new MeshNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\UvGrid.png"));
     lightBulb->VCreate();
     lightBulb->SetPosition(pointLightProperties.Position);
     lightBulb->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
@@ -289,15 +307,15 @@ void App::UpdateAndRender(const float fDeltaTime)
     glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.2f;
     m_PrevMousePos = m_CurrentMousePos;
 
-    //if (m_bCameraMoving)
-    //{
-        if (m_bKeyStates[0x57]) //  W key
+    if (m_bCameraMoving)
+    {
+        if (m_bKeyStates['W'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() + (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
         }
         else
-        if (m_bKeyStates[0x53]) // 	S key
+        if (m_bKeyStates['S'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() - (m_Camera->GetForwardDir() * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
@@ -305,25 +323,25 @@ void App::UpdateAndRender(const float fDeltaTime)
 
         const glm::vec3 rightDirection = glm::cross(m_Camera->GetForwardDir(), upDirection);
 
-        if (m_bKeyStates[0x41]) //  A key
+        if (m_bKeyStates['A'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() - (rightDirection * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
         }
         else
-        if (m_bKeyStates[0x44]) //  D key
+        if (m_bKeyStates['D'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() + (rightDirection * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
         }
 
-        if (m_bKeyStates[0x51]) //     Q key
+        if (m_bKeyStates['Q'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() + (upDirection * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
         }
         else
-        if (m_bKeyStates[0x45])  //  E key
+        if (m_bKeyStates['E'])
         {
             glm::vec3 newPos = m_Camera->GetPosition() - (upDirection * cameraSpeed * fDeltaTime);
             m_Camera->SetPosition(newPos);
@@ -331,7 +349,7 @@ void App::UpdateAndRender(const float fDeltaTime)
 
         if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
         {
-            const float rotationSpeed = 0.55f;
+            const float rotationSpeed = 0.3f;
             m_Yaw += deltaMousePos.x * rotationSpeed;
             m_Pitch += (-deltaMousePos.y) * rotationSpeed;
 
@@ -342,7 +360,7 @@ void App::UpdateAndRender(const float fDeltaTime)
             
             m_Camera->SetForwardDir(glm::normalize(newForwardDirection));
         }
-    //}
+    }
 
     for (const auto& node : m_SceneNodes)
     {
@@ -357,7 +375,7 @@ void App::UpdateAndRender(const float fDeltaTime)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Geometry phase
-    StrongProgramPipelinePtr shaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("TexturedLit");
+    StrongProgramPipelinePtr shaderProgram = g_pEngine->GetResourceManager().GetProgramPipeline("Assets/Shaders/TexturedLit.progpipeline");
     shaderProgram->SetActive();
     shaderProgram->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
     shaderProgram->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
@@ -399,7 +417,7 @@ void App::UpdateAndRender(const float fDeltaTime)
 
     // Render Skybox/Cubemap.
     glDepthFunc(GL_LEQUAL);
-    StrongProgramPipelinePtr skyShaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("Sky");
+    StrongProgramPipelinePtr skyShaderProgram = g_pEngine->GetResourceManager().GetProgramPipeline("Assets/Shaders/Sky.progpipeline");
     skyShaderProgram->SetActive();
     skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_Camera->GetView())));
     skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_Camera->GetProjection());
@@ -450,7 +468,7 @@ void App::UpdateAndRender(const float fDeltaTime)
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    StrongProgramPipelinePtr framebufferTestShaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram("FramebufferTest");
+    StrongProgramPipelinePtr framebufferTestShaderProgram = g_pEngine->GetResourceManager().GetProgramPipeline("Assets/Shaders/Framebuffer_test.progpipeline");
     framebufferTestShaderProgram->SetActive();
     m_Mesh_Rectangle->m_VertexArray->SetActive();
     glDisable(GL_DEPTH_TEST);
@@ -482,11 +500,17 @@ void App::OnMouseMove(float x, float y)
 void App::OnMouseButtonDown(int button)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        g_pEngine->HideCursor();
         m_bCameraMoving = true;
+    }
 }
 
 void App::OnMouseButtonUp(int button)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        g_pEngine->ShowCursor();
         m_bCameraMoving = false;
+    }
 }

@@ -40,7 +40,7 @@ class ProgramPipeline
     GLint GetUniformLocation(const std::string& name) const;
 
  private:
-    GLuint      m_ProgramPipelineID;
+    GLuint m_ProgramPipelineID;
 };
 
 typedef std::shared_ptr<ProgramPipeline> StrongProgramPipelinePtr;

@@ -79,7 +79,7 @@ void MeshNode::VCreate()
 
 void MeshNode::VRender()
 {
-    StrongProgramPipelinePtr shaderProgram = g_pEngine->m_pAssetManager->GetShaderProgram(m_ShaderProgName);
+    StrongProgramPipelinePtr shaderProgram = g_pEngine->GetResourceManager().GetProgramPipeline(m_ShaderProgName);
 
     shaderProgram->SetActive();
 
@@ -92,7 +92,7 @@ void MeshNode::VRender()
 
     if (m_Material.bUseTexture)
     {
-        StrongTexturePtr texture = g_pEngine->m_pAssetManager->GetTexture(m_TextureName);
+        StrongTexturePtr texture = g_pEngine->GetResourceManager().GetTexture(m_TextureName);
         //texture->BindUnit(0);
         texture->SetActiveUnit(0);
         shaderProgram->SetUniform1i("u_Texture", 0);
@@ -104,7 +104,7 @@ void MeshNode::VRender()
 
     shaderProgram->SetUniformMatrix4f("u_World", world);
 
-    StrongMeshPtr mesh = g_pEngine->m_pAssetManager->GetMesh(m_MeshName);
+    StrongMeshPtr mesh = g_pEngine->GetResourceManager().GetMesh(m_MeshName);
 
     mesh->m_VertexArray->SetActive();
     glDrawArrays(GL_TRIANGLES, mesh->VertexBufferOffset, mesh->VertexCount);

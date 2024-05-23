@@ -1,4 +1,4 @@
-#include "AssetManager.h"
+#include "Resources/ResourceManager.h"
 
 #include <cassert>
 #include <iostream>
@@ -23,54 +23,88 @@ static char* _ReadFile(const std::string& name)
 }
 
 ////////////////////////////////////////////////////
-//  AssetManager Implementation
+//  ResourceManager Implementation
 ////////////////////////////////////////////////////
 
-AssetManager::AssetManager()
+ResourceManager::ResourceManager()
 {
 }
 
-AssetManager::~AssetManager()
+ResourceManager::~ResourceManager()
 {
 }
 
-void AssetManager::LoadShaderProgram(const std::string& shaderProgName, const std::string& vertShaderName, const std::string& fragShaderName)
+void ResourceManager::LoadProgramPipeline(const std::string& shaderProgName)
 {
-    StrongProgramPipelinePtr shaderProgram;
-    shaderProgram.reset(new ProgramPipeline());
+    std::vector<StrongShaderProgramPtr> shaderPrograms;
 
-    char* pVertShaderSource = _ReadFile(vertShaderName);
-    char* pFragShaderSource = _ReadFile(fragShaderName);
+    FILE* fp = fopen(shaderProgName.c_str(), "r");
+    assert(fp != nullptr);
 
-    auto vertShader = std::make_shared<ShaderProgram>();
-    assert(vertShader);
-    vertShader->Create(GL_VERTEX_SHADER);
-    vertShader->SetSource(1, &pVertShaderSource, nullptr);
-    vertShader->Compile();
+    while (true)
+    {
+        char line[512];
+        int result = fscanf(fp, "%s", line);
+        
+        if (result == EOF)
+            break;
 
-    auto fragShader = std::make_shared<ShaderProgram>();
-    assert(fragShader);
-    fragShader->Create(GL_FRAGMENT_SHADER);
-    fragShader->SetSource(1, &pFragShaderSource, nullptr);
-    fragShader->Compile();
+        if (strcmp(line, "vs") == 0)
+        {
+            char buf[128];
+            fscanf(fp, "%s\n", buf);
 
-    shaderProgram->Create();
-    shaderProgram->AttachShaderProgramStage(vertShader);
-    shaderProgram->AttachShaderProgramStage(fragShader);
-    shaderProgram->Link();
+            char* pSource = _ReadFile(std::string(buf));
 
-    delete[] pFragShaderSource;
-    delete[] pVertShaderSource;
+            StrongShaderProgramPtr vs(new ShaderProgram());
+            vs->Create(GL_VERTEX_SHADER);
+            vs->SetSource(1, &pSource, nullptr);
+            vs->Compile();
 
-    m_ShaderPrograms[shaderProgName] = shaderProgram;
+            shaderPrograms.push_back(vs);
+
+            delete[] pSource;
+        }
+        else
+        if (strcmp(line, "fs") == 0)
+        {
+            char buf[128];
+            fscanf(fp, "%s\n", buf);
+
+            char* pSource = _ReadFile(std::string(buf));
+
+            StrongShaderProgramPtr fs(new ShaderProgram());
+            fs->Create(GL_FRAGMENT_SHADER);
+            fs->SetSource(1, &pSource, nullptr);
+            fs->Compile();
+
+            shaderPrograms.push_back(fs);
+
+            delete[] pSource;
+        }
+    }
+
+    fclose(fp);
+
+    StrongProgramPipelinePtr programPipeline;
+    programPipeline.reset(new ProgramPipeline());
+
+    programPipeline->Create();
+
+    for (auto& shaderProgram : shaderPrograms)
+        programPipeline->AttachShaderProgramStage(shaderProgram);
+
+    programPipeline->Link();
+
+    m_ShaderPrograms[shaderProgName] = programPipeline;
 }
 
-StrongProgramPipelinePtr AssetManager::GetShaderProgram(const std::string& name)
+StrongProgramPipelinePtr ResourceManager::GetProgramPipeline(const std::string& name)
 {
     return m_ShaderPrograms.at(name);
 }
 
-void AssetManager::LoadWavefrontMesh(const std::string& name)
+void ResourceManager::LoadWavefrontMesh(const std::string& name)
 {
     FILE* fp = fopen(name.c_str(), "r");
     assert(fp != nullptr);
@@ -159,12 +193,12 @@ void AssetManager::LoadWavefrontMesh(const std::string& name)
     m_Meshes[name] = mesh;
 }
 
-StrongMeshPtr AssetManager::GetMesh(const std::string& name)
+StrongMeshPtr ResourceManager::GetMesh(const std::string& name)
 {
     return m_Meshes.at(name);
 }
 
-void AssetManager::LoadTexture(const std::string& name)
+void ResourceManager::LoadTexture(const std::string& name)
 {
     stbi_set_flip_vertically_on_load(true);
 
@@ -188,7 +222,7 @@ void AssetManager::LoadTexture(const std::string& name)
     m_Textures[name] = texture;
 }
 
-StrongTexturePtr AssetManager::GetTexture(const std::string& name)
+StrongTexturePtr ResourceManager::GetTexture(const std::string& name)
 {
     return m_Textures.at(name);
 }

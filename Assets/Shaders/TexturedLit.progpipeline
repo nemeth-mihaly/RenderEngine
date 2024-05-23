@@ -1,0 +1,2 @@
+vs Assets/Shaders/TexturedLit_vert.glsl
+fs Assets/Shaders/TexturedLit_frag.glsl
