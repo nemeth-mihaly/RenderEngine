@@ -5,7 +5,7 @@ $Cwd += "\"
     RenderEngine Code CleanUp Script
 #>
 
-$OutputFileName = "Engine.exe"
+$OutputFileName = "App.exe"
 
 if (Test-Path -Path ("Bin\" + $OutputFileName)) {
     Remove-Item -Path ("Bin\" + $OutputFileName) -Force

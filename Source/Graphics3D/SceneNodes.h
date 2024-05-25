@@ -20,10 +20,10 @@ class SceneNode
     SceneNode();
     virtual ~SceneNode();
 
-    virtual void VCreate();
+    virtual void Create();
 
-    virtual void VUpdate(const float deltaTime);
-    virtual void VRender();
+    virtual void Update(const float deltaTime);
+    virtual void Render();
 
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     const glm::vec3& GetPosition() const { return m_Pos; }
@@ -46,16 +46,16 @@ class SceneNode
 typedef std::vector<std::shared_ptr<SceneNode>> SceneNodeList;
 
 ////////////////////////////////////////////////////
-//  class CameraNode
+//  class CameraSceneNode
 ////////////////////////////////////////////////////
 
-class CameraNode : public SceneNode
+class CameraSceneNode : public SceneNode
 {
  public:
-    CameraNode();
-    virtual ~CameraNode();
+    CameraSceneNode();
+    virtual ~CameraSceneNode();
 
-    virtual void VCreate();
+    virtual void Create();
 
     const glm::mat4& GetProjection() const { return m_Projection; }
     const glm::mat4& GetView() const { return m_View; }
@@ -73,18 +73,18 @@ class CameraNode : public SceneNode
 };
 
 ////////////////////////////////////////////////////
-//  class MeshNode
+//  class MeshSceneNode
 ////////////////////////////////////////////////////
 
-class MeshNode : public SceneNode
+class MeshSceneNode : public SceneNode
 {
  public:
-    MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
+    MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
 
-    virtual ~MeshNode();
+    virtual ~MeshSceneNode();
 
-    virtual void VCreate();
-    virtual void VRender();
+    virtual void Create();
+    virtual void Render();
 
  private:
     std::string m_MeshName;

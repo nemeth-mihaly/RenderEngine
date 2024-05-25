@@ -1,6 +1,6 @@
 #include "Graphics3D/SceneNodes.h"
 
-#include "Core/Engine.h"
+#include "Application.h"
 
 ////////////////////////////////////////////////////
 //  SceneNode Implementation
@@ -17,69 +17,69 @@ SceneNode::~SceneNode()
 {
 }
 
-void SceneNode::VCreate()
+void SceneNode::Create()
 {
 }
 
-void SceneNode::VUpdate(const float deltaTime)
+void SceneNode::Update(const float deltaTime)
 {
 }
 
-void SceneNode::VRender()
+void SceneNode::Render()
 {
 }
 
 #if 0
-void SceneNode::VRender(StrongShaderProgPtr& shader)
+void SceneNode::Render(StrongShaderProgPtr& shader)
 {
 }
 #endif
 
 ////////////////////////////////////////////////////
-//  SceneNode Implementation
+//  CameraSceneNode Implementation
 ////////////////////////////////////////////////////
 
-CameraNode::CameraNode()
+CameraSceneNode::CameraSceneNode()
 {
     m_ForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
 }
 
-CameraNode::~CameraNode()
+CameraSceneNode::~CameraSceneNode()
 {
 }
 
-void CameraNode::VCreate()
+void CameraSceneNode::Create()
 {
     m_Projection = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
 }
 
-glm::mat4 CameraNode::WorldViewProjection()
+glm::mat4 CameraSceneNode::WorldViewProjection()
 {
     m_View = glm::lookAt(m_Pos, (m_Pos + m_ForwardDir), glm::vec3(0.0f, 1.0f, 0.0f));
     return (m_Projection * m_View);
 }
 
 ////////////////////////////////////////////////////
-//  MeshNode Implementation
+//  MeshSceneNode Implementation
 ////////////////////////////////////////////////////
 
-MeshNode::MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
+MeshSceneNode::MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
     : m_MeshName(meshName), m_ShaderProgName(shaderProgName), m_TextureName(textureName)
 {
 }
 
 
-MeshNode::~MeshNode()
+MeshSceneNode::~MeshSceneNode()
 {
 }
 
-void MeshNode::VCreate()
+void MeshSceneNode::Create()
 {
 }
 
-void MeshNode::VRender()
+void MeshSceneNode::Render()
 {
-    StrongProgramPipelinePtr shaderProgram = g_pEngine->GetResourceManager().GetProgramPipeline(m_ShaderProgName);
+    StrongProgramPipelinePtr shaderProgram = g_pApp->GetResourceManager().GetProgramPipeline(m_ShaderProgName);
 
     shaderProgram->SetActive();
 
@@ -92,7 +92,7 @@ void MeshNode::VRender()
 
     if (m_Material.bUseTexture)
     {
-        StrongTexturePtr texture = g_pEngine->GetResourceManager().GetTexture(m_TextureName);
+        StrongTexturePtr texture = g_pApp->GetResourceManager().GetTexture(m_TextureName);
         //texture->BindUnit(0);
         texture->SetActiveUnit(0);
         shaderProgram->SetUniform1i("u_Texture", 0);
@@ -104,7 +104,7 @@ void MeshNode::VRender()
 
     shaderProgram->SetUniformMatrix4f("u_World", world);
 
-    StrongMeshPtr mesh = g_pEngine->GetResourceManager().GetMesh(m_MeshName);
+    StrongMeshPtr mesh = g_pApp->GetResourceManager().GetMesh(m_MeshName);
 
     mesh->m_VertexArray->SetActive();
     glDrawArrays(GL_TRIANGLES, mesh->VertexBufferOffset, mesh->VertexCount);

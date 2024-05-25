@@ -5,7 +5,7 @@ $Cwd += "\"
     RenderEngine Code Build Script
 #>
 
-$OutputFileName = "Engine.exe"
+$OutputFileName = "App.exe"
 
 $Compiler = "g++"
 
