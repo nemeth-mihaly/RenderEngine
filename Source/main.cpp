@@ -1,12 +1,16 @@
-#include "Common.h"
-#include "Application.h"
+#include <cstddef>
+#include <cstdint>
 
-int main()
+#include "3rdParty/SDL2/SDL.h"
+
+#include "App.h"
+
+int main(int argc, char* argv[])
 {
-    Application app;
+    App app;
 
     if (app.Init())
-        app.Run();
+        app.RunLoop();
 
     return 0;
 }

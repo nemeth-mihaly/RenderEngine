@@ -21,7 +21,7 @@ $CompilerFlags += " -O0"
 # $CompilerFlags += " -D NDEBUG"
 
 $LinkerFlags = ""
-$LinkerFlags += " -L. -lglfw3dll -lgdi32 -lopengl32"
+$LinkerFlags += " -L Lib\ -lmingw32 -lSDL2main -lSDL2 -lglfw3dll -lgdi32 -lopengl32"
 
 Get-ChildItem -Recurse "Source\" -Include *.c, *.cpp | ForEach-Object {
     $SourceFileFullName = $_.FullName

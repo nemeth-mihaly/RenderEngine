@@ -23,9 +23,6 @@ struct LightProperties
     LightType Type;
     glm::vec3 Position;
     glm::vec3 Direction;
-    glm::vec4 Ambient;
-    glm::vec4 Diffuse;
-    glm::vec4 Specular;
     float Range;
     float Falloff;
     float ConstantAttenuation;
@@ -36,23 +33,22 @@ struct LightProperties
 };
 
 ////////////////////////////////////////////////////
-//  class LightNode
+//  class LightSceneNode
 ////////////////////////////////////////////////////
 
-class LightNode : public SceneNode
+class LightSceneNode : public SceneNode
 {
  public: 
-    LightNode();
-    virtual ~LightNode();
+    LightSceneNode(const LightProperties& props);
+    virtual ~LightSceneNode();
 
-    virtual void VCreate();
-    virtual void VUpdate(const float deltaTime);
+    virtual void Create();
+    virtual void Update(const float deltaTime);
 
-    void SetLightProperties(const LightProperties& properties) { m_LightProperties = properties; }
-    const LightProperties& GetLightProperties() const { return m_LightProperties; }
+    const LightProperties& GetLightProperties() const { return m_LightProps; }
 
  protected:
-    LightProperties m_LightProperties;
+    LightProperties m_LightProps;
 };
 
-typedef std::vector<std::shared_ptr<LightNode>> LightSceneNodeList;
+typedef std::vector<std::shared_ptr<LightSceneNode>> LightSceneNodeList;

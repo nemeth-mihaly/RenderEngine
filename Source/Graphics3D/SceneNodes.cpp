@@ -1,6 +1,6 @@
 #include "Graphics3D/SceneNodes.h"
 
-#include "Application.h"
+#include "App.h"
 
 ////////////////////////////////////////////////////
 //  SceneNode Implementation

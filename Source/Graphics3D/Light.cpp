@@ -1,21 +1,22 @@
 #include "Graphics3D/Light.h"
 
 ////////////////////////////////////////////////////
-//  LightNode Implementation
+//  LightSceneNode Implementation
 ////////////////////////////////////////////////////
 
-LightNode::LightNode()
+LightSceneNode::LightSceneNode(const LightProperties& props)
+    : m_LightProps(props)
 {
 }
 
-LightNode::~LightNode()
+LightSceneNode::~LightSceneNode()
 {
 }
 
-void LightNode::VCreate()
+void LightSceneNode::Create()
 {
 }
 
-void LightNode::VUpdate(const float deltaTime)
+void LightSceneNode::Update(const float deltaTime)
 {
 }

@@ -1,98 +1,67 @@
-#include "Application.h"
+#include "App.h"
 
-Application* g_pApp = NULL;
-
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS)
-    {
-        if (key == GLFW_KEY_ESCAPE)
-            glfwSetWindowShouldClose(g_pApp->m_pWindow, GLFW_TRUE);
-        else
-        {
-            g_pApp->m_bKeyStates[key] = true;
-        }
-    }
-    else
-    if (action == GLFW_RELEASE)
-    {
-        g_pApp->m_bKeyStates[key] = false;
-    }
-}
-
-void CursorPositionCallback(GLFWwindow* window, double x, double y)
-{
-    g_pApp->m_CurrentMousePos.x = static_cast<float>(x);
-    g_pApp->m_CurrentMousePos.y = static_cast<float>(y);
-}
-
-void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-
-    if (action == GLFW_PRESS)
-    {
-        if (button == GLFW_MOUSE_BUTTON_RIGHT)
-        {
-            glfwSetInputMode(g_pApp->m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            g_pApp->m_bCameraMoving = true;
-        }
-    }
-    else
-    if (action == GLFW_RELEASE)
-    {
-        if (button == GLFW_MOUSE_BUTTON_RIGHT)
-        {
-            glfwSetInputMode(g_pApp->m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            g_pApp->m_bCameraMoving = false;
-        }
-    }
-}
+App* g_pApp = NULL;
 
 ////////////////////////////////////////////////////
-//  Application Implementation
+//  App Implementation
 ////////////////////////////////////////////////////
 
-Application::Application()
+App::App()
 {
     g_pApp = this;
 
     m_bRunning = false;
     
     m_pWindow = NULL;
+    m_pContext = NULL;
 
     m_pResManager = NULL;
 }
 
-Application::~Application()
+App::~App()
 {
     if (m_pResManager)
         delete m_pResManager;
 
-    if (m_pWindow)
-        glfwDestroyWindow(m_pWindow);
+    if (m_pContext)
+        SDL_GL_DeleteContext(m_pContext);
 
-    glfwTerminate();
+    if (m_pWindow)
+        SDL_DestroyWindow(m_pWindow);
+
+    SDL_Quit();
 
     if (g_pApp)
         g_pApp = NULL;
 }
 
-bool Application::Init()
+bool App::Init()
 {
     m_pResManager = new ResourceManager();
     assert(m_pResManager != NULL);
 
-    int bGlfwInitResult = glfwInit(); 
-    assert(bGlfwInitResult != GLFW_FALSE);
+    int bSDLInitResult = SDL_Init(SDL_INIT_EVERYTHING);
+    assert(bSDLInitResult >= 0);
 
-    m_pWindow = glfwCreateWindow(1280, 720, "Render Application | Testbed", NULL, NULL);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    m_pWindow = SDL_CreateWindow("Render Engine | Testbed", 100, 100, 1280, 720, SDL_WINDOW_OPENGL);
     assert(m_pWindow != NULL);
 
-    glfwSetKeyCallback(m_pWindow, KeyCallback);
-    glfwSetCursorPosCallback(m_pWindow, CursorPositionCallback);
-    glfwSetMouseButtonCallback(m_pWindow, MouseButtonCallback);
-
-    glfwMakeContextCurrent(m_pWindow);
+    m_pContext = SDL_GL_CreateContext(m_pWindow);
+    assert(m_pContext != NULL);
 
     int bGladLoadGLResult = gladLoadGL();
     assert(bGladLoadGLResult != GL_FALSE);
@@ -100,7 +69,7 @@ bool Application::Init()
     memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
-    m_bCameraMoving = false;
+    m_bCameraMoving = true;
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 
@@ -217,17 +186,36 @@ bool Application::Init()
     return true;
 }
 
-void Application::Run()
+void App::RunLoop()
 {
-    float prevTime = static_cast<float>(glfwGetTime());
+    uint64_t uPreviousTime = (uint64_t)SDL_GetPerformanceCounter();
 
-    while (!glfwWindowShouldClose(m_pWindow) && m_bRunning)
+    while (m_bRunning)
     {
-        glfwPollEvents();
+        /** Process Events */
 
-        const float currentTime = static_cast<float>(glfwGetTime());
-        const float deltaTime = currentTime - prevTime;
-        prevTime = currentTime;
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+                m_bRunning = false;
+
+            if (event.type == SDL_KEYDOWN && event.key.repeat == SDL_FALSE)
+                m_bKeyStates[event.key.keysym.scancode] = true;
+            else if (event.type == SDL_KEYUP)
+            {
+                m_bKeyStates[event.key.keysym.scancode] = false;
+            }
+        }
+
+        /** Calc Delta Time */
+
+        uint64_t uCurrentTime = (uint64_t)SDL_GetPerformanceCounter();
+        float fDeltaTime = ((float)(uCurrentTime - uPreviousTime) / (float)SDL_GetPerformanceFrequency());
+        uPreviousTime = uCurrentTime;
+
+        /**  */
 
         const float cameraSpeed = 2.5f;
         const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -237,41 +225,41 @@ void Application::Run()
 
         if (m_bCameraMoving)
         {
-            if (m_bKeyStates[GLFW_KEY_W])
+            if (m_bKeyStates[SDL_SCANCODE_W])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (m_CameraSceneNode->GetForwardDir() * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (m_CameraSceneNode->GetForwardDir() * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
             else
-            if (m_bKeyStates[GLFW_KEY_S])
+            if (m_bKeyStates[SDL_SCANCODE_S])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (m_CameraSceneNode->GetForwardDir() * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (m_CameraSceneNode->GetForwardDir() * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
 
             const glm::vec3 rightDirection = glm::cross(m_CameraSceneNode->GetForwardDir(), upDirection);
 
-            if (m_bKeyStates[GLFW_KEY_A])
+            if (m_bKeyStates[SDL_SCANCODE_A])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (rightDirection * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
             else
-            if (m_bKeyStates[GLFW_KEY_D])
+            if (m_bKeyStates[SDL_SCANCODE_D])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (rightDirection * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
 
-            if (m_bKeyStates[GLFW_KEY_LEFT_SHIFT])
+            if (m_bKeyStates[SDL_SCANCODE_LSHIFT])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (upDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (upDirection * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
             else
-            if (m_bKeyStates[GLFW_KEY_LEFT_CONTROL])
+            if (m_bKeyStates[SDL_SCANCODE_LCTRL])
             {
-                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (upDirection * cameraSpeed * deltaTime);
+                glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (upDirection * cameraSpeed * fDeltaTime);
                 m_CameraSceneNode->SetPosition(newPos);
             }
 
@@ -290,16 +278,15 @@ void Application::Run()
             }
         }
 
-        UpdateScene(deltaTime);
+        UpdateScene(fDeltaTime);
 
         RenderScene();
 
-        glfwSwapInterval(1);
-        glfwSwapBuffers(m_pWindow);
+        SDL_GL_SwapWindow(m_pWindow);
     }
 }
 
-void Application::CreateScene()
+void App::CreateScene()
 {
     m_CameraSceneNode.reset(new CameraSceneNode());
     m_CameraSceneNode->Create();
@@ -400,76 +387,60 @@ void Application::CreateScene()
     //    grassNode->GetMaterial().bUseTexture = true; 
     //}
 
-    // DirectionalLightNode
-    LightProperties directionalLightProperties;
-    directionalLightProperties.Type = LightType::Directional;
-    directionalLightProperties.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
-    directionalLightProperties.Ambient = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    directionalLightProperties.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    directionalLightProperties.Specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);;
+    using enum LightType;
 
-    m_DirectionalLightNode.reset(new LightNode());
-    m_DirectionalLightNode->Create();
-    m_DirectionalLightNode->SetLightProperties(directionalLightProperties);
-    m_SceneNodes.push_back(m_DirectionalLightNode);
-    m_LightNodes.push_back(m_DirectionalLightNode);
+    /** Directional Light */
 
-    // PointLightNode
-    LightProperties pointLightProperties;
-    pointLightProperties.Type = LightType::Point;
-    pointLightProperties.Position = glm::vec3(0.0f, 0.2f, -2.0f);
-    pointLightProperties.Ambient = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    pointLightProperties.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    pointLightProperties.Specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);;
-    pointLightProperties.ConstantAttenuation = 1.0f;
-    pointLightProperties.LinearAttenuation = 0.09f;
-    pointLightProperties.QuadraticAttenuation = 0.032f;
+    LightProperties dirLightProps;
+    dirLightProps.Type = Directional;
+    dirLightProps.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
 
-    m_PointLightNode.reset(new LightNode());
-    m_PointLightNode->Create();
-    m_PointLightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
-    m_PointLightNode->SetLightProperties(pointLightProperties);
-    m_SceneNodes.push_back(m_PointLightNode);
-    m_LightNodes.push_back(m_PointLightNode);
+    std::shared_ptr<LightSceneNode> dirLightNode(new LightSceneNode(dirLightProps));
 
-    // SpotLightNode
+    m_SceneNodes.push_back(dirLightNode);
+    m_LightNodes.push_back(dirLightNode);
+
+    /** Point Light */
+
+    LightProperties pointLightProps;
+    pointLightProps.Type = Point;
+    pointLightProps.Position = glm::vec3(0.0f, 0.2f, -2.0f);
+    pointLightProps.ConstantAttenuation = 1.0f;
+    pointLightProps.LinearAttenuation = 0.09f;
+    pointLightProps.QuadraticAttenuation = 0.032f;
+
+    std::shared_ptr<LightSceneNode> pointLightNode(new LightSceneNode(pointLightProps));
+    pointLightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
+
+    m_SceneNodes.push_back(pointLightNode);
+    m_LightNodes.push_back(pointLightNode);
+
+    /** Spot Light */
+
     LightProperties spotLightProperties;
     spotLightProperties.Type = LightType::Spot;
     spotLightProperties.Position = glm::vec3(3.4f, 1.0f, 3.0f);
     spotLightProperties.Direction = glm::vec3(0.0f, -1.0f, 0.0f);
-    spotLightProperties.Ambient = glm::vec4(1.0f, 1.0f, 1.0f, 1.0);
-    spotLightProperties.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0);
-    spotLightProperties.Specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0);
-    spotLightProperties.Falloff = cosf(glm::radians(30.0f));
-    spotLightProperties.Phi = cosf(glm::radians(36.0f));
     spotLightProperties.ConstantAttenuation = 1.0f;
     spotLightProperties.LinearAttenuation = 0.09f;
     spotLightProperties.QuadraticAttenuation = 0.032f;
+    spotLightProperties.Falloff = cosf(glm::radians(30.0f));
+    spotLightProperties.Phi = cosf(glm::radians(36.0f));
 
-    m_SpotLightNode.reset(new LightNode());
-    m_SpotLightNode->Create();
-    m_SpotLightNode->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
-    m_SpotLightNode->SetLightProperties(spotLightProperties);
-    m_SceneNodes.push_back(m_SpotLightNode);
-    m_LightNodes.push_back(m_SpotLightNode);
+    std::shared_ptr<LightSceneNode> spotLightNode(new LightSceneNode(spotLightProperties));
+    spotLightNode->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
 
-    auto lightBulb = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    lightBulb->Create();
-    lightBulb->SetPosition(pointLightProperties.Position);
-    lightBulb->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
-    lightBulb->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    lightBulb->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    lightBulb->GetMaterial().Emissive = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    lightBulb->GetMaterial().bUseTexture = false;
+    m_SceneNodes.push_back(spotLightNode);
+    m_LightNodes.push_back(spotLightNode);
 }
 
-void Application::UpdateScene(const float deltaTime)
+void App::UpdateScene(const float deltaTime)
 {
     for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
         node->Update(deltaTime);
 }
 
-void Application::RenderScene()
+void App::RenderScene()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 
@@ -493,9 +464,9 @@ void Application::RenderScene()
         shaderProgram->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
         shaderProgram->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
         shaderProgram->SetUniform3f(("u_Lights[" + index + "].Direction"), lp.Direction);
-        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Ambient"), lp.Ambient);
-        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Diffuse"), lp.Diffuse);
-        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Specular"), lp.Specular);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Ambient"), m_LightNodes[i]->GetMaterial().Ambient);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Diffuse"), m_LightNodes[i]->GetMaterial().Diffuse);
+        shaderProgram->SetUniform4f(("u_Lights[" + index + "].Specular"), m_LightNodes[i]->GetMaterial().Specular);
         shaderProgram->SetUniform1f(("u_Lights[" + index + "].Falloff"), lp.Falloff);
         shaderProgram->SetUniform1f(("u_Lights[" + index + "].ConstantAttenuation"), lp.ConstantAttenuation);
         shaderProgram->SetUniform1f(("u_Lights[" + index + "].LinearAttenuation"), lp.LinearAttenuation);
