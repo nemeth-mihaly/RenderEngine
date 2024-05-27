@@ -7,11 +7,11 @@ in layout(location = 2) vec2 a_Uv;
 uniform mat4 u_WorldView;
 uniform mat4 u_WorldProjection;
 
-out vec3 v_Uv;
+out vec2 v_Uv;
 
 void main()
 {
     vec4 pos = u_WorldProjection * u_WorldView * vec4(a_Pos, 1.0);
     gl_Position = pos.xyww;
-    v_Uv = a_Pos;
+    v_Uv = a_Uv;
 }

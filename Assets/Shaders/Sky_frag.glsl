@@ -1,9 +1,9 @@
 #version 460 core
 out vec4 v_FragmentColor;
 
-in vec3 v_Uv;
+in vec2 v_Uv;
 
-uniform samplerCube u_Texture;
+uniform sampler2D u_Texture;
 
 void main()
 {

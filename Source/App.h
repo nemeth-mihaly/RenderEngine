@@ -6,10 +6,17 @@
 
 #include "3rdParty/SDL2/SDL.h"
 
+#include "VertexArray.h"
+#include "Lights.h"
+#include "Mesh.h"
+
 #include "Common.h"
 #include "Resources/ResourceManager.h"
 #include "Graphics3D/SceneNodes.h"
-#include "Graphics3D/Light.h"
+
+extern std::shared_ptr<Texture_t> g_UvGridTexture;
+
+extern std::shared_ptr<Mesh_t> g_MonkeyMesh;
 
 ////////////////////////////////////////////////////
 //  class App
@@ -25,6 +32,8 @@ class App
     void RunLoop();    
 
     ResourceManager& GetResourceManager() const { return *(m_pResManager); }
+
+    const std::shared_ptr<CameraSceneNode>& GetCamera() const { return m_CameraSceneNode; }
 
  private:
     void CreateScene();
@@ -46,21 +55,11 @@ class App
     float m_Yaw;
     float m_Pitch;
 
-    StrongMeshPtr m_Mesh_Rectangle;
-    StrongMeshPtr m_Mesh_Cube;
-    StrongMeshPtr m_Mesh_Terrain;
-
-    StrongTexturePtr m_Texture_Sky;
-
-    SceneNodeList m_SceneNodes;
+    SceneNodeList_t m_SceneNodes;
     AlphaSceneList m_AlphaSceneNodes;
-    LightSceneNodeList m_LightNodes;
+    LightSceneNodeList_t m_LightNodes;
     std::shared_ptr<CameraSceneNode> m_CameraSceneNode;
-
-    GLuint m_FramebufferID;
-    GLuint m_TextureID_ColorBuffer;
-    GLuint m_RenderBufferID;
-    StrongTexturePtr m_Texture_ColorBuffer;
+    std::shared_ptr<SkySceneNode_t> SkySceneNode;
 };
 
 extern App* g_pApp;

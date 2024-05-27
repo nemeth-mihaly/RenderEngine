@@ -2,6 +2,10 @@
 
 App* g_pApp = NULL;
 
+std::shared_ptr<Texture_t> g_UvGridTexture = nullptr;
+
+std::shared_ptr<Mesh_t> g_MonkeyMesh = nullptr;
+
 ////////////////////////////////////////////////////
 //  App Implementation
 ////////////////////////////////////////////////////
@@ -69,7 +73,7 @@ bool App::Init()
     memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
-    m_bCameraMoving = true;
+    m_bCameraMoving = false;
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 
@@ -83,103 +87,13 @@ bool App::Init()
     for (const auto& programPipelineResource : programPipelineResources)
         g_pApp->GetResourceManager().LoadProgramPipeline(programPipelineResource);
 
-    const std::vector<std::string> wavefrontModelResources =
-    {
-        "Assets\\Models\\Rectangle.obj",
-        "Assets\\Models\\Cube.obj",
-        "Assets/Models/Monkey.obj",
-        "Assets\\Models\\Grass.obj"
-    };
+    g_UvGridTexture.reset(new Texture_t());
+    g_UvGridTexture->LoadFromFile("Assets/Textures/UvGrid.png");
 
-    for (const auto& wavefrontModelResource : wavefrontModelResources)
-        g_pApp->GetResourceManager().LoadWavefrontMesh(wavefrontModelResource);
-
-    const std::vector<std::string> textureResources =
-    {
-        "Assets/Textures/UvGrid.png",
-        "Assets\\Textures\\Stonebricks.png",
-        "Assets\\Textures\\Grass.png",
-        "Assets\\Textures\\SphereGlow.png",
-        "Assets\\Textures\\AlphaWindow.png"
-    };
-
-    for (const auto& textureResource : textureResources)
-        g_pApp->GetResourceManager().LoadTexture(textureResource);
-
-    std::vector<std::string> skyTextureNames =
-    {
-        "Assets\\Textures\\Sky_PX.png",
-        "Assets\\Textures\\Sky_NX.png",
-        "Assets\\Textures\\Sky_PY.png",
-        "Assets\\Textures\\Sky_NY.png",
-        "Assets\\Textures\\Sky_PZ.png",
-        "Assets\\Textures\\Sky_NZ.png",
-    };
-
-    stbi_set_flip_vertically_on_load(false);
-
-    m_Texture_Sky.reset(new Texture());
-    assert(m_Texture_Sky);
-    m_Texture_Sky->Create(GL_TEXTURE_CUBE_MAP);
-
-    m_Texture_Sky->SetParamateri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    m_Texture_Sky->SetParamateri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_Texture_Sky->SetParamateri(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    int width, height, channelCount;
-    stbi_load(skyTextureNames[0].c_str(), &width, &height, &channelCount, 0);
-
-    for (uint32_t i = 0; i < skyTextureNames.size(); ++i)
-    {
-        uint8_t* pPixels = stbi_load(skyTextureNames[i].c_str(), &width, &height, &channelCount, 0);
-        assert(pPixels);
-    
-        m_Texture_Sky->SetImage2DForSpecialTarget(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, TextureInternalFormat(channelCount), width, height, 0, TextureFormat(channelCount), pPixels);
-    }
-
-    std::vector<Vertex> rectangleVertices = CreateRectangleVertices();
-    m_Mesh_Rectangle.reset(new Mesh());
-    assert(m_Mesh_Rectangle);
-    m_Mesh_Rectangle->VertexCount = rectangleVertices.size();
-    m_Mesh_Rectangle->pVertices = rectangleVertices.data();
-    m_Mesh_Rectangle->VertexBufferOffset = 0;
-    m_Mesh_Rectangle->Create();
-    rectangleVertices.clear();
-
-    std::vector<Vertex> cubeVertices = CreateCubeVertices();
-
-    m_Mesh_Cube.reset(new Mesh());
-    assert(m_Mesh_Cube);
-    m_Mesh_Cube->VertexCount = cubeVertices.size();
-    m_Mesh_Cube->pVertices = cubeVertices.data();
-    m_Mesh_Cube->VertexBufferOffset = 0;
-    m_Mesh_Cube->Create();
-    cubeVertices.clear();
+    g_MonkeyMesh.reset(new Mesh_t());
+    g_MonkeyMesh->LoadFromFile("Assets/Models/Monkey.obj");
 
     CreateScene();
-
-    glGenFramebuffers(1, &m_FramebufferID);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
-
-    glGenTextures(1, &m_TextureID_ColorBuffer);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureID_ColorBuffer, 0);
-
-    glGenRenderbuffers(1, &m_RenderBufferID);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, 1280, 720);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferID);
-    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     m_bRunning = true;
     
@@ -199,13 +113,45 @@ void App::RunLoop()
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
+            {
                 m_bRunning = false;
+            }
 
             if (event.type == SDL_KEYDOWN && event.key.repeat == SDL_FALSE)
-                m_bKeyStates[event.key.keysym.scancode] = true;
+            {
+                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                {
+                    m_bRunning = false;
+                }
+                else
+                {
+                    m_bKeyStates[event.key.keysym.scancode] = true;
+                }
+            }
             else if (event.type == SDL_KEYUP)
             {
                 m_bKeyStates[event.key.keysym.scancode] = false;
+            }
+
+            if (event.type == SDL_MOUSEMOTION)
+            {
+                m_CurrentMousePos.x = event.motion.xrel;
+                m_CurrentMousePos.y = event.motion.yrel;
+            }
+
+            if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (event.button.button == SDL_BUTTON_RIGHT)
+                {
+                    m_bCameraMoving = true;
+                }
+            }
+            else if (event.type == SDL_MOUSEBUTTONUP)
+            {
+                if (event.button.button == SDL_BUTTON_RIGHT)
+                {
+                    m_bCameraMoving = false;
+                }
             }
         }
 
@@ -293,10 +239,13 @@ void App::CreateScene()
     m_CameraSceneNode->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     m_SceneNodes.push_back(m_CameraSceneNode);
 
+    Material_t Material;
+    Material.bUseTexture = true;
+
     std::shared_ptr<MeshSceneNode> suzanneTheMonkey(new MeshSceneNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     suzanneTheMonkey->Create();
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
-    suzanneTheMonkey->GetMaterial().bUseTexture = true;
+    suzanneTheMonkey->SetMaterial(Material);
     m_SceneNodes.push_back(suzanneTheMonkey);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
@@ -387,63 +336,63 @@ void App::CreateScene()
     //    grassNode->GetMaterial().bUseTexture = true; 
     //}
 
-    using enum LightType;
-
     /** Directional Light */
 
-    LightProperties dirLightProps;
-    dirLightProps.Type = Directional;
-    dirLightProps.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
+    LightProperties_t DirectionalLightProperties;
+    DirectionalLightProperties.Type = LightType_t::Directional;
+    DirectionalLightProperties.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
 
-    std::shared_ptr<LightSceneNode> dirLightNode(new LightSceneNode(dirLightProps));
+    std::shared_ptr<LightSceneNode_t> DirectionalLight(new LightSceneNode_t(DirectionalLightProperties));
 
-    m_SceneNodes.push_back(dirLightNode);
-    m_LightNodes.push_back(dirLightNode);
+    m_SceneNodes.push_back(DirectionalLight);
+    m_LightNodes.push_back(DirectionalLight);
 
     /** Point Light */
 
-    LightProperties pointLightProps;
-    pointLightProps.Type = Point;
-    pointLightProps.Position = glm::vec3(0.0f, 0.2f, -2.0f);
-    pointLightProps.ConstantAttenuation = 1.0f;
-    pointLightProps.LinearAttenuation = 0.09f;
-    pointLightProps.QuadraticAttenuation = 0.032f;
+    LightProperties_t PointLightProperties;
+    PointLightProperties.Type = LightType_t::Point;
+    PointLightProperties.Position = glm::vec3(0.0f, 0.2f, -2.0f);
+    PointLightProperties.ConstantAttenuation = 1.0f;
+    PointLightProperties.LinearAttenuation = 0.09f;
+    PointLightProperties.QuadraticAttenuation = 0.032f;
 
-    std::shared_ptr<LightSceneNode> pointLightNode(new LightSceneNode(pointLightProps));
-    pointLightNode->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
+    std::shared_ptr<LightSceneNode_t> PointLight(new LightSceneNode_t(PointLightProperties));
+    PointLight->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
 
-    m_SceneNodes.push_back(pointLightNode);
-    m_LightNodes.push_back(pointLightNode);
+    m_SceneNodes.push_back(PointLight);
+    m_LightNodes.push_back(PointLight);
 
     /** Spot Light */
 
-    LightProperties spotLightProperties;
-    spotLightProperties.Type = LightType::Spot;
-    spotLightProperties.Position = glm::vec3(3.4f, 1.0f, 3.0f);
-    spotLightProperties.Direction = glm::vec3(0.0f, -1.0f, 0.0f);
-    spotLightProperties.ConstantAttenuation = 1.0f;
-    spotLightProperties.LinearAttenuation = 0.09f;
-    spotLightProperties.QuadraticAttenuation = 0.032f;
-    spotLightProperties.Falloff = cosf(glm::radians(30.0f));
-    spotLightProperties.Phi = cosf(glm::radians(36.0f));
+    LightProperties_t SpotLightProperties;
+    SpotLightProperties.Type = LightType_t::Spot;
+    SpotLightProperties.Position = glm::vec3(3.4f, 1.0f, 3.0f);
+    SpotLightProperties.Direction = glm::vec3(0.0f, -1.0f, 0.0f);
+    SpotLightProperties.ConstantAttenuation = 1.0f;
+    SpotLightProperties.LinearAttenuation = 0.09f;
+    SpotLightProperties.QuadraticAttenuation = 0.032f;
+    SpotLightProperties.Falloff = cosf(glm::radians(30.0f));
+    SpotLightProperties.Phi = cosf(glm::radians(36.0f));
 
-    std::shared_ptr<LightSceneNode> spotLightNode(new LightSceneNode(spotLightProperties));
-    spotLightNode->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
+    std::shared_ptr<LightSceneNode_t> SpotLight(new LightSceneNode_t(SpotLightProperties));
+    SpotLight->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
 
-    m_SceneNodes.push_back(spotLightNode);
-    m_LightNodes.push_back(spotLightNode);
+    m_SceneNodes.push_back(SpotLight);
+    m_LightNodes.push_back(SpotLight);
+
+    /** Sky */
+
+    SkySceneNode.reset(new SkySceneNode_t());
 }
 
 void App::UpdateScene(const float deltaTime)
 {
-    for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
+    for (const std::shared_ptr<SceneNode_t>& node : m_SceneNodes)
         node->Update(deltaTime);
 }
 
 void App::RenderScene()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
-
     /** Actor Render Pass */
 
     glEnable(GL_DEPTH_TEST);
@@ -459,7 +408,7 @@ void App::RenderScene()
     for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
     {
         const std::string index = std::to_string(i);
-        const LightProperties& lp = m_LightNodes[i]->GetLightProperties();
+        const LightProperties_t& lp = m_LightNodes[i]->GetProperties();
 
         shaderProgram->SetUniform1i(("u_Lights[" + index + "].Type"), static_cast<int>(lp.Type));
         shaderProgram->SetUniform3f(("u_Lights[" + index + "].Position"), lp.Position);
@@ -493,18 +442,7 @@ void App::RenderScene()
 
     /** Sky Render Pass */
 
-    glDepthFunc(GL_LEQUAL);
-    StrongProgramPipelinePtr skyShaderProgram = g_pApp->GetResourceManager().GetProgramPipeline("Assets/Shaders/Sky.progpipeline");
-    skyShaderProgram->SetActive();
-    skyShaderProgram->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(m_CameraSceneNode->GetView())));
-    skyShaderProgram->SetUniformMatrix4f("u_WorldProjection", m_CameraSceneNode->GetProjection());
-    //m_Texture_Sky->BindUnit(0);
-    m_Texture_Sky->SetActiveUnit(0);
-    skyShaderProgram->SetUniform1i("u_Texture", 0);
-    m_Mesh_Cube->m_VertexArray->SetActive();
-    glDrawArrays(GL_TRIANGLES, m_Mesh_Cube->VertexBufferOffset, m_Mesh_Cube->VertexCount);
-    glDepthFunc(GL_LESS);
-    m_Texture_Sky->SetActive(GL_FALSE);
+    SkySceneNode->Render();
 
     /** Alpha Render Pass */
 
@@ -543,17 +481,4 @@ void App::RenderScene()
     glDisable(GL_BLEND);
 
     /** Postproc */
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    StrongProgramPipelinePtr framebufferTestShaderProgram = g_pApp->GetResourceManager().GetProgramPipeline("Assets/Shaders/Framebuffer_test.progpipeline");
-    framebufferTestShaderProgram->SetActive();
-    m_Mesh_Rectangle->m_VertexArray->SetActive();
-    glDisable(GL_DEPTH_TEST);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID_ColorBuffer);
-    glActiveTexture(GL_TEXTURE0);
-    framebufferTestShaderProgram->SetUniform1i("u_Texture", 0);
-    glDrawArrays(GL_TRIANGLES, m_Mesh_Rectangle->VertexBufferOffset, m_Mesh_Rectangle->VertexCount);
 }

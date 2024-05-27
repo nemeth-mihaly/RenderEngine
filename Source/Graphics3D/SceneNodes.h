@@ -4,21 +4,21 @@
 
 #include <vector>
 
-#include "Graphics3D/API/VertexArray.h"
-#include "Graphics3D/Mesh.h"
+#include "VertexArray.h"
+#include "Mesh.h"
 #include "Graphics3D/API/ProgramPipeline.h"
-#include "Graphics3D/API/Texture.h"
-#include "Graphics3D/Material.h"
+#include "Texture.h"
+#include "Material.h"
 
 ////////////////////////////////////////////////////
-//  class SceneNode
+//  class SceneNode_t
 ////////////////////////////////////////////////////
 
-class SceneNode
+class SceneNode_t
 {
  public:
-    SceneNode();
-    virtual ~SceneNode();
+    SceneNode_t();
+    virtual ~SceneNode_t();
 
     virtual void Create();
 
@@ -34,22 +34,23 @@ class SceneNode
     void SetRotation(const glm::vec3& axis, float degrees) { m_Rotation = glm::vec4(axis, degrees); }
     const glm::vec4& GetRotation() const { return m_Rotation; }
 
-    Material& GetMaterial() { return m_Material; }
+    void SetMaterial(const Material_t& InMaterial) { Material = InMaterial; }
+    const Material_t& GetMaterial() const { return Material; }
 
  protected:
     glm::vec3 m_Pos;
     glm::vec3 m_Scale;
     glm::vec4 m_Rotation;
-    Material m_Material;
+    Material_t Material;
 };
 
-typedef std::vector<std::shared_ptr<SceneNode>> SceneNodeList;
+typedef std::vector<std::shared_ptr<SceneNode_t>> SceneNodeList_t;
 
 ////////////////////////////////////////////////////
 //  class CameraSceneNode
 ////////////////////////////////////////////////////
 
-class CameraSceneNode : public SceneNode
+class CameraSceneNode : public SceneNode_t
 {
  public:
     CameraSceneNode();
@@ -76,7 +77,7 @@ class CameraSceneNode : public SceneNode
 //  class MeshSceneNode
 ////////////////////////////////////////////////////
 
-class MeshSceneNode : public SceneNode
+class MeshSceneNode : public SceneNode_t
 {
  public:
     MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
@@ -98,7 +99,24 @@ class MeshSceneNode : public SceneNode
 
 struct AlphaSceneNode
 {
-    std::shared_ptr<SceneNode> Node;
+    std::shared_ptr<SceneNode_t> Node;
 };
 
 typedef std::vector<AlphaSceneNode*> AlphaSceneList;
+
+////////////////////////////////////////////////////
+//  class SkySceneNode_t
+////////////////////////////////////////////////////
+
+class SkySceneNode_t : public SceneNode_t
+{
+ public:
+    SkySceneNode_t();
+    virtual ~SkySceneNode_t();
+
+    virtual void Render() override;
+
+ private:
+    std::shared_ptr<VertexArray_t> VertexArray;
+    std::shared_ptr<Texture_t> Textures[6];
+};
