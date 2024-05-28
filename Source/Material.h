@@ -8,13 +8,13 @@
 #include "3rdParty/glm/gtc/type_ptr.hpp"
 
 ////////////////////////////////////////////////////
-//  class Material_t
+//  class Material
 ////////////////////////////////////////////////////
 
-class Material_t
+class Material
 {
  public:
-    Material_t();
+    Material();
 
     glm::vec4       Ambient;
     glm::vec4       Diffuse;

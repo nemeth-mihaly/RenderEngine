@@ -3,14 +3,16 @@
 
 #include "3rdParty/SDL2/SDL.h"
 
-#include "App.h"
+#include "Application.h"
 
 int main(int argc, char* argv[])
 {
-    App app;
+    Application app;
 
-    if (app.Init())
+    if (app.Initialize())
+    {
         app.RunLoop();
+    }
 
     return 0;
 }

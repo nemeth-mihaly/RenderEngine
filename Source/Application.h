@@ -6,40 +6,37 @@
 
 #include "3rdParty/SDL2/SDL.h"
 
+#include "Scene.h"
+
 #include "VertexArray.h"
+#include "Shader.h"
 #include "Lights.h"
 #include "Mesh.h"
 
 #include "Common.h"
-#include "Resources/ResourceManager.h"
-#include "Graphics3D/SceneNodes.h"
+#include "SceneNodes.h"
 
 extern std::shared_ptr<Texture_t> g_UvGridTexture;
 
 extern std::shared_ptr<Mesh_t> g_MonkeyMesh;
 
+extern std::shared_ptr<Shader_t> g_TexturedLitShader;
+extern std::shared_ptr<Shader_t> g_SkyShader;
+
 ////////////////////////////////////////////////////
-//  class App
+//  class Application
 ////////////////////////////////////////////////////
 
-class App
+class Application
 {
  public:
-    App();
-    ~App();
+    Application();
+    ~Application();
 
-    bool Init();
+    bool Initialize();
     void RunLoop();    
 
-    ResourceManager& GetResourceManager() const { return *(m_pResManager); }
-
-    const std::shared_ptr<CameraSceneNode>& GetCamera() const { return m_CameraSceneNode; }
-
  private:
-    void CreateScene();
-    void UpdateScene(const float deltaTime);
-    void RenderScene();
-
     bool m_bRunning;
 
     SDL_Window* m_pWindow;
@@ -47,7 +44,7 @@ class App
 
     bool m_bKeyStates[SDL_NUM_SCANCODES];
 
-    ResourceManager* m_pResManager;
+    Scene* m_pScene;
 
     bool m_bCameraMoving;
     glm::vec2 m_CurrentMousePos;
@@ -55,11 +52,11 @@ class App
     float m_Yaw;
     float m_Pitch;
 
-    SceneNodeList_t m_SceneNodes;
-    AlphaSceneList m_AlphaSceneNodes;
-    LightSceneNodeList_t m_LightNodes;
-    std::shared_ptr<CameraSceneNode> m_CameraSceneNode;
-    std::shared_ptr<SkySceneNode_t> SkySceneNode;
+    //SceneNodeList_t m_SceneNodes;
+    //AlphaSceneList m_AlphaSceneNodes;
+    //LightSceneNodeList_t m_LightNodes;
+    //std::shared_ptr<CameraSceneNode> m_CameraSceneNode;
+    //std::shared_ptr<SkySceneNode_t> m_SkySceneNode;
 };
 
-extern App* g_pApp;
+extern Application* g_pApp;

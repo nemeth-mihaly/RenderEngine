@@ -1,18 +1,20 @@
 #include "Lights.h"
 
+#include "Scene.h"
+
 ////////////////////////////////////////////////////
-//  LightSceneNode_t Implementation
+//  LightNode Implementation
 ////////////////////////////////////////////////////
 
-LightSceneNode_t::LightSceneNode_t(const LightProperties_t& InProperties)
-    : Properties(InProperties)
+LightNode::LightNode(const LightProperties& properties)
+    : m_Properties(properties)
 {
 }
 
-LightSceneNode_t::~LightSceneNode_t()
+LightNode::~LightNode()
 {
 }
 
-void LightSceneNode_t::Update(const float DeltaTime)
+void LightNode::Update(Scene* pScene, const float deltaTime)
 {
 }

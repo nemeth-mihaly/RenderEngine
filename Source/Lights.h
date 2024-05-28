@@ -5,55 +5,55 @@
 #include <memory>
 #include <vector>
 
-#include "Graphics3D/SceneNodes.h"
+#include "SceneNodes.h"
+
+class Scene;
 
 ////////////////////////////////////////////////////
-//  enum class LightType_t
+//  enum class LightType
 ////////////////////////////////////////////////////
 
-enum class LightType_t
+enum class LightType
 {
-    Directional = 0,
-    Point       = 1,
-    Spot        = 2,
+    Directional     = 0,
+    Point           = 1,
+    Spot            = 2,
 };
 
 ////////////////////////////////////////////////////
-//  struct LightProperties_t
+//  struct LightProperties
 ////////////////////////////////////////////////////
 
 /** From: https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dlight9 */
 
-struct LightProperties_t
+struct LightProperties
 {
-    LightType_t     Type;
-    glm::vec3       Position;
-    glm::vec3       Direction;
-    float           Range;
-    float           Falloff;
-    float           ConstantAttenuation;
-    float           LinearAttenuation;
-    float           QuadraticAttenuation;
-    float           Theta;
-    float           Phi;
+    LightType   Type;
+    glm::vec3   Position;
+    glm::vec3   Direction;
+    float       Range;
+    float       Falloff;
+    float       ConstantAttenuation;
+    float       LinearAttenuation;
+    float       QuadraticAttenuation;
+    float       Theta;
+    float       Phi;
 };
 
 ////////////////////////////////////////////////////
-//  class LightSceneNode_t
+//  class LightNode
 ////////////////////////////////////////////////////
 
-class LightSceneNode_t : public SceneNode_t
+class LightNode : public SceneNode
 {
  public: 
-    LightSceneNode_t(const LightProperties_t& InProperties);
-    virtual ~LightSceneNode_t();
+    LightNode(const LightProperties& properties);
+    virtual ~LightNode();
 
-    virtual void Update(const float DeltaTime) override;
+    virtual void Update(Scene* pScene, const float deltaTime) override;
 
-    const LightProperties_t& GetProperties() const { return Properties; }
+    const LightProperties& GetProperties() const { return m_Properties; }
 
  protected:
-    LightProperties_t Properties;
+    LightProperties m_Properties;
 };
-
-typedef std::vector<std::shared_ptr<LightSceneNode_t>>  LightSceneNodeList_t;

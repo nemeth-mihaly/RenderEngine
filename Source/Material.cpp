@@ -1,10 +1,10 @@
 #include "Material.h"
 
 ////////////////////////////////////////////////////
-//  Material_t Implementation
+//  Material Implementation
 ////////////////////////////////////////////////////
 
-Material_t::Material_t()
+Material::Material()
 {
     Ambient     = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f),
     Diffuse     = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),

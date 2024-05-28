@@ -7,7 +7,7 @@
 
 #include "Common.h"
 #include "VertexArray.h"
-#include "Graphics3D/Geometry.h"
+#include "Geometry.h"
 
 ////////////////////////////////////////////////////
 //  class Mesh_t

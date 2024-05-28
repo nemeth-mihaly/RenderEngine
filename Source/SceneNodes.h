@@ -6,24 +6,24 @@
 
 #include "VertexArray.h"
 #include "Mesh.h"
-#include "Graphics3D/API/ProgramPipeline.h"
+#include "Shader.h"
 #include "Texture.h"
 #include "Material.h"
 
+class Scene;
+
 ////////////////////////////////////////////////////
-//  class SceneNode_t
+//  class SceneNode
 ////////////////////////////////////////////////////
 
-class SceneNode_t
+class SceneNode
 {
  public:
-    SceneNode_t();
-    virtual ~SceneNode_t();
+    SceneNode();
+    virtual ~SceneNode();
 
-    virtual void Create();
-
-    virtual void Update(const float deltaTime);
-    virtual void Render();
+    virtual void Update(Scene* pScene, const float deltaTime);
+    virtual void Render(Scene* pScene);
 
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     const glm::vec3& GetPosition() const { return m_Pos; }
@@ -34,29 +34,25 @@ class SceneNode_t
     void SetRotation(const glm::vec3& axis, float degrees) { m_Rotation = glm::vec4(axis, degrees); }
     const glm::vec4& GetRotation() const { return m_Rotation; }
 
-    void SetMaterial(const Material_t& InMaterial) { Material = InMaterial; }
-    const Material_t& GetMaterial() const { return Material; }
+    void SetMaterial(const Material& InMaterial) { Material = InMaterial; }
+    const Material& GetMaterial() const { return Material; }
 
  protected:
     glm::vec3 m_Pos;
     glm::vec3 m_Scale;
     glm::vec4 m_Rotation;
-    Material_t Material;
+    Material Material;
 };
-
-typedef std::vector<std::shared_ptr<SceneNode_t>> SceneNodeList_t;
 
 ////////////////////////////////////////////////////
 //  class CameraSceneNode
 ////////////////////////////////////////////////////
 
-class CameraSceneNode : public SceneNode_t
+class CameraNode : public SceneNode
 {
  public:
-    CameraSceneNode();
-    virtual ~CameraSceneNode();
-
-    virtual void Create();
+    CameraNode();
+    virtual ~CameraNode();
 
     const glm::mat4& GetProjection() const { return m_Projection; }
     const glm::mat4& GetView() const { return m_View; }
@@ -77,15 +73,14 @@ class CameraSceneNode : public SceneNode_t
 //  class MeshSceneNode
 ////////////////////////////////////////////////////
 
-class MeshSceneNode : public SceneNode_t
+class MeshSceneNode : public SceneNode
 {
  public:
     MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
 
     virtual ~MeshSceneNode();
 
-    virtual void Create();
-    virtual void Render();
+    virtual void Render(Scene* pScene);
 
  private:
     std::string m_MeshName;
@@ -94,27 +89,25 @@ class MeshSceneNode : public SceneNode_t
 };
 
 ////////////////////////////////////////////////////
-//  struct AlphaSceneNode
+//  struct AlphaNode
 ////////////////////////////////////////////////////
 
-struct AlphaSceneNode
+struct AlphaNode
 {
-    std::shared_ptr<SceneNode_t> Node;
+    std::shared_ptr<SceneNode> Node;
 };
 
-typedef std::vector<AlphaSceneNode*> AlphaSceneList;
-
 ////////////////////////////////////////////////////
-//  class SkySceneNode_t
+//  class SkyNode
 ////////////////////////////////////////////////////
 
-class SkySceneNode_t : public SceneNode_t
+class SkyNode : public SceneNode
 {
  public:
-    SkySceneNode_t();
-    virtual ~SkySceneNode_t();
+    SkyNode();
+    virtual ~SkyNode();
 
-    virtual void Render() override;
+    virtual void Render(Scene* pScene) override;
 
  private:
     std::shared_ptr<VertexArray_t> VertexArray;
