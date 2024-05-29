@@ -2,8 +2,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <memory>
-#include <vector>
 
 #include "SceneNodes.h"
 
@@ -23,8 +21,6 @@ enum class LightType
 ////////////////////////////////////////////////////
 //  struct LightProperties
 ////////////////////////////////////////////////////
-
-/** From: https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dlight9 */
 
 struct LightProperties
 {

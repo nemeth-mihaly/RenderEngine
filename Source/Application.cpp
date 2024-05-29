@@ -2,12 +2,14 @@
 
 Application* g_pApp = NULL;
 
-std::shared_ptr<Texture_t> g_UvGridTexture = NULL;
+Texture_t* g_UvGridTexture = NULL;
+Texture_t*  g_SphereGlowTexture = NULL;
 
-std::shared_ptr<Mesh_t> g_MonkeyMesh = NULL;
+Mesh_t* g_MonkeyMesh = NULL;
 
-std::shared_ptr<Shader_t> g_TexturedLitShader = NULL;
-std::shared_ptr<Shader_t> g_SkyShader = NULL;
+Shader_t* g_TexturedLitShader = NULL;
+Shader_t* g_SkyShader = NULL;
+Shader_t* g_BillboardShader = NULL;
 
 ////////////////////////////////////////////////////
 //  Application Implementation
@@ -84,24 +86,31 @@ bool Application::Initialize()
     memset(m_bKeyStates, 0, sizeof(m_bKeyStates));
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
-    m_bCameraMoving = false;
-    m_Yaw = -90.0f;
-    m_Pitch = 0.0f;
 
-    g_UvGridTexture.reset(new Texture_t());
+    g_UvGridTexture = new Texture_t();
     g_UvGridTexture->LoadFromFile("Assets/Textures/UvGrid.png");
 
-    g_MonkeyMesh.reset(new Mesh_t());
+    g_SphereGlowTexture = new Texture_t();
+    g_SphereGlowTexture->LoadFromFile("Assets/Textures/SphereGlow.png");
+
+    g_MonkeyMesh = new Mesh_t();
     g_MonkeyMesh->LoadFromFile("Assets/Models/Monkey.obj");
 
-    g_TexturedLitShader.reset(new Shader_t());
+    g_TexturedLitShader = new Shader_t();
     g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit_vert.glsl", "Assets/Shaders/TexturedLit_frag.glsl");
 
-    g_SkyShader.reset(new Shader_t());
+    g_SkyShader = new Shader_t();
     g_SkyShader->LoadFromFile("Assets/Shaders/Sky_vert.glsl", "Assets/Shaders/Sky_frag.glsl");
+
+    g_BillboardShader = new Shader_t();
+    g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard_vert.glsl", "Assets/Shaders/Billboard_frag.glsl");
 
     m_pScene = new Scene();
     assert(m_pScene != NULL);
+
+    m_bCameraMoving = false;
+    m_Yaw = -90.0f;
+    m_Pitch = 0.0f;
 
     m_bRunning = true;
     
@@ -114,56 +123,7 @@ void Application::RunLoop()
 
     while (m_bRunning)
     {
-        /** Process Events */
-
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                m_bRunning = false;
-            }
-
-            if (event.type == SDL_KEYDOWN && event.key.repeat == SDL_FALSE)
-            {
-                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                {
-                    m_bRunning = false;
-                }
-                else
-                {
-                    m_bKeyStates[event.key.keysym.scancode] = true;
-                }
-            }
-            else if (event.type == SDL_KEYUP)
-            {
-                m_bKeyStates[event.key.keysym.scancode] = false;
-            }
-
-            if (event.type == SDL_MOUSEMOTION)
-            {
-                m_CurrentMousePos.x = event.motion.xrel;
-                m_CurrentMousePos.y = event.motion.yrel;
-            }
-
-            if (event.type == SDL_MOUSEBUTTONDOWN)
-            {
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_bCameraMoving = true;
-                }
-            }
-            else if (event.type == SDL_MOUSEBUTTONUP)
-            {
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_bCameraMoving = false;
-                }
-            }
-        }
-
-        /** Calc Delta Time */
+        ProcessEvents();
 
         uint64_t currentTime = (uint64_t)SDL_GetPerformanceCounter();
         float deltaTime = ((float)(currentTime - prevTime) / (float)SDL_GetPerformanceFrequency());
@@ -179,45 +139,47 @@ void Application::RunLoop()
 
         if (m_bCameraMoving)
         {
+            std::shared_ptr<CameraNode>& camera = m_pScene->GetCamera();
+
             if (m_bKeyStates[SDL_SCANCODE_W])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (m_CameraSceneNode->GetForwardDir() * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[SDL_SCANCODE_S])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (m_CameraSceneNode->GetForwardDir() * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
 
-            //const glm::vec3 rightDirection = glm::cross(m_CameraSceneNode->GetForwardDir(), upDirection);
+            const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
 
             if (m_bKeyStates[SDL_SCANCODE_A])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[SDL_SCANCODE_D])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
 
             if (m_bKeyStates[SDL_SCANCODE_LSHIFT])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() + (upDirection * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
             else
             if (m_bKeyStates[SDL_SCANCODE_LCTRL])
             {
-                //glm::vec3 newPos = m_CameraSceneNode->GetPosition() - (upDirection * cameraSpeed * deltaTime);
-                //m_CameraSceneNode->SetPosition(newPos);
+                glm::vec3 newPos = camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
+                camera->SetPosition(newPos);
             }
 
-            if (m_bCameraMoving && !(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+            if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
             {
                 const float rotationSpeed = 0.3f;
                 m_Yaw += deltaMousePos.x * rotationSpeed;
@@ -228,7 +190,7 @@ void Application::RunLoop()
                 newForwardDirection.y = sinf(glm::radians(m_Pitch));
                 newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
                 
-                //m_CameraSceneNode->SetForwardDir(glm::normalize(newForwardDirection));
+                camera->SetForwardDir(glm::normalize(newForwardDirection));
             }
         }
 
@@ -238,5 +200,73 @@ void Application::RunLoop()
 
         SDL_GL_SetSwapInterval(0);
         SDL_GL_SwapWindow(m_pWindow);
+    }
+}
+
+void Application::ProcessEvents()
+{
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                m_bRunning = false;
+                break;
+
+            case SDL_KEYDOWN:
+            {
+                if (event.key.repeat != SDL_FALSE)
+                {
+                    break;
+                }
+
+                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                {
+                    m_bRunning = false;
+                }
+                else
+                {
+                    m_bKeyStates[event.key.keysym.scancode] = true;
+                }
+
+                break;
+            }
+
+            case SDL_KEYUP:
+                m_bKeyStates[event.key.keysym.scancode] = false;
+                break;
+
+            case SDL_MOUSEMOTION:
+            {
+                m_CurrentMousePos.x = event.motion.x;
+                m_CurrentMousePos.y = event.motion.y;
+                break;
+            }
+
+            case SDL_MOUSEBUTTONDOWN:
+            {
+                if (event.button.button == SDL_BUTTON_RIGHT)
+                {
+                    m_bCameraMoving = true;
+                }
+
+                break;
+            }
+
+            case SDL_MOUSEBUTTONUP:
+            {
+                if (event.button.button == SDL_BUTTON_RIGHT)
+                {
+                    m_bCameraMoving = false;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+        }
     }
 }

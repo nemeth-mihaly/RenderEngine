@@ -14,14 +14,15 @@
 #include "Mesh.h"
 
 #include "Common.h"
-#include "SceneNodes.h"
 
-extern std::shared_ptr<Texture_t> g_UvGridTexture;
+extern Texture_t* g_UvGridTexture;
+extern Texture_t* g_SphereGlowTexture;
 
-extern std::shared_ptr<Mesh_t> g_MonkeyMesh;
+extern Mesh_t* g_MonkeyMesh;
 
-extern std::shared_ptr<Shader_t> g_TexturedLitShader;
-extern std::shared_ptr<Shader_t> g_SkyShader;
+extern Shader_t* g_TexturedLitShader;
+extern Shader_t* g_SkyShader;
+extern Shader_t* g_BillboardShader;
 
 ////////////////////////////////////////////////////
 //  class Application
@@ -37,26 +38,23 @@ class Application
     void RunLoop();    
 
  private:
+    void ProcessEvents();
+
+ private:
     bool m_bRunning;
 
-    SDL_Window* m_pWindow;
-    SDL_GLContext m_pContext;
+    SDL_Window*     m_pWindow;
+    SDL_GLContext   m_pContext;
 
-    bool m_bKeyStates[SDL_NUM_SCANCODES];
+    bool        m_bKeyStates[SDL_NUM_SCANCODES];
+    glm::vec2   m_CurrentMousePos;
+    glm::vec2   m_PrevMousePos;
 
     Scene* m_pScene;
 
-    bool m_bCameraMoving;
-    glm::vec2 m_CurrentMousePos;
-    glm::vec2 m_PrevMousePos;
-    float m_Yaw;
-    float m_Pitch;
-
-    //SceneNodeList_t m_SceneNodes;
-    //AlphaSceneList m_AlphaSceneNodes;
-    //LightSceneNodeList_t m_LightNodes;
-    //std::shared_ptr<CameraSceneNode> m_CameraSceneNode;
-    //std::shared_ptr<SkySceneNode_t> m_SkySceneNode;
+    bool    m_bCameraMoving;
+    float   m_Yaw;
+    float   m_Pitch;
 };
 
 extern Application* g_pApp;

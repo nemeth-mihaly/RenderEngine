@@ -22,7 +22,7 @@ class Scene
     void Update(const float deltaTime);
     void Render();
 
-    const std::shared_ptr<CameraNode>& GetCamera() const { return m_Camera; }
+    std::shared_ptr<CameraNode>& GetCamera() { return m_Camera; }
 
  private:
     std::vector<std::shared_ptr<SceneNode>> m_SceneNodes;

@@ -31,10 +31,12 @@ void SceneNode::Render(Scene* pScene)
 ////////////////////////////////////////////////////
 
 CameraNode::CameraNode()
+    : SceneNode()
 {
     m_Pos = glm::vec3(0.0f, 0.0f, 3.0f);
     m_ForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
     m_Projection = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
+    WorldViewProjection();
 }
 
 CameraNode::~CameraNode()
@@ -52,10 +54,9 @@ glm::mat4 CameraNode::WorldViewProjection()
 ////////////////////////////////////////////////////
 
 MeshSceneNode::MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
-    : m_MeshName(meshName), m_ShaderProgName(shaderProgName), m_TextureName(textureName)
+    : SceneNode(), m_MeshName(meshName), m_ShaderProgName(shaderProgName), m_TextureName(textureName)
 {
 }
-
 
 MeshSceneNode::~MeshSceneNode()
 {
@@ -73,8 +74,6 @@ void MeshSceneNode::Render(Scene* pScene)
 
     if (Material.bUseTexture)
     {
-        //StrongTexturePtr texture = g_pApp->GetResourceManager().GetTexture(m_TextureName);
-        //texture->BindUnit(0);
         g_UvGridTexture->Bind();
         g_TexturedLitShader->SetUniform1i("u_Texture", 0);
     }
@@ -89,6 +88,9 @@ void MeshSceneNode::Render(Scene* pScene)
 
     g_MonkeyMesh->GetVertexArray()->Bind();
     glDrawArrays(GL_TRIANGLES, 0, g_MonkeyMesh->GetVertexArray()->GetNumVertices());
+
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 ////////////////////////////////////////////////////
@@ -99,6 +101,7 @@ const uint32_t GNumCubeSides = 6;
 const uint32_t GNumSideVertices = 6;
 
 SkyNode::SkyNode()
+    : SceneNode()
 {
     std::vector<Vertex_t> Vertices =
     {
@@ -206,4 +209,64 @@ void SkyNode::Render(Scene* pScene)
     glUseProgram(0);
 
     glDepthFunc(GL_LESS);
+}
+
+////////////////////////////////////////////////////
+//  BillboardNode Implementation
+////////////////////////////////////////////////////
+
+BillboardNode::BillboardNode()
+    : SceneNode()
+{
+    std::vector<Vertex_t> vertices =
+    {
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
+    };
+
+    m_VertexArray.reset(new VertexArray_t(vertices.data(), vertices.size()));
+    vertices.clear();
+}
+
+BillboardNode::~BillboardNode()
+{
+
+}
+
+void BillboardNode::Render(Scene* pScene)
+{
+    g_BillboardShader->Bind();
+    g_BillboardShader->SetUniformMatrix4f("u_WorldView", glm::mat4(pScene->GetCamera()->GetView()));
+    g_BillboardShader->SetUniformMatrix4f("u_WorldProjection", pScene->GetCamera()->GetProjection());
+    //g_BillboardShader->SetUniform4f("u_Material.Ambient", Material.Ambient);
+    //g_BillboardShader->SetUniform4f("u_Material.Diffuse", Material.Diffuse);
+    //g_BillboardShader->SetUniform4f("u_Material.Specular", Material.Specular);
+    //g_BillboardShader->SetUniform4f("u_Material.Emissive", Material.Emissive);
+    //g_BillboardShader->SetUniform1f("u_Material.SpecularPower", Material.SpecularPower);
+    //g_BillboardShader->SetUniform1b("u_Material.bUseTexture", Material.bUseTexture);
+
+    if (Material.bUseTexture)
+    {
+        g_SphereGlowTexture->Bind();
+        g_BillboardShader->SetUniform1i("u_Texture", 0);
+    }
+
+    g_BillboardShader->SetUniform3f("u_Position", m_Pos);
+
+    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    world *= glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.w), glm::vec3(m_Rotation.x, m_Rotation.y, m_Rotation.z));
+    world *= glm::scale(glm::mat4(1.0f), m_Scale);
+
+    g_TexturedLitShader->SetUniformMatrix4f("u_World", world);
+
+    m_VertexArray->Bind();
+    glDrawArrays(GL_TRIANGLES, 0, m_VertexArray->GetNumVertices());
+
+    glBindVertexArray(0);
+    glUseProgram(0);
 }

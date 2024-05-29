@@ -17,13 +17,27 @@ Scene::Scene()
 
     /** Monkey */
 
-    Material Material;
-    Material.bUseTexture = true;
+    Material material;
+    material.bUseTexture = true;
 
     std::shared_ptr<MeshSceneNode> suzanneTheMonkey(new MeshSceneNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
-    suzanneTheMonkey->SetMaterial(Material);
+    suzanneTheMonkey->SetMaterial(material);
+    
     m_SceneNodes.push_back(suzanneTheMonkey);
+
+    /** Billboard */
+
+    Material alphaMaterial;
+    alphaMaterial.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+    alphaMaterial.Emissive = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+    alphaMaterial.bUseTexture = true;
+    
+    std::shared_ptr<BillboardNode> billboard(new BillboardNode());
+    billboard->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    billboard->SetMaterial(alphaMaterial);
+
+    m_SceneNodes.push_back(billboard);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     //floorNode->Create();
@@ -176,7 +190,7 @@ void Scene::Update(const float deltaTime)
 
 void Scene::Render()
 {
-    /** Actor Render Pass */
+    /** Actor Pass */
 
     glEnable(GL_DEPTH_TEST);
     //glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
@@ -187,7 +201,7 @@ void Scene::Render()
     g_TexturedLitShader->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
     g_TexturedLitShader->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
-    for (uint32_t i = 0; i < m_LightNodes.size(); ++i)
+    for (uint32_t i = 0; i < m_LightNodes.size(); i++)
     {
         const std::string strIndex = std::to_string(i);
 
@@ -223,11 +237,11 @@ void Scene::Render()
         }
     }
 
-    /** Sky Render Pass */
+    /** Sky Pass */
 
     m_SkyNode->Render(this);
 
-    /** Alpha Render Pass */
+    /** Alpha Pass */
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

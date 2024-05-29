@@ -63,7 +63,7 @@ GLuint Shader_t::CompileShader(const std::string& Filename, GLenum ShaderType)
 {
     GLuint Shader = glCreateShader(ShaderType);
 
-    FILE* File = fopen(Filename.c_str(), "r");
+    FILE* File = fopen(Filename.c_str(), "rb");
 
     fseek(File, 0, SEEK_END);
     size_t FileSize = ftell(File);

@@ -113,3 +113,19 @@ class SkyNode : public SceneNode
     std::shared_ptr<VertexArray_t> VertexArray;
     std::shared_ptr<Texture_t> Textures[6];
 };
+
+////////////////////////////////////////////////////
+//  class BillboardNode
+////////////////////////////////////////////////////
+
+class BillboardNode : public SceneNode
+{
+ public:
+    BillboardNode();
+    virtual ~BillboardNode();
+
+    virtual void Render(Scene* pScene) override;
+
+ private:
+    std::shared_ptr<VertexArray_t> m_VertexArray;
+};
