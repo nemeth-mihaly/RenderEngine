@@ -16,11 +16,11 @@ class Material
  public:
     Material();
 
-    glm::vec4       Ambient;
-    glm::vec4       Diffuse;
-    glm::vec4       Specular;
-    glm::vec4       Emissive;
-    float       SpecularPower;
+    glm::vec4 Ambient;
+    glm::vec4 Diffuse;
+    glm::vec4 Specular;
+    glm::vec4 Emissive;
+    float SpecularPower;
 
-    bool        bUseTexture;
+    bool bUseTexture;
 };

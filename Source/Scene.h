@@ -9,6 +9,8 @@
 #include "SceneNodes.h"
 #include "Lights.h"
 
+constexpr int MAX_PARTICLES = 256;
+
 ////////////////////////////////////////////////////
 //  class Scene
 ////////////////////////////////////////////////////
@@ -31,4 +33,22 @@ class Scene
     
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<SkyNode> m_SkyNode;
-};
+
+    /** Particles */
+
+    struct ParticleExtraVertexData
+    {
+        glm::vec3 Pos;
+        float Size;
+    };
+
+    GLsizei m_VertexCount;
+    std::shared_ptr<VertexArray> m_ParticleVertexArray;
+
+    struct Particle
+    {
+
+    };
+
+    Particle m_Particles[MAX_PARTICLES];
+};  

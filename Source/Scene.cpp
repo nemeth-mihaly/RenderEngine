@@ -20,7 +20,7 @@ Scene::Scene()
     Material material;
     material.bUseTexture = true;
 
-    std::shared_ptr<MeshSceneNode> suzanneTheMonkey(new MeshSceneNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
+    std::shared_ptr<MeshNode> suzanneTheMonkey(new MeshNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
     suzanneTheMonkey->SetMaterial(material);
     
@@ -174,6 +174,35 @@ Scene::Scene()
     /** Sky */
 
     m_SkyNode.reset(new SkyNode());
+
+    /** Particles */
+
+    std::vector<Vertex> vertices =
+    {
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
+        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
+    };
+
+    m_ParticleVertexArray.reset(new VertexArray());
+    m_ParticleVertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
+    m_ParticleVertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
+    m_ParticleVertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
+    m_ParticleVertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+
+    m_VertexCount = vertices.size();
+    vertices.clear();
+
+    GLuint particleExtraDataVertexBufferID = m_ParticleVertexArray->AddVertexBuffer(sizeof(ParticleExtraVertexData), MAX_PARTICLES, NULL);
+    m_ParticleVertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 1);
+    m_ParticleVertexArray->SetAttribute(1, 1, GL_FLOAT, 12, 1);
+
+    glVertexAttribDivisor(0, 0);
+    glVertexAttribDivisor(1, 1);
 }
 
 Scene::~Scene()

@@ -1,39 +1,49 @@
 #include "VertexArray.h"
 
 ////////////////////////////////////////////////////
-//  VertexArray_t Implementation
+//  VertexArray Implementation
 ////////////////////////////////////////////////////
 
-VertexArray_t::VertexArray_t(const void* InVerticesData, const uint32_t InNumVertices)
-    : NumVertices(InNumVertices)
+VertexArray::VertexArray()
 {
-    glCreateBuffers(1, &VertexBuffer);
-    glNamedBufferData(VertexBuffer, (sizeof(float) * 8) * InNumVertices, InVerticesData, GL_STATIC_DRAW);
-
-    glCreateVertexArrays(1, &VertexArray);
-
-    glVertexArrayVertexBuffer(VertexArray, 0, VertexBuffer, 0, sizeof(float) * 8);
-
-    glEnableVertexArrayAttrib(VertexArray, 0);
-    glVertexArrayAttribFormat(VertexArray, 0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 0);
-    glVertexArrayAttribBinding(VertexArray, 0, 0);
-
-    glEnableVertexArrayAttrib(VertexArray, 1);
-    glVertexArrayAttribFormat(VertexArray, 1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3);
-    glVertexArrayAttribBinding(VertexArray, 1, 0);
-
-    glEnableVertexArrayAttrib(VertexArray, 2);
-    glVertexArrayAttribFormat(VertexArray, 2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6);
-    glVertexArrayAttribBinding(VertexArray, 2, 0);
+    glCreateVertexArrays(1, &m_VertexArrayID);
 }
 
-VertexArray_t::~VertexArray_t()
+VertexArray::~VertexArray()
 {
-    glDeleteVertexArrays(1, &VertexArray);
-    glDeleteBuffers(1, &VertexBuffer);
+    for (GLuint vertexBufferID : m_VertexBufferIDs)
+    {
+        glDeleteBuffers(1, &vertexBufferID);
+    }
+
+    glDeleteVertexArrays(1, &m_VertexArrayID);
 }
 
-void VertexArray_t::Bind() const
+void VertexArray::Bind() const
 {
-    glBindVertexArray(VertexArray);
+    glBindVertexArray(m_VertexArrayID);
+}
+
+GLuint VertexArray::AddVertexBuffer(GLsizei stride, GLsizeiptr size, const void* pData)
+{
+    GLuint vertexBufferID;
+    glCreateBuffers(1, &vertexBufferID);
+    glNamedBufferData(vertexBufferID, stride * size, pData, GL_STATIC_DRAW);
+
+    glVertexArrayVertexBuffer(m_VertexArrayID, m_VertexBufferIDs.size(), vertexBufferID, 0, stride);
+    m_VertexBufferIDs.push_back(vertexBufferID);
+
+    return vertexBufferID;
+}
+
+void VertexArray::SetBufferSubData(GLuint bufferID, GLintptr offset, GLsizeiptr size, const void* pData) const
+{
+    glNamedBufferSubData(bufferID, offset, size, pData);
+}
+
+void VertexArray::SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset, GLuint bindingindex) const
+{
+    glEnableVertexArrayAttrib(m_VertexArrayID, index);
+    glVertexArrayAttribFormat(m_VertexArrayID, index, size, type, GL_FALSE, relativeoffset);
+    glVertexArrayAttribBinding(m_VertexArrayID, index, bindingindex);
 }

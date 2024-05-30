@@ -50,19 +50,19 @@ glm::mat4 CameraNode::WorldViewProjection()
 }
 
 ////////////////////////////////////////////////////
-//  MeshSceneNode Implementation
+//  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-MeshSceneNode::MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
+MeshNode::MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName)
     : SceneNode(), m_MeshName(meshName), m_ShaderProgName(shaderProgName), m_TextureName(textureName)
 {
 }
 
-MeshSceneNode::~MeshSceneNode()
+MeshNode::~MeshNode()
 {
 }
 
-void MeshSceneNode::Render(Scene* pScene)
+void MeshNode::Render(Scene* pScene)
 {
     g_TexturedLitShader->Bind();
     g_TexturedLitShader->SetUniform4f("u_Material.Ambient", Material.Ambient);
@@ -87,7 +87,7 @@ void MeshSceneNode::Render(Scene* pScene)
     //StrongMeshPtr mesh = g_pApp->GetResourceManager().GetMesh(m_MeshName);
 
     g_MonkeyMesh->GetVertexArray()->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, g_MonkeyMesh->GetVertexArray()->GetNumVertices());
+    glDrawArrays(GL_TRIANGLES, 0, g_MonkeyMesh->GetVertexCount());
 
     glBindVertexArray(0);
     glUseProgram(0);
@@ -103,7 +103,7 @@ const uint32_t GNumSideVertices = 6;
 SkyNode::SkyNode()
     : SceneNode()
 {
-    std::vector<Vertex_t> Vertices =
+    std::vector<Vertex> vertices =
     {
         /** POSITIVE_X */
 
@@ -166,20 +166,26 @@ SkyNode::SkyNode()
         {{  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f }},
     };
 
-    VertexArray.reset(new VertexArray_t(Vertices.data(), Vertices.size()));
-    Vertices.clear();
+    m_VertexArray.reset(new VertexArray());
+    m_VertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
+    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
+    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
+    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+
+    m_VertexCount = vertices.size();
+    vertices.clear();
 
     for (uint32_t Index = 0; Index < GNumCubeSides; Index++)
     {
-        Textures[Index].reset(new Texture_t());
+        m_Textures[Index].reset(new Texture_t());
     }
 
-    Textures[0]->LoadFromFile("Assets/Textures/Sky_PX.png");
-    Textures[1]->LoadFromFile("Assets/Textures/Sky_NX.png");
-    Textures[2]->LoadFromFile("Assets/Textures/Sky_PY.png");
-    Textures[3]->LoadFromFile("Assets/Textures/Sky_NY.png");
-    Textures[4]->LoadFromFile("Assets/Textures/Sky_PZ.png");
-    Textures[5]->LoadFromFile("Assets/Textures/Sky_NZ.png");
+    m_Textures[0]->LoadFromFile("Assets/Textures/Sky_PX.png");
+    m_Textures[1]->LoadFromFile("Assets/Textures/Sky_NX.png");
+    m_Textures[2]->LoadFromFile("Assets/Textures/Sky_PY.png");
+    m_Textures[3]->LoadFromFile("Assets/Textures/Sky_NY.png");
+    m_Textures[4]->LoadFromFile("Assets/Textures/Sky_PZ.png");
+    m_Textures[5]->LoadFromFile("Assets/Textures/Sky_NZ.png");
 }
 
 SkyNode::~SkyNode()
@@ -194,11 +200,11 @@ void SkyNode::Render(Scene* pScene)
     g_SkyShader->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(pScene->GetCamera()->GetView())));
     g_SkyShader->SetUniformMatrix4f("u_WorldProjection", pScene->GetCamera()->GetProjection());
 
-    VertexArray->Bind();
+    m_VertexArray->Bind();
 
     for (uint32_t Side = 0; Side < GNumCubeSides; Side++)
     {
-        Textures[Side]->Bind();
+        m_Textures[Side]->Bind();
         g_SkyShader->SetUniform1i("u_Texture", 0);
 
         const uint32_t VertexBufferOffset = Side * GNumSideVertices;
@@ -218,7 +224,7 @@ void SkyNode::Render(Scene* pScene)
 BillboardNode::BillboardNode()
     : SceneNode()
 {
-    std::vector<Vertex_t> vertices =
+    std::vector<Vertex> vertices =
     {
         {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
@@ -229,7 +235,13 @@ BillboardNode::BillboardNode()
         {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
     };
 
-    m_VertexArray.reset(new VertexArray_t(vertices.data(), vertices.size()));
+    m_VertexArray.reset(new VertexArray());
+    m_VertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
+    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
+    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
+    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+
+    m_VertexCount = vertices.size();
     vertices.clear();
 }
 
@@ -265,7 +277,7 @@ void BillboardNode::Render(Scene* pScene)
     g_TexturedLitShader->SetUniformMatrix4f("u_World", world);
 
     m_VertexArray->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, m_VertexArray->GetNumVertices());
+    glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
 
     glBindVertexArray(0);
     glUseProgram(0);

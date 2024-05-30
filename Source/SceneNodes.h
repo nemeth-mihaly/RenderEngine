@@ -73,12 +73,12 @@ class CameraNode : public SceneNode
 //  class MeshSceneNode
 ////////////////////////////////////////////////////
 
-class MeshSceneNode : public SceneNode
+class MeshNode : public SceneNode
 {
  public:
-    MeshSceneNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
+    MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
 
-    virtual ~MeshSceneNode();
+    virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
 
@@ -110,8 +110,9 @@ class SkyNode : public SceneNode
     virtual void Render(Scene* pScene) override;
 
  private:
-    std::shared_ptr<VertexArray_t> VertexArray;
-    std::shared_ptr<Texture_t> Textures[6];
+    GLsizei m_VertexCount;
+    std::shared_ptr<VertexArray> m_VertexArray;
+    std::shared_ptr<Texture_t> m_Textures[6];
 };
 
 ////////////////////////////////////////////////////
@@ -127,5 +128,6 @@ class BillboardNode : public SceneNode
     virtual void Render(Scene* pScene) override;
 
  private:
-    std::shared_ptr<VertexArray_t> m_VertexArray;
+    GLsizei m_VertexCount;
+    std::shared_ptr<VertexArray> m_VertexArray;
 };

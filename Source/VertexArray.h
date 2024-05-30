@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
@@ -10,19 +11,20 @@
 //  class VertexArray
 ////////////////////////////////////////////////////
 
-class VertexArray_t
+class VertexArray
 {
  public:
-    VertexArray_t(const void* InVerticesData, const uint32_t InNumVertices);
-    ~VertexArray_t();
+    VertexArray();
+    ~VertexArray();
 
     void Bind() const;
 
-    uint32_t GetNumVertices() const { return NumVertices; }
+    GLuint AddVertexBuffer(GLsizei stride, GLsizeiptr size, const void* pData);
+    void SetBufferSubData(GLuint bufferID, GLintptr offset, GLsizeiptr size, const void* pData) const;
+
+    void SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset, GLuint bindingindex) const;
 
  private:
-    uint32_t NumVertices;
-    GLuint VertexBuffer;
-
-    GLuint VertexArray;
+   GLuint m_VertexArrayID;
+   std::vector<GLuint> m_VertexBufferIDs;
 };

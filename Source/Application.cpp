@@ -106,7 +106,6 @@ bool Application::Initialize()
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard_vert.glsl", "Assets/Shaders/Billboard_frag.glsl");
 
     m_pScene = new Scene();
-    assert(m_pScene != NULL);
 
     m_bCameraMoving = false;
     m_Yaw = -90.0f;

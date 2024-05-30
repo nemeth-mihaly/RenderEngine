@@ -6,14 +6,15 @@
 
 #include "3rdParty/SDL2/SDL.h"
 
+#include "3rdParty/KHR/khrplatform.h"
+#include "3rdParty/glad/glad.h"
+
 #include "Scene.h"
 
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Lights.h"
 #include "Mesh.h"
-
-#include "Common.h"
 
 extern Texture_t* g_UvGridTexture;
 extern Texture_t* g_SphereGlowTexture;
@@ -43,18 +44,18 @@ class Application
  private:
     bool m_bRunning;
 
-    SDL_Window*     m_pWindow;
-    SDL_GLContext   m_pContext;
+    SDL_Window* m_pWindow;
+    SDL_GLContext m_pContext;
 
-    bool        m_bKeyStates[SDL_NUM_SCANCODES];
-    glm::vec2   m_CurrentMousePos;
-    glm::vec2   m_PrevMousePos;
+    bool m_bKeyStates[SDL_NUM_SCANCODES];
+    glm::vec2 m_CurrentMousePos;
+    glm::vec2 m_PrevMousePos;
 
     Scene* m_pScene;
 
-    bool    m_bCameraMoving;
-    float   m_Yaw;
-    float   m_Pitch;
+    bool m_bCameraMoving;
+    float m_Yaw;
+    float m_Pitch;
 };
 
 extern Application* g_pApp;

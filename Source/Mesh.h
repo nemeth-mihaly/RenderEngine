@@ -4,10 +4,25 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <memory>
+#include <vector>
 
-#include "Common.h"
+#include "3rdParty/glm/glm.hpp"
+#include "3rdParty/glm/gtc/matrix_transform.hpp"
+#include "3rdParty/glm/gtc/type_ptr.hpp"
+
 #include "VertexArray.h"
-#include "Geometry.h"
+
+////////////////////////////////////////////////////
+//  struct Vertex
+////////////////////////////////////////////////////
+
+struct Vertex
+{
+    glm::vec3     Pos;
+    glm::vec3     Normal;
+    glm::vec2     Uv;
+};
 
 ////////////////////////////////////////////////////
 //  class Mesh_t
@@ -19,10 +34,13 @@ class Mesh_t
     Mesh_t();
     ~Mesh_t();
 
-    void LoadFromFile(const std::string& Filename);
+    void LoadFromFile(const std::string& filename);
 
-    const std::shared_ptr<VertexArray_t>& GetVertexArray() const { return VertexArray; }
+    GLsizei GetVertexCount() { return m_VertexCount; }
+    
+    const std::shared_ptr<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
  private:
-    std::shared_ptr<VertexArray_t> VertexArray;
+    GLsizei m_VertexCount;
+    std::shared_ptr<VertexArray> m_VertexArray;
 };
