@@ -39,16 +39,22 @@ class Scene
     struct ParticleExtraVertexData
     {
         glm::vec3 Pos;
-        float Size;
     };
 
+    GLuint m_ParticleVertexArrayID;
+
     GLsizei m_VertexCount;
-    std::shared_ptr<VertexArray> m_ParticleVertexArray;
+    GLuint m_ParticleVertexBufferID;
+
+    GLuint m_ParticleExtraDataVertexBufferID;
+    
+    std::vector<ParticleExtraVertexData> m_ParticleBuffer;
 
     struct Particle
     {
-
+        glm::vec3 Pos, Velocity;
+        float Life {0.0f};
     };
 
     Particle m_Particles[MAX_PARTICLES];
-};  
+};

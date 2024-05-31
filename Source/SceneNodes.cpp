@@ -167,7 +167,7 @@ SkyNode::SkyNode()
     };
 
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
+    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * vertices.size(), vertices.data());
     m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
     m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
     m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
@@ -236,7 +236,7 @@ BillboardNode::BillboardNode()
     };
 
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
+    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * vertices.size(), vertices.data());
     m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
     m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
     m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
@@ -270,11 +270,11 @@ void BillboardNode::Render(Scene* pScene)
 
     g_BillboardShader->SetUniform3f("u_Position", m_Pos);
 
-    glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
-    world *= glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.w), glm::vec3(m_Rotation.x, m_Rotation.y, m_Rotation.z));
-    world *= glm::scale(glm::mat4(1.0f), m_Scale);
+    //glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
+    //world *= glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.w), glm::vec3(m_Rotation.x, m_Rotation.y, m_Rotation.z));
+    //world *= glm::scale(glm::mat4(1.0f), m_Scale);
 
-    g_TexturedLitShader->SetUniformMatrix4f("u_World", world);
+    //g_TexturedLitShader->SetUniformMatrix4f("u_World", world);
 
     m_VertexArray->Bind();
     glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);

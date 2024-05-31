@@ -21,7 +21,7 @@ Scene::Scene()
     material.bUseTexture = true;
 
     std::shared_ptr<MeshNode> suzanneTheMonkey(new MeshNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
+    suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
     
     m_SceneNodes.push_back(suzanneTheMonkey);
@@ -37,7 +37,7 @@ Scene::Scene()
     billboard->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
 
-    m_SceneNodes.push_back(billboard);
+    //m_SceneNodes.push_back(billboard);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     //floorNode->Create();
@@ -188,21 +188,50 @@ Scene::Scene()
         {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
     };
 
-    m_ParticleVertexArray.reset(new VertexArray());
-    m_ParticleVertexArray->AddVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
-    m_ParticleVertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
-    m_ParticleVertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
-    m_ParticleVertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+    glCreateVertexArrays(1, &m_ParticleVertexArrayID);
+    //glBindVertexArray(m_ParticleVertexArrayID);
+
+    glCreateBuffers(1, &m_ParticleVertexBufferID);
+    glNamedBufferData(m_ParticleVertexBufferID, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexArrayVertexBuffer(m_ParticleVertexArrayID, 0, m_ParticleVertexBufferID, 0, sizeof(Vertex));
+
+    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 0);
+    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 0, 0);
+
+    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 1);
+    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 1, 3, GL_FLOAT, GL_FALSE, 12);
+    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 1, 0);
+
+    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 2);
+    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 2, 2, GL_FLOAT, GL_FALSE, 24);
+    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 2, 0);
 
     m_VertexCount = vertices.size();
     vertices.clear();
 
-    GLuint particleExtraDataVertexBufferID = m_ParticleVertexArray->AddVertexBuffer(sizeof(ParticleExtraVertexData), MAX_PARTICLES, NULL);
-    m_ParticleVertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 1);
-    m_ParticleVertexArray->SetAttribute(1, 1, GL_FLOAT, 12, 1);
+    glCreateBuffers(1, &m_ParticleExtraDataVertexBufferID);
+    glNamedBufferData(m_ParticleExtraDataVertexBufferID, sizeof(ParticleExtraVertexData) * MAX_PARTICLES, NULL, GL_DYNAMIC_DRAW);
 
-    glVertexAttribDivisor(0, 0);
-    glVertexAttribDivisor(1, 1);
+    glVertexArrayVertexBuffer(m_ParticleVertexArrayID, 1, m_ParticleExtraDataVertexBufferID, 0, sizeof(ParticleExtraVertexData));
+
+    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 3);
+    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 3, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 3, 1);
+
+    glVertexArrayBindingDivisor(m_ParticleVertexArrayID, 0, 0);
+    glVertexArrayBindingDivisor(m_ParticleVertexArrayID, 1, 1);
+
+    m_ParticleBuffer.reserve(MAX_PARTICLES);
+
+    int i = 0;
+//    for (uint32_t i = 0; i < MAX_PARTICLES; i++)
+    {
+        m_Particles[i].Pos = glm::vec3(0.0f, 0.0f, -5.0f);
+        m_Particles[i].Velocity = glm::vec3(0.0f, 1.0f, 0.0f);
+        m_Particles[i].Life = 10.0f;
+    }
 }
 
 Scene::~Scene()
@@ -214,6 +243,23 @@ void Scene::Update(const float deltaTime)
     for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
     {
         node->Update(this, deltaTime);
+    }
+
+    for (uint32_t i = 0; i < MAX_PARTICLES; i++)
+    {
+        Particle& particle = m_Particles[i];
+
+        if (particle.Life > 0.0f)
+        {
+            particle.Pos += particle.Velocity * deltaTime;
+            particle.Life -= deltaTime;
+
+            ParticleExtraVertexData extraData;
+            extraData.Pos = particle.Pos;
+            //extraData.Size = 1.0f;
+
+            m_ParticleBuffer.push_back(extraData);
+        }
     }
 }
 
@@ -306,5 +352,33 @@ void Scene::Render()
 
     glDisable(GL_BLEND);
 
+    /** Particles */
+
+    g_BillboardShader->Bind();
+    g_BillboardShader->SetUniformMatrix4f("u_WorldView", glm::mat4(GetCamera()->GetView()));
+    g_BillboardShader->SetUniformMatrix4f("u_WorldProjection", GetCamera()->GetProjection());
+
+    g_SphereGlowTexture->Bind();
+    g_BillboardShader->SetUniform1i("u_Texture", 0);
+
+    //printf("m_ParticleBuffer.size=%u\n", m_ParticleBuffer.size());
+
+
+    //glVertexAttribDivisor(0, 0);
+    //glVertexAttribDivisor(1, 0);
+    //glVertexAttribDivisor(2, 0);
+    //glVertexAttribDivisor(3, 1);
+
+    glBindVertexArray(m_ParticleVertexArrayID);
+    //m_ParticleVertexArray->SetBufferSubData(m_ParticleExtraDataVertexBufferID, 0, m_ParticleBuffer.size(), m_ParticleBuffer.data());
+    glNamedBufferSubData(m_ParticleExtraDataVertexBufferID, 0, sizeof(ParticleExtraVertexData) * m_ParticleBuffer.size(), m_ParticleBuffer.data());
+
+    glDrawArraysInstanced(GL_TRIANGLES, 0, m_VertexCount, m_ParticleBuffer.size());
+    //glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
+
+    m_ParticleBuffer.clear();
+
     /** Postproc Effects */
+
+    /** End */
 }

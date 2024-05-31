@@ -19,12 +19,12 @@ class VertexArray
 
     void Bind() const;
 
-    GLuint AddVertexBuffer(GLsizei stride, GLsizeiptr size, const void* pData);
+    GLuint AddVertexBuffer(GLenum usage, GLsizei stride, GLsizeiptr size, const void* pData);
     void SetBufferSubData(GLuint bufferID, GLintptr offset, GLsizeiptr size, const void* pData) const;
 
     void SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset, GLuint bindingindex) const;
 
- private:
+ public:
    GLuint m_VertexArrayID;
    std::vector<GLuint> m_VertexBufferIDs;
 };

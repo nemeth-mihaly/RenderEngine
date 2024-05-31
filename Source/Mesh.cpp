@@ -92,7 +92,7 @@ void Mesh_t::LoadFromFile(const std::string& filename)
     fclose(fp);
 
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(sizeof(Vertex), Vertices.size(), Vertices.data());
+    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * Vertices.size(), Vertices.data());
     m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
     m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
     m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);

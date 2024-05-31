@@ -24,11 +24,11 @@ void VertexArray::Bind() const
     glBindVertexArray(m_VertexArrayID);
 }
 
-GLuint VertexArray::AddVertexBuffer(GLsizei stride, GLsizeiptr size, const void* pData)
+GLuint VertexArray::AddVertexBuffer(GLenum usage, GLsizei stride, GLsizeiptr size, const void* pData)
 {
     GLuint vertexBufferID;
     glCreateBuffers(1, &vertexBufferID);
-    glNamedBufferData(vertexBufferID, stride * size, pData, GL_STATIC_DRAW);
+    glNamedBufferData(vertexBufferID, size, pData, usage);
 
     glVertexArrayVertexBuffer(m_VertexArrayID, m_VertexBufferIDs.size(), vertexBufferID, 0, stride);
     m_VertexBufferIDs.push_back(vertexBufferID);

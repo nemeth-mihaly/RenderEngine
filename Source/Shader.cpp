@@ -61,7 +61,7 @@ void Shader_t::SetUniformMatrix4f(const std::string& Name, const glm::mat4& Valu
 
 GLuint Shader_t::CompileShader(const std::string& Filename, GLenum ShaderType)
 {
-    GLuint Shader = glCreateShader(ShaderType);
+    GLuint shaderID = glCreateShader(ShaderType);
 
     FILE* File = fopen(Filename.c_str(), "rb");
 
@@ -75,12 +75,22 @@ GLuint Shader_t::CompileShader(const std::string& Filename, GLenum ShaderType)
 
     fclose(File);
 
-    glShaderSource(Shader, 1, &Buf, NULL);
-    glCompileShader(Shader);
+    glShaderSource(shaderID, 1, &Buf, NULL);
+    glCompileShader(shaderID);
+
+    int result;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
+
+    if (result == GL_FALSE)
+    {
+        char infoLog[BUFSIZ];
+        glGetShaderInfoLog(shaderID, BUFSIZ, NULL, infoLog);
+        printf("%s\n", infoLog);
+    }
 
     delete[] Buf;
 
-    return Shader;
+    return shaderID;
 }
 
 GLint Shader_t::GetUniformLocation(const std::string& Name) const
