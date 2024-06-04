@@ -16,14 +16,14 @@
 #include "Lights.h"
 #include "Mesh.h"
 
-extern Texture_t* g_UvGridTexture;
-extern Texture_t* g_SphereGlowTexture;
+extern StrongTexturePtr g_UvGridTexture;
+extern StrongTexturePtr g_SphereGlowTexture;
 
-extern Mesh_t* g_MonkeyMesh;
+extern StrongMeshPtr g_MonkeyMesh;
 
-extern Shader_t* g_TexturedLitShader;
-extern Shader_t* g_SkyShader;
-extern Shader_t* g_BillboardShader;
+extern StrongShaderPtr g_TexturedLitShader;
+extern StrongShaderPtr g_SkyShader;
+extern StrongShaderPtr g_BillboardShader;
 
 ////////////////////////////////////////////////////
 //  class Application
@@ -31,31 +31,31 @@ extern Shader_t* g_BillboardShader;
 
 class Application
 {
- public:
+public:
     Application();
     ~Application();
 
     bool Initialize();
     void RunLoop();    
 
- private:
+private:
     void ProcessEvents();
 
- private:
-    bool m_bRunning;
+private:
+    bool    m_bRunning;
 
-    SDL_Window* m_pWindow;
-    SDL_GLContext m_pContext;
+    SDL_Window*     m_pWindow;
+    SDL_GLContext   m_pContext;
 
-    bool m_bKeyStates[SDL_NUM_SCANCODES];
-    glm::vec2 m_CurrentMousePos;
-    glm::vec2 m_PrevMousePos;
+    bool        m_bKeyStates[SDL_NUM_SCANCODES];
+    glm::vec2   m_CurrentMousePos;
+    glm::vec2   m_PrevMousePos;
 
-    Scene* m_pScene;
+    Scene*      m_pScene;
 
-    bool m_bCameraMoving;
-    float m_Yaw;
-    float m_Pitch;
+    bool        m_bCameraMoving;
+    float       m_Yaw;
+    float       m_Pitch;
 };
 
 extern Application* g_pApp;

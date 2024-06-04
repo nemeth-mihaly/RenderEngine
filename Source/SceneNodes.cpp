@@ -74,8 +74,9 @@ void MeshNode::Render(Scene* pScene)
 
     if (Material.bUseTexture)
     {
-        g_UvGridTexture->Bind();
-        g_TexturedLitShader->SetUniform1i("u_Texture", 0);
+        const uint32_t textureUnit = 0;
+        g_UvGridTexture->BindUnit(textureUnit);
+        g_TexturedLitShader->SetUniform1i("u_Texture", textureUnit);
     }
 
     glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
@@ -166,18 +167,21 @@ SkyNode::SkyNode()
         {{  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f }},
     };
 
+    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
+    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
+
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * vertices.size(), vertices.data());
-    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
-    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
-    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
 
     m_VertexCount = vertices.size();
     vertices.clear();
 
     for (uint32_t Index = 0; Index < GNumCubeSides; Index++)
     {
-        m_Textures[Index].reset(new Texture_t());
+        m_Textures[Index].reset(new Texture(GL_TEXTURE_2D));
     }
 
     m_Textures[0]->LoadFromFile("Assets/Textures/Sky_PX.png");
@@ -204,8 +208,9 @@ void SkyNode::Render(Scene* pScene)
 
     for (uint32_t Side = 0; Side < GNumCubeSides; Side++)
     {
-        m_Textures[Side]->Bind();
-        g_SkyShader->SetUniform1i("u_Texture", 0);
+        const uint32_t textureUnit = 0;
+        m_Textures[Side]->BindUnit(textureUnit);
+        g_SkyShader->SetUniform1i("u_Texture", textureUnit);
 
         const uint32_t VertexBufferOffset = Side * GNumSideVertices;
         glDrawArrays(GL_TRIANGLES, VertexBufferOffset, GNumSideVertices);
@@ -235,14 +240,18 @@ BillboardNode::BillboardNode()
         {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
     };
 
+    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
+    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
+
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * vertices.size(), vertices.data());
-    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
-    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
-    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
 
     m_VertexCount = vertices.size();
     vertices.clear();
+
 }
 
 BillboardNode::~BillboardNode()
@@ -264,8 +273,9 @@ void BillboardNode::Render(Scene* pScene)
 
     if (Material.bUseTexture)
     {
-        g_SphereGlowTexture->Bind();
-        g_BillboardShader->SetUniform1i("u_Texture", 0);
+        const uint32_t textureUnit = 0;
+        g_SphereGlowTexture->BindUnit(textureUnit);
+        g_BillboardShader->SetUniform1i("u_Texture", textureUnit);
     }
 
     g_BillboardShader->SetUniform3f("u_Position", m_Pos);

@@ -2,10 +2,41 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <vector>
+#include <memory>
 
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
+
+////////////////////////////////////////////////////
+//  class VertexBuffer
+////////////////////////////////////////////////////
+
+class VertexBuffer
+{
+    friend class VertexArray;
+
+public:
+    VertexBuffer(ssize_t size, uint32_t usage);
+    ~VertexBuffer();
+
+    void MapMemory(int64_t offset, ssize_t size, const void* pData);
+
+private:
+    ssize_t     m_Size;
+    uint32_t    m_BufferID;
+};
+
+typedef std::shared_ptr<VertexBuffer> StrongVertexBufferPtr;
+
+////////////////////////////////////////////////////
+//  enum VertexArrayInputRate
+////////////////////////////////////////////////////
+
+enum VertexArrayInputRate
+{
+    VertexArrayInputRate_Vertex      = 0,
+    VertexArrayInputRate_Instance    = 1
+};
 
 ////////////////////////////////////////////////////
 //  class VertexArray
@@ -13,18 +44,17 @@
 
 class VertexArray
 {
- public:
+public:
     VertexArray();
     ~VertexArray();
 
     void Bind() const;
 
-    GLuint AddVertexBuffer(GLenum usage, GLsizei stride, GLsizeiptr size, const void* pData);
-    void SetBufferSubData(GLuint bufferID, GLintptr offset, GLsizeiptr size, const void* pData) const;
+    void SetVertexBuffer(uint32_t binding, StrongVertexBufferPtr& vertexBuffer, int stride, uint32_t inputRate);
+    void SetVertexAttribute(uint32_t binding, uint32_t location, int size, uint32_t type, uint32_t offset);
 
-    void SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset, GLuint bindingindex) const;
-
- public:
-   GLuint m_VertexArrayID;
-   std::vector<GLuint> m_VertexBufferIDs;
+public:
+   uint32_t   m_ArrayID;
 };
+
+typedef std::shared_ptr<VertexArray> StrongVertexArrayPtr;

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Common.h"
-
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
+#include <memory>
 #include <vector>
 
 #include "VertexArray.h"
@@ -18,7 +20,7 @@ class Scene;
 
 class SceneNode
 {
- public:
+public:
     SceneNode();
     virtual ~SceneNode();
 
@@ -37,7 +39,7 @@ class SceneNode
     void SetMaterial(const Material& InMaterial) { Material = InMaterial; }
     const Material& GetMaterial() const { return Material; }
 
- protected:
+protected:
     glm::vec3 m_Pos;
     glm::vec3 m_Scale;
     glm::vec4 m_Rotation;
@@ -50,7 +52,7 @@ class SceneNode
 
 class CameraNode : public SceneNode
 {
- public:
+public:
     CameraNode();
     virtual ~CameraNode();
 
@@ -62,7 +64,7 @@ class CameraNode : public SceneNode
     void SetForwardDir(const glm::vec3& forwardDir) { m_ForwardDir = forwardDir; }
     const glm::vec3& GetForwardDir() const { return m_ForwardDir; }
 
- private:
+private:
     glm::mat4 m_Projection;
     glm::mat4 m_View;
 
@@ -75,14 +77,14 @@ class CameraNode : public SceneNode
 
 class MeshNode : public SceneNode
 {
- public:
+public:
     MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
 
     virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
 
- private:
+private:
     std::string m_MeshName;
     std::string m_ShaderProgName;
     std::string m_TextureName;
@@ -103,16 +105,18 @@ struct AlphaNode
 
 class SkyNode : public SceneNode
 {
- public:
+public:
     SkyNode();
     virtual ~SkyNode();
 
     virtual void Render(Scene* pScene) override;
 
- private:
-    GLsizei m_VertexCount;
-    std::shared_ptr<VertexArray> m_VertexArray;
-    std::shared_ptr<Texture_t> m_Textures[6];
+private:
+    int                     m_VertexCount;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongVertexArrayPtr    m_VertexArray;
+
+    StrongTexturePtr m_Textures[6];
 };
 
 ////////////////////////////////////////////////////
@@ -121,13 +125,14 @@ class SkyNode : public SceneNode
 
 class BillboardNode : public SceneNode
 {
- public:
+public:
     BillboardNode();
     virtual ~BillboardNode();
 
     virtual void Render(Scene* pScene) override;
 
- private:
-    GLsizei m_VertexCount;
-    std::shared_ptr<VertexArray> m_VertexArray;
+private:
+    int                     m_VertexCount;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongVertexArrayPtr    m_VertexArray;
 };

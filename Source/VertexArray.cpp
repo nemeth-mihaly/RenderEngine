@@ -1,49 +1,54 @@
 #include "VertexArray.h"
 
 ////////////////////////////////////////////////////
+//  VertexBuffer Implementation
+////////////////////////////////////////////////////
+
+VertexBuffer::VertexBuffer(ssize_t size, uint32_t usage)
+    : m_Size(size)
+{
+    glCreateBuffers(1, &m_BufferID);
+    glNamedBufferData(m_BufferID, size, NULL, usage);
+}
+
+VertexBuffer::~VertexBuffer()
+{
+    glDeleteBuffers(1, &m_BufferID);
+}
+
+void VertexBuffer::MapMemory(int64_t offset, ssize_t size, const void* pData)
+{
+    glNamedBufferSubData(m_BufferID, offset, size, pData);
+}
+
+////////////////////////////////////////////////////
 //  VertexArray Implementation
 ////////////////////////////////////////////////////
 
 VertexArray::VertexArray()
 {
-    glCreateVertexArrays(1, &m_VertexArrayID);
+    glCreateVertexArrays(1, &m_ArrayID);
 }
 
 VertexArray::~VertexArray()
 {
-    for (GLuint vertexBufferID : m_VertexBufferIDs)
-    {
-        glDeleteBuffers(1, &vertexBufferID);
-    }
-
-    glDeleteVertexArrays(1, &m_VertexArrayID);
+    glDeleteVertexArrays(1, &m_ArrayID);
 }
 
 void VertexArray::Bind() const
 {
-    glBindVertexArray(m_VertexArrayID);
+    glBindVertexArray(m_ArrayID);
 }
 
-GLuint VertexArray::AddVertexBuffer(GLenum usage, GLsizei stride, GLsizeiptr size, const void* pData)
+void VertexArray::SetVertexBuffer(uint32_t binding, StrongVertexBufferPtr& vertexBuffer, int stride, uint32_t inputRate)
 {
-    GLuint vertexBufferID;
-    glCreateBuffers(1, &vertexBufferID);
-    glNamedBufferData(vertexBufferID, size, pData, usage);
-
-    glVertexArrayVertexBuffer(m_VertexArrayID, m_VertexBufferIDs.size(), vertexBufferID, 0, stride);
-    m_VertexBufferIDs.push_back(vertexBufferID);
-
-    return vertexBufferID;
+    glVertexArrayVertexBuffer(m_ArrayID, binding, vertexBuffer->m_BufferID, 0, stride);
+    glVertexArrayBindingDivisor(m_ArrayID, binding, inputRate);
 }
 
-void VertexArray::SetBufferSubData(GLuint bufferID, GLintptr offset, GLsizeiptr size, const void* pData) const
+void VertexArray::SetVertexAttribute(uint32_t binding, uint32_t location, int size, uint32_t type, uint32_t offset)
 {
-    glNamedBufferSubData(bufferID, offset, size, pData);
-}
-
-void VertexArray::SetAttribute(GLuint index, GLint size, GLenum type, GLuint relativeoffset, GLuint bindingindex) const
-{
-    glEnableVertexArrayAttrib(m_VertexArrayID, index);
-    glVertexArrayAttribFormat(m_VertexArrayID, index, size, type, GL_FALSE, relativeoffset);
-    glVertexArrayAttribBinding(m_VertexArrayID, index, bindingindex);
+    glEnableVertexArrayAttrib(m_ArrayID, location);
+    glVertexArrayAttribFormat(m_ArrayID, location, size, type, GL_FALSE, offset);
+    glVertexArrayAttribBinding(m_ArrayID, location, binding);
 }

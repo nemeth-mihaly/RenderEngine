@@ -1,58 +1,58 @@
 #include "Texture.h"
 
 ////////////////////////////////////////////////////
-//  Texture_t Implementation
+//  Texture Implementation
 ////////////////////////////////////////////////////
 
-Texture_t::Texture_t()
+Texture::Texture(uint32_t target)
 {
+    glCreateTextures(target, 1, &m_TextureID);
 }
 
-Texture_t::~Texture_t()
+Texture::~Texture()
 {
-    glDeleteTextures(1, &Texture);
+    glDeleteTextures(1, &m_TextureID);
 }
 
-void Texture_t::LoadFromFile(const std::string& Filename)
+void Texture::LoadFromFile(const std::string& resource)
 {
     stbi_set_flip_vertically_on_load(true);
 
-    glCreateTextures(GL_TEXTURE_2D, 1, &Texture);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTextureParameteri(Texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(Texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTextureParameteri(Texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(Texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int Width, Height, NumChannels;
+    int width, height, channelCount;
     
-    uint8_t* Pixels = stbi_load(Filename.c_str(), &Width, &Height, &NumChannels, 0);
-    assert(Pixels != nullptr);
+    uint8_t* pData = stbi_load(resource.c_str(), &width, &height, &channelCount, 0);
+    assert(pData != nullptr);
 
-    GLenum InternalFormat, Format;
-    switch (NumChannels)
+    uint32_t internalFormat, format;
+
+    switch (channelCount)
     {
         case 3:
-            InternalFormat = GL_RGB8;
-            Format = GL_RGB;
+            internalFormat = GL_RGB8;
+            format = GL_RGB;
             break;
 
         case 4:
-            InternalFormat = GL_RGBA8;
-            Format = GL_RGBA;
+            internalFormat = GL_RGBA8;
+            format = GL_RGBA;
             break;
 
         default:
             assert(true);
     }
 
-    glTextureStorage2D(Texture, 1, GL_RGBA8, Width, Height);
-    glTextureSubImage2D(Texture, 0, 0, 0, Width, Height, Format, GL_UNSIGNED_BYTE, Pixels);
+    glTextureStorage2D(m_TextureID, 1, internalFormat, width, height);
+    glTextureSubImage2D(m_TextureID, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, pData);
 
-    stbi_image_free(Pixels);
+    stbi_image_free(pData);
 }
 
-void Texture_t::Bind() const
+void Texture::BindUnit(uint32_t unit)
 {
-    glBindTextureUnit(0, Texture);
+    glBindTextureUnit(unit, m_TextureID);
 }

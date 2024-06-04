@@ -1,63 +1,60 @@
 #include "Mesh.h"
 
 ////////////////////////////////////////////////////
-//  Mesh_t Implementation
+//  Mesh Implementation
 ////////////////////////////////////////////////////
 
-Mesh_t::Mesh_t()
+Mesh::Mesh()
 {
 }
 
-Mesh_t::~Mesh_t()
+Mesh::~Mesh()
 {
 }
 
-void Mesh_t::LoadFromFile(const std::string& filename)
+void Mesh::LoadFromFile(const std::string& resource)
 {
-    FILE* fp = fopen(filename.c_str(), "r");
+    FILE* fp = fopen(resource.c_str(), "r");
     assert(fp != NULL);
 
-    std::vector<glm::vec3> Positions;
-    std::vector<glm::vec3> Normals;
-    std::vector<glm::vec2> Texcoords;
+    std::vector<Vertex> vertices;
 
-    std::vector<Vertex> Vertices;
+    std::vector<glm::vec3>      v;
+    std::vector<glm::vec3>      vn;
+    std::vector<glm::vec2>      vt;
 
     while (true)
     {
-        char LineBuf[BUFSIZ];
-        int ScanResult = fscanf(fp, "%s", LineBuf);
+        char data[BUFSIZ];
         
-        if (ScanResult == EOF)
-        {
+        if (fscanf(fp, "%s", data) == EOF)
             break;
-        }
 
-        if (strcmp(LineBuf, "v") == 0)
+        if (strcmp(data, "v") == 0)
         {
-            glm::vec3 Position;
-            fscanf(fp, "%f %f %f\n", &Position.x, &Position.y, &Position.z);
+            glm::vec3 pos;
+            fscanf(fp, "%f %f %f\n", &pos.x, &pos.y, &pos.z);
 
-            Positions.push_back(Position);
+            v.push_back(pos);
         }
         else
-        if (strcmp(LineBuf, "vn") == 0)
+        if (strcmp(data, "vn") == 0)
         {
-            glm::vec3 Normal;
-            fscanf(fp, "%f %f %f\n", &Normal.x, &Normal.y, &Normal.z);
+            glm::vec3 normal;
+            fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 
-            Normals.push_back(Normal);
+            vn.push_back(normal);
         }
         else
-        if (strcmp(LineBuf, "vt") == 0)
+        if (strcmp(data, "vt") == 0)
         {
-            glm::vec2 Texcoord;
-            fscanf(fp, "%f %f\n", &Texcoord.x, &Texcoord.y);
+            glm::vec2 uv;
+            fscanf(fp, "%f %f\n", &uv.x, &uv.y);
 
-            Texcoords.push_back(Texcoord);
+            vt.push_back(uv);
         }
         else
-        if (strcmp(LineBuf, "f") == 0)
+        if (strcmp(data, "f") == 0)
         {
             // [0]: v; [1]: vt; [2]: vn;
             uint32_t FaceIndices1[3];
@@ -72,31 +69,34 @@ void Mesh_t::LoadFromFile(const std::string& filename)
                 &FaceIndices3[0], &FaceIndices3[1], &FaceIndices3[2]
             );
 
-            auto GetVertexFromFace = [&Positions, &Normals, &Texcoords](uint32_t Indices[3])
+            auto GetVertexFromFace = [&v, &vn, &vt](uint32_t Indices[3])
             {
-                Vertex Vertex;
+                Vertex vertex;
 
-                Vertex.Pos = Positions[(Indices[0] - 1)];
-                Vertex.Normal = Normals[(Indices[2] - 1)];
-                Vertex.Uv = Texcoords[(Indices[1] - 1)];  
+                vertex.Pos = v[(Indices[0] - 1)];
+                vertex.Normal = vn[(Indices[2] - 1)];
+                vertex.Uv = vt[(Indices[1] - 1)];  
 
-                return Vertex;
+                return vertex;
             };
 
-            Vertices.push_back(GetVertexFromFace(FaceIndices1));
-            Vertices.push_back(GetVertexFromFace(FaceIndices2));
-            Vertices.push_back(GetVertexFromFace(FaceIndices3));
+            vertices.push_back(GetVertexFromFace(FaceIndices1));
+            vertices.push_back(GetVertexFromFace(FaceIndices2));
+            vertices.push_back(GetVertexFromFace(FaceIndices3));
         }
     }
 
     fclose(fp);
 
-    m_VertexArray.reset(new VertexArray());
-    m_VertexArray->AddVertexBuffer(GL_STATIC_DRAW, sizeof(Vertex), sizeof(Vertex) * Vertices.size(), Vertices.data());
-    m_VertexArray->SetAttribute(0, 3, GL_FLOAT, 0, 0);
-    m_VertexArray->SetAttribute(1, 3, GL_FLOAT, 12, 0);
-    m_VertexArray->SetAttribute(2, 2, GL_FLOAT, 24, 0);
+    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
+    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
 
-    m_VertexCount = Vertices.size();
-    Vertices.clear();
+    m_VertexArray.reset(new VertexArray());
+    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+
+    m_VertexCount = vertices.size();
+    vertices.clear();
 }

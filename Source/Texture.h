@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
+#include <memory>
 #include <string>
 
 #include "3rdParty/KHR/khrplatform.h"
@@ -11,19 +12,21 @@
 #include "3rdParty/stb/stb_image.h"
 
 ////////////////////////////////////////////////////
-//  class Texture_t
+//  class Texture
 ////////////////////////////////////////////////////
 
-class Texture_t
+class Texture
 {
- public:
-    Texture_t();
-    ~Texture_t();
+public:
+    Texture(uint32_t target);
+    ~Texture();
 
-    void LoadFromFile(const std::string& Filename);
+    void LoadFromFile(const std::string& resource);
 
-    void Bind() const;
+    void BindUnit(uint32_t unit = 0);
 
- private:
-    GLuint Texture;
+private:
+    uint32_t    m_TextureID;
 };
+
+typedef std::shared_ptr<Texture> StrongTexturePtr;

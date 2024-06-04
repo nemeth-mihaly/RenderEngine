@@ -24,16 +24,16 @@ enum class LightType
 
 struct LightProperties
 {
-    LightType Type;
-    glm::vec3 Position;
-    glm::vec3 Direction;
-    float Range;
-    float Falloff;
-    float ConstantAttenuation;
-    float LinearAttenuation;
-    float QuadraticAttenuation;
-    float Theta;
-    float Phi;
+    LightType   Type;
+    glm::vec3   Position;
+    glm::vec3   Direction;
+    float       Range;
+    float       Falloff;
+    float       ConstantAttenuation;
+    float       LinearAttenuation;
+    float       QuadraticAttenuation;
+    float       Theta;
+    float       Phi;
 };
 
 ////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ struct LightProperties
 
 class LightNode : public SceneNode
 {
- public: 
+public: 
     LightNode(const LightProperties& properties);
     virtual ~LightNode();
 
@@ -50,6 +50,6 @@ class LightNode : public SceneNode
 
     const LightProperties& GetProperties() const { return m_Properties; }
 
- protected:
-    LightProperties m_Properties;
+protected:
+    LightProperties     m_Properties;
 };

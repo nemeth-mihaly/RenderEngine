@@ -25,22 +25,24 @@ struct Vertex
 };
 
 ////////////////////////////////////////////////////
-//  class Mesh_t
+//  class Mesh
 ////////////////////////////////////////////////////
 
-class Mesh_t
+class Mesh
 {
- public:
-    Mesh_t();
-    ~Mesh_t();
+public:
+    Mesh();
+    ~Mesh();
 
-    void LoadFromFile(const std::string& filename);
+    void LoadFromFile(const std::string& resource);
 
-    GLsizei GetVertexCount() { return m_VertexCount; }
-    
-    const std::shared_ptr<VertexArray>& GetVertexArray() const { return m_VertexArray; }
+    int GetVertexCount() { return m_VertexCount; }
+    const StrongVertexArrayPtr& GetVertexArray() const { return m_VertexArray; }
 
- private:
-    GLsizei m_VertexCount;
-    std::shared_ptr<VertexArray> m_VertexArray;
+private:
+    int                     m_VertexCount;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongVertexArrayPtr    m_VertexArray;
 };
+
+typedef std::shared_ptr<Mesh> StrongMeshPtr;

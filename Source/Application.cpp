@@ -2,14 +2,14 @@
 
 Application* g_pApp = NULL;
 
-Texture_t* g_UvGridTexture = NULL;
-Texture_t*  g_SphereGlowTexture = NULL;
+StrongTexturePtr g_UvGridTexture = NULL;
+StrongTexturePtr  g_SphereGlowTexture = NULL;
 
-Mesh_t* g_MonkeyMesh = NULL;
+StrongMeshPtr g_MonkeyMesh = NULL;
 
-Shader_t* g_TexturedLitShader = NULL;
-Shader_t* g_SkyShader = NULL;
-Shader_t* g_BillboardShader = NULL;
+StrongShaderPtr g_TexturedLitShader = NULL;
+StrongShaderPtr g_SkyShader = NULL;
+StrongShaderPtr g_BillboardShader = NULL;
 
 ////////////////////////////////////////////////////
 //  Application Implementation
@@ -30,29 +30,18 @@ Application::Application()
 Application::~Application()
 {
     if (m_pScene)
-    {
         delete m_pScene;
-        m_pScene = NULL;
-    }
 
     if (m_pContext)
-    {
         SDL_GL_DeleteContext(m_pContext);
-        m_pContext = NULL;
-    }
 
     if (m_pWindow)
-    {
         SDL_DestroyWindow(m_pWindow);
-        m_pWindow = NULL;
-    }
 
     SDL_Quit();
 
     if (g_pApp)
-    {
         g_pApp = NULL;
-    }
 }
 
 bool Application::Initialize()
@@ -87,22 +76,22 @@ bool Application::Initialize()
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
 
-    g_UvGridTexture = new Texture_t();
+    g_UvGridTexture.reset(new Texture(GL_TEXTURE_2D));
     g_UvGridTexture->LoadFromFile("Assets/Textures/UvGrid.png");
 
-    g_SphereGlowTexture = new Texture_t();
+    g_SphereGlowTexture.reset(new Texture(GL_TEXTURE_2D));
     g_SphereGlowTexture->LoadFromFile("Assets/Textures/SphereGlow.png");
 
-    g_MonkeyMesh = new Mesh_t();
+    g_MonkeyMesh.reset(new Mesh());
     g_MonkeyMesh->LoadFromFile("Assets/Models/Monkey.obj");
 
-    g_TexturedLitShader = new Shader_t();
+    g_TexturedLitShader.reset(new Shader());
     g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit_vert.glsl", "Assets/Shaders/TexturedLit_frag.glsl");
 
-    g_SkyShader = new Shader_t();
+    g_SkyShader.reset(new Shader());
     g_SkyShader->LoadFromFile("Assets/Shaders/Sky_vert.glsl", "Assets/Shaders/Sky_frag.glsl");
 
-    g_BillboardShader = new Shader_t();
+    g_BillboardShader.reset(new Shader());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard_vert.glsl", "Assets/Shaders/Billboard_frag.glsl");
 
     m_pScene = new Scene();
@@ -217,18 +206,12 @@ void Application::ProcessEvents()
             case SDL_KEYDOWN:
             {
                 if (event.key.repeat != SDL_FALSE)
-                {
                     break;
-                }
 
                 if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                {
                     m_bRunning = false;
-                }
                 else
-                {
                     m_bKeyStates[event.key.keysym.scancode] = true;
-                }
 
                 break;
             }
@@ -247,9 +230,7 @@ void Application::ProcessEvents()
             case SDL_MOUSEBUTTONDOWN:
             {
                 if (event.button.button == SDL_BUTTON_RIGHT)
-                {
                     m_bCameraMoving = true;
-                }
 
                 break;
             }
@@ -257,9 +238,7 @@ void Application::ProcessEvents()
             case SDL_MOUSEBUTTONUP:
             {
                 if (event.button.button == SDL_BUTTON_RIGHT)
-                {
                     m_bCameraMoving = false;
-                }
 
                 break;
             }

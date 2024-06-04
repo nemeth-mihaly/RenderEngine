@@ -177,7 +177,7 @@ Scene::Scene()
 
     /** Particles */
 
-    std::vector<Vertex> vertices =
+    std::vector<Vertex> particleVertices =
     {
         {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
@@ -188,42 +188,24 @@ Scene::Scene()
         {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
     };
 
-    glCreateVertexArrays(1, &m_ParticleVertexArrayID);
-    //glBindVertexArray(m_ParticleVertexArrayID);
+    m_ParticleVertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * particleVertices.size(), GL_STATIC_DRAW));
+    m_ParticleVertexBuffer->MapMemory(0, sizeof(Vertex) * particleVertices.size(), particleVertices.data());
+    m_ParticleVertexCount = particleVertices.size();
+    particleVertices.clear();
 
-    glCreateBuffers(1, &m_ParticleVertexBufferID);
-    glNamedBufferData(m_ParticleVertexBufferID, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    m_ParticleExtraDataVertexBuffer.reset(new VertexBuffer(sizeof(ParticleExtraVertexData) * MAX_PARTICLES, GL_DYNAMIC_DRAW));
 
-    glVertexArrayVertexBuffer(m_ParticleVertexArrayID, 0, m_ParticleVertexBufferID, 0, sizeof(Vertex));
+    m_ParticleVertexArray.reset(new VertexArray());
 
-    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 0);
-    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 0, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 0, 0);
+    m_ParticleVertexArray->SetVertexBuffer(0, m_ParticleVertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_ParticleVertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_ParticleVertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
+    m_ParticleVertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
 
-    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 1);
-    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 1, 3, GL_FLOAT, GL_FALSE, 12);
-    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 1, 0);
+    m_ParticleVertexArray->SetVertexBuffer(1, m_ParticleExtraDataVertexBuffer, sizeof(ParticleExtraVertexData), VertexArrayInputRate_Instance);
+    m_ParticleVertexArray->SetVertexAttribute(1, 3, 3, GL_FLOAT, 0);
 
-    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 2);
-    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 2, 2, GL_FLOAT, GL_FALSE, 24);
-    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 2, 0);
-
-    m_VertexCount = vertices.size();
-    vertices.clear();
-
-    glCreateBuffers(1, &m_ParticleExtraDataVertexBufferID);
-    glNamedBufferData(m_ParticleExtraDataVertexBufferID, sizeof(ParticleExtraVertexData) * MAX_PARTICLES, NULL, GL_DYNAMIC_DRAW);
-
-    glVertexArrayVertexBuffer(m_ParticleVertexArrayID, 1, m_ParticleExtraDataVertexBufferID, 0, sizeof(ParticleExtraVertexData));
-
-    glEnableVertexArrayAttrib(m_ParticleVertexArrayID, 3);
-    glVertexArrayAttribFormat(m_ParticleVertexArrayID, 3, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribBinding(m_ParticleVertexArrayID, 3, 1);
-
-    glVertexArrayBindingDivisor(m_ParticleVertexArrayID, 0, 0);
-    glVertexArrayBindingDivisor(m_ParticleVertexArrayID, 1, 1);
-
-    m_ParticleBuffer.reserve(MAX_PARTICLES);
+    m_ParticleStagingBuffer.reserve(MAX_PARTICLES);
 
     int i = 0;
 //    for (uint32_t i = 0; i < MAX_PARTICLES; i++)
@@ -258,7 +240,7 @@ void Scene::Update(const float deltaTime)
             extraData.Pos = particle.Pos;
             //extraData.Size = 1.0f;
 
-            m_ParticleBuffer.push_back(extraData);
+            m_ParticleStagingBuffer.push_back(extraData);
         }
     }
 }
@@ -358,25 +340,15 @@ void Scene::Render()
     g_BillboardShader->SetUniformMatrix4f("u_WorldView", glm::mat4(GetCamera()->GetView()));
     g_BillboardShader->SetUniformMatrix4f("u_WorldProjection", GetCamera()->GetProjection());
 
-    g_SphereGlowTexture->Bind();
-    g_BillboardShader->SetUniform1i("u_Texture", 0);
+    uint32_t textureUnit = 0;
+    g_SphereGlowTexture->BindUnit(textureUnit);
+    g_BillboardShader->SetUniform1i("u_Texture", textureUnit);
 
-    //printf("m_ParticleBuffer.size=%u\n", m_ParticleBuffer.size());
+    m_ParticleExtraDataVertexBuffer->MapMemory(0, sizeof(ParticleExtraVertexData) * m_ParticleStagingBuffer.size(), m_ParticleStagingBuffer.data());
+    m_ParticleVertexArray->Bind();
 
-
-    //glVertexAttribDivisor(0, 0);
-    //glVertexAttribDivisor(1, 0);
-    //glVertexAttribDivisor(2, 0);
-    //glVertexAttribDivisor(3, 1);
-
-    glBindVertexArray(m_ParticleVertexArrayID);
-    //m_ParticleVertexArray->SetBufferSubData(m_ParticleExtraDataVertexBufferID, 0, m_ParticleBuffer.size(), m_ParticleBuffer.data());
-    glNamedBufferSubData(m_ParticleExtraDataVertexBufferID, 0, sizeof(ParticleExtraVertexData) * m_ParticleBuffer.size(), m_ParticleBuffer.data());
-
-    glDrawArraysInstanced(GL_TRIANGLES, 0, m_VertexCount, m_ParticleBuffer.size());
-    //glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
-
-    m_ParticleBuffer.clear();
+    glDrawArraysInstanced(GL_TRIANGLES, 0, m_ParticleVertexCount, m_ParticleStagingBuffer.size());
+    m_ParticleStagingBuffer.clear();
 
     /** Postproc Effects */
 
