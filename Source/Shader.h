@@ -27,6 +27,8 @@ public:
 
     void Bind();
 
+    void SetUniformBlockBinding(uint32_t binding, const std::string& uniformBlockName);
+
     // TODO: Perform type checks in the uniform setter functions.
     // Why though? Because for some reason, neither the c++ compiler nor the glsl compiler notifies 
     // if you pass the wrong type as parameter, resulting in bugs.

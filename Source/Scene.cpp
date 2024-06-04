@@ -175,6 +175,12 @@ Scene::Scene()
 
     m_SkyNode.reset(new SkyNode());
 
+    m_UniformBuffer.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
+
+    g_TexturedLitShader->SetUniformBlockBinding(0, "Matrices");
+    g_SkyShader->SetUniformBlockBinding(0, "Matrices");
+    g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
+
     /** Particles */
 
     std::vector<Vertex> particleVertices =
@@ -222,6 +228,8 @@ Scene::~Scene()
 
 void Scene::Update(const float deltaTime)
 {
+    m_Camera->WorldViewProjection();
+
     for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
     {
         node->Update(this, deltaTime);
@@ -247,6 +255,9 @@ void Scene::Update(const float deltaTime)
 
 void Scene::Render()
 {
+    m_UniformBuffer->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetProjection()));
+    m_UniformBuffer->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_Camera->GetView()));
+
     /** Actor Pass */
 
     glEnable(GL_DEPTH_TEST);
@@ -255,8 +266,6 @@ void Scene::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     g_TexturedLitShader->Bind();
-    g_TexturedLitShader->SetUniformMatrix4f("u_WorldViewProjection", m_Camera->WorldViewProjection());
-    g_TexturedLitShader->SetUniform3f("u_ViewPos", m_Camera->GetPosition());
 
     for (uint32_t i = 0; i < m_LightNodes.size(); i++)
     {
@@ -337,8 +346,6 @@ void Scene::Render()
     /** Particles */
 
     g_BillboardShader->Bind();
-    g_BillboardShader->SetUniformMatrix4f("u_WorldView", glm::mat4(GetCamera()->GetView()));
-    g_BillboardShader->SetUniformMatrix4f("u_WorldProjection", GetCamera()->GetProjection());
 
     uint32_t textureUnit = 0;
     g_SphereGlowTexture->BindUnit(textureUnit);

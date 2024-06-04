@@ -89,9 +89,6 @@ void MeshNode::Render(Scene* pScene)
 
     g_MonkeyMesh->GetVertexArray()->Bind();
     glDrawArrays(GL_TRIANGLES, 0, g_MonkeyMesh->GetVertexCount());
-
-    glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 ////////////////////////////////////////////////////
@@ -184,12 +181,12 @@ SkyNode::SkyNode()
         m_Textures[Index].reset(new Texture(GL_TEXTURE_2D));
     }
 
-    m_Textures[0]->LoadFromFile("Assets/Textures/Sky_PX.png");
-    m_Textures[1]->LoadFromFile("Assets/Textures/Sky_NX.png");
-    m_Textures[2]->LoadFromFile("Assets/Textures/Sky_PY.png");
-    m_Textures[3]->LoadFromFile("Assets/Textures/Sky_NY.png");
-    m_Textures[4]->LoadFromFile("Assets/Textures/Sky_PZ.png");
-    m_Textures[5]->LoadFromFile("Assets/Textures/Sky_NZ.png");
+    m_Textures[0]->LoadFromFile("Assets/Textures/Sky_PX_dbg.png");
+    m_Textures[1]->LoadFromFile("Assets/Textures/Sky_NX_dbg.png");
+    m_Textures[2]->LoadFromFile("Assets/Textures/Sky_PY_dbg.png");
+    m_Textures[3]->LoadFromFile("Assets/Textures/Sky_NY_dbg.png");
+    m_Textures[4]->LoadFromFile("Assets/Textures/Sky_PZ_dbg.png");
+    m_Textures[5]->LoadFromFile("Assets/Textures/Sky_NZ_dbg.png");
 }
 
 SkyNode::~SkyNode()
@@ -215,9 +212,6 @@ void SkyNode::Render(Scene* pScene)
         const uint32_t VertexBufferOffset = Side * GNumSideVertices;
         glDrawArrays(GL_TRIANGLES, VertexBufferOffset, GNumSideVertices);
     }
-
-    glBindVertexArray(0);
-    glUseProgram(0);
 
     glDepthFunc(GL_LESS);
 }
@@ -262,8 +256,6 @@ BillboardNode::~BillboardNode()
 void BillboardNode::Render(Scene* pScene)
 {
     g_BillboardShader->Bind();
-    g_BillboardShader->SetUniformMatrix4f("u_WorldView", glm::mat4(pScene->GetCamera()->GetView()));
-    g_BillboardShader->SetUniformMatrix4f("u_WorldProjection", pScene->GetCamera()->GetProjection());
     //g_BillboardShader->SetUniform4f("u_Material.Ambient", Material.Ambient);
     //g_BillboardShader->SetUniform4f("u_Material.Diffuse", Material.Diffuse);
     //g_BillboardShader->SetUniform4f("u_Material.Specular", Material.Specular);
@@ -288,7 +280,4 @@ void BillboardNode::Render(Scene* pScene)
 
     m_VertexArray->Bind();
     glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
-
-    glBindVertexArray(0);
-    glUseProgram(0);
 }

@@ -41,6 +41,8 @@ private:
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<SkyNode> m_SkyNode;
 
+    StrongUniformBufferPtr m_UniformBuffer;
+
     /** Particles */
 
     struct ParticleExtraVertexData

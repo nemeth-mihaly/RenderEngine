@@ -67,6 +67,12 @@ void Shader::Bind()
     glUseProgram(m_ProgramID);
 }
 
+void Shader::SetUniformBlockBinding(uint32_t binding, const std::string& uniformBlockName)
+{
+    const uint32_t uniformBlockIndex = glGetUniformBlockIndex(m_ProgramID, uniformBlockName.c_str());
+    glUniformBlockBinding(m_ProgramID, uniformBlockIndex, binding);
+}
+
 void Shader::SetUniform1b(const std::string& name, bool value)
 {
     SetUniform1i(name, static_cast<int>(value));
