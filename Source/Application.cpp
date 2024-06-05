@@ -11,6 +11,9 @@ StrongShaderPtr g_TexturedLitShader = NULL;
 StrongShaderPtr g_SkyShader = NULL;
 StrongShaderPtr g_BillboardShader = NULL;
 
+StrongTexturePtr g_DirtTexture = nullptr;
+StrongShaderPtr g_TerrainShader = nullptr;
+
 ////////////////////////////////////////////////////
 //  Application Implementation
 ////////////////////////////////////////////////////
@@ -82,6 +85,9 @@ bool Application::Initialize()
     g_SphereGlowTexture.reset(new Texture(GL_TEXTURE_2D));
     g_SphereGlowTexture->LoadFromFile("Assets/Textures/SphereGlow.png");
 
+    g_DirtTexture.reset(new Texture(GL_TEXTURE_2D));
+    g_DirtTexture->LoadFromFile("Assets/Textures/elwynndirtbase2.png");
+
     g_MonkeyMesh.reset(new Mesh());
     g_MonkeyMesh->LoadFromFile("Assets/Models/Monkey.obj");
 
@@ -93,6 +99,9 @@ bool Application::Initialize()
 
     g_BillboardShader.reset(new Shader());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard_vert.glsl", "Assets/Shaders/Billboard_frag.glsl");
+
+    g_TerrainShader.reset(new Shader());
+    g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain_vert.glsl", "Assets/Shaders/Terrain_frag.glsl");
 
     m_pScene = new Scene();
 

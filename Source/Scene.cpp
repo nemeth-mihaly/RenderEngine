@@ -34,10 +34,13 @@ Scene::Scene()
     alphaMaterial.bUseTexture = true;
     
     std::shared_ptr<BillboardNode> billboard(new BillboardNode());
-    billboard->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
 
     m_SceneNodes.push_back(billboard);
+
+    std::shared_ptr<TerrainNode> terrain(new TerrainNode());
+    m_SceneNodes.push_back(terrain);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     //floorNode->Create();
@@ -180,6 +183,7 @@ Scene::Scene()
     g_TexturedLitShader->SetUniformBlockBinding(0, "Matrices");
     g_SkyShader->SetUniformBlockBinding(0, "Matrices");
     g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
+    g_TerrainShader->SetUniformBlockBinding(0, "Matrices");
 
     /** Particles */
 

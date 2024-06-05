@@ -132,8 +132,27 @@ public:
     virtual void Render(Scene* pScene) override;
 
 private:
-    int                     m_IndexCount;
-    StrongVertexBufferPtr   m_VertexBuffer;
-    StrongIndexBufferPtr    m_IndexBuffer;
-    StrongVertexArrayPtr    m_VertexArray;
+    int                     m_indicesCount;
+    StrongVertexBufferPtr   m_vertexBuffer;
+    StrongIndexBufferPtr    m_indexBuffer;
+    StrongVertexArrayPtr    m_vertexArray;
+};
+
+////////////////////////////////////////////////////
+//  class TerrainNode
+////////////////////////////////////////////////////
+
+class TerrainNode : public SceneNode
+{
+public:
+    TerrainNode();
+    virtual ~TerrainNode();
+
+    virtual void Render(Scene* pScene) override;
+
+private:
+    int                     m_indicesCount;
+    StrongVertexBufferPtr   m_vertexBuffer;
+    StrongIndexBufferPtr    m_indexBuffer;
+    StrongVertexArrayPtr    m_vertexArray;
 };

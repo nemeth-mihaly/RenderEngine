@@ -18,12 +18,14 @@
 
 extern StrongTexturePtr g_UvGridTexture;
 extern StrongTexturePtr g_SphereGlowTexture;
+extern StrongTexturePtr g_DirtTexture;
 
 extern StrongMeshPtr g_MonkeyMesh;
 
 extern StrongShaderPtr g_TexturedLitShader;
 extern StrongShaderPtr g_SkyShader;
 extern StrongShaderPtr g_BillboardShader;
+extern StrongShaderPtr g_TerrainShader;
 
 ////////////////////////////////////////////////////
 //  class Application

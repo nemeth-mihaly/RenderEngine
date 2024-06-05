@@ -232,8 +232,8 @@ BillboardNode::BillboardNode()
     vertices[2].Pos = glm::vec3(-dim,-dim, 0.0f ); vertices[2].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[2].Uv = glm::vec2( 0.0f, 0.0f );
     vertices[3].Pos = glm::vec3( dim,-dim, 0.0f ); vertices[3].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[3].Uv = glm::vec2( 1.0f, 0.0f );
 
-    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
-    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
+    m_vertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
+    m_vertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
 
     vertices.clear();
 
@@ -243,20 +243,20 @@ BillboardNode::BillboardNode()
         1, 2, 3
     };
 
-    m_IndexBuffer.reset(new IndexBuffer(sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW));
-    m_IndexBuffer->MapMemory(0, sizeof(uint32_t) * indices.size(), indices.data());
+    m_indexBuffer.reset(new IndexBuffer(sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW));
+    m_indexBuffer->MapMemory(0, sizeof(uint32_t) * indices.size(), indices.data());
 
-    m_IndexCount = indices.size();
+    m_indicesCount = indices.size();
     indices.clear();
 
-    m_VertexArray.reset(new VertexArray());
+    m_vertexArray.reset(new VertexArray());
 
-    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
-    m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+    m_vertexArray->SetVertexBuffer(0, m_vertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_vertexArray->SetIndexBuffer(m_indexBuffer);
 
-    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
-    m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
+    m_vertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_vertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_vertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 }
 
 BillboardNode::~BillboardNode()
@@ -276,7 +276,94 @@ void BillboardNode::Render(Scene* pScene)
 
     g_BillboardShader->SetUniform3f("u_Position", m_Pos);
 
-    m_VertexArray->Bind();
+    m_vertexArray->Bind();
 
-    glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
+}
+
+////////////////////////////////////////////////////
+//  BillboardNode Implementation
+////////////////////////////////////////////////////
+
+TerrainNode::TerrainNode()
+{
+    std::vector<Vertex> vertices;
+    const float dim = 1.0f;
+
+    const uint32_t width = 32, height = 32; // NOTE: Should be at least 2.
+
+    for (float i = 0; i < height; i++)
+    {
+        for (float j = 0; j < width; j++)
+        {
+            float x = j * dim;
+            float z = i * -dim;
+
+            Vertex vertex;
+            vertex.Pos = glm::vec3(x, 0.0f, z); vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); vertex.Uv = glm::vec2(j, i);
+            vertices.push_back(vertex);
+
+            //printf("v( %f,%f,%f ) ", vertex.Pos.x, vertex.Pos.y, vertex.Pos.z);
+        }
+
+        //printf("\n");
+    }
+
+    const ssize_t vertexBufferSize = sizeof(Vertex) * vertices.size();
+    m_vertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
+    m_vertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
+
+    vertices.clear();
+
+    std::vector<uint32_t> indices;
+
+    for (int i = 0; i < (height - 1); i++)
+    {
+        for (int j = 0; j < (width - 1); j++)
+        {            
+            indices.push_back(0 + (j + (i * width)));
+            indices.push_back(width + (j + (i * width)));
+            indices.push_back(1 + (j + (i * width)));
+            
+            indices.push_back(1 + (j + (i * width)));
+            indices.push_back(width + (j + (i * width)));
+            indices.push_back(width + 1 + (j + (i * width)));
+        }
+    }
+
+    const ssize_t indexBufferSize = sizeof(uint32_t) * indices.size();
+    m_indexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
+    m_indexBuffer->MapMemory(0, indexBufferSize, indices.data());
+
+    m_indicesCount = indices.size();
+    indices.clear();
+
+    m_vertexArray.reset(new VertexArray());
+
+    m_vertexArray->SetVertexBuffer(0, m_vertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_vertexArray->SetIndexBuffer(m_indexBuffer);
+
+    m_vertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_vertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_vertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
+}
+
+TerrainNode::~TerrainNode()
+{
+
+}
+
+void TerrainNode::Render(Scene* pScene)
+{
+    g_TerrainShader->Bind();
+
+    const uint32_t textureUnit = 0;
+    g_DirtTexture->BindUnit(textureUnit);
+    g_TerrainShader->SetUniform1i("u_Texture", textureUnit);
+
+    m_vertexArray->Bind();
+
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, nullptr);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
