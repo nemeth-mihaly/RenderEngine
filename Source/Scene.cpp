@@ -37,7 +37,7 @@ Scene::Scene()
     billboard->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
 
-    //m_SceneNodes.push_back(billboard);
+    m_SceneNodes.push_back(billboard);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     //floorNode->Create();
@@ -205,8 +205,8 @@ Scene::Scene()
 
     m_ParticleVertexArray->SetVertexBuffer(0, m_ParticleVertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     m_ParticleVertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_ParticleVertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
-    m_ParticleVertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+    m_ParticleVertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_ParticleVertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     m_ParticleVertexArray->SetVertexBuffer(1, m_ParticleExtraDataVertexBuffer, sizeof(ParticleExtraVertexData), VertexArrayInputRate_Instance);
     m_ParticleVertexArray->SetVertexAttribute(1, 3, 3, GL_FLOAT, 0);

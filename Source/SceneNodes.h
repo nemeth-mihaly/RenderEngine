@@ -132,7 +132,8 @@ public:
     virtual void Render(Scene* pScene) override;
 
 private:
-    int                     m_VertexCount;
+    int                     m_IndexCount;
     StrongVertexBufferPtr   m_VertexBuffer;
+    StrongIndexBufferPtr    m_IndexBuffer;
     StrongVertexArrayPtr    m_VertexArray;
 };

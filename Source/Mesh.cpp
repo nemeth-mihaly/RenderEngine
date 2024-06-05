@@ -94,8 +94,8 @@ void Mesh::LoadFromFile(const std::string& resource)
     m_VertexArray.reset(new VertexArray());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
-    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+    m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     m_VertexCount = vertices.size();
     vertices.clear();

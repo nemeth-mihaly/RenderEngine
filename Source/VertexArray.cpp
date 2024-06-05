@@ -25,6 +25,11 @@ void VertexArray::SetVertexBuffer(uint32_t binding, StrongVertexBufferPtr& verte
     glVertexArrayBindingDivisor(m_ArrayID, binding, inputRate);
 }
 
+void VertexArray::SetIndexBuffer(StrongIndexBufferPtr& indexBuffer)
+{
+    glVertexArrayElementBuffer(m_ArrayID, indexBuffer->m_BufferID);
+}
+
 void VertexArray::SetVertexAttribute(uint32_t binding, uint32_t location, int size, uint32_t type, uint32_t offset)
 {
     glEnableVertexArrayAttrib(m_ArrayID, location);

@@ -170,8 +170,8 @@ SkyNode::SkyNode()
     m_VertexArray.reset(new VertexArray());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
-    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+    m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     m_VertexCount = vertices.size();
     vertices.clear();
@@ -221,63 +221,62 @@ void SkyNode::Render(Scene* pScene)
 ////////////////////////////////////////////////////
 
 BillboardNode::BillboardNode()
-    : SceneNode()
 {
-    std::vector<Vertex> vertices =
-    {
-        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
-        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
-        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+    std::vector<Vertex> vertices;
+    vertices.resize(4);
 
-        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-        {{ -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
-        {{  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }}, 
-    };
+    const float dim = 0.5f;
+
+    vertices[0].Pos = glm::vec3(-dim, dim, 0.0f ); vertices[0].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[0].Uv = glm::vec2( 0.0f, 1.0f );
+    vertices[1].Pos = glm::vec3( dim, dim, 0.0f ); vertices[1].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[1].Uv = glm::vec2( 1.0f, 1.0f );
+    vertices[2].Pos = glm::vec3(-dim,-dim, 0.0f ); vertices[2].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[2].Uv = glm::vec2( 0.0f, 0.0f );
+    vertices[3].Pos = glm::vec3( dim,-dim, 0.0f ); vertices[3].Normal = glm::vec3( 0.0f, 1.0f, 0.0f ); vertices[3].Uv = glm::vec2( 1.0f, 0.0f );
 
     m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
 
-    m_VertexArray.reset(new VertexArray());
-    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
-    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexAttribute(0, 1, 2, GL_FLOAT, 12);
-    m_VertexArray->SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
-
-    m_VertexCount = vertices.size();
     vertices.clear();
 
+    std::vector<uint32_t> indices = 
+    {
+        0, 2, 1,
+        1, 2, 3
+    };
+
+    m_IndexBuffer.reset(new IndexBuffer(sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW));
+    m_IndexBuffer->MapMemory(0, sizeof(uint32_t) * indices.size(), indices.data());
+
+    m_IndexCount = indices.size();
+    indices.clear();
+
+    m_VertexArray.reset(new VertexArray());
+
+    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+
+    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 }
 
 BillboardNode::~BillboardNode()
 {
-
 }
 
 void BillboardNode::Render(Scene* pScene)
 {
     g_BillboardShader->Bind();
-    //g_BillboardShader->SetUniform4f("u_Material.Ambient", Material.Ambient);
-    //g_BillboardShader->SetUniform4f("u_Material.Diffuse", Material.Diffuse);
-    //g_BillboardShader->SetUniform4f("u_Material.Specular", Material.Specular);
-    //g_BillboardShader->SetUniform4f("u_Material.Emissive", Material.Emissive);
-    //g_BillboardShader->SetUniform1f("u_Material.SpecularPower", Material.SpecularPower);
-    //g_BillboardShader->SetUniform1b("u_Material.bUseTexture", Material.bUseTexture);
 
     if (Material.bUseTexture)
     {
         const uint32_t textureUnit = 0;
-        g_SphereGlowTexture->BindUnit(textureUnit);
+        g_UvGridTexture->BindUnit(textureUnit);
         g_BillboardShader->SetUniform1i("u_Texture", textureUnit);
     }
 
     g_BillboardShader->SetUniform3f("u_Position", m_Pos);
 
-    //glm::mat4 world = glm::translate(glm::mat4(1.0f), m_Pos);
-    //world *= glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.w), glm::vec3(m_Rotation.x, m_Rotation.y, m_Rotation.z));
-    //world *= glm::scale(glm::mat4(1.0f), m_Scale);
-
-    //g_TexturedLitShader->SetUniformMatrix4f("u_World", world);
-
     m_VertexArray->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
+
+    glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, nullptr);
 }

@@ -46,3 +46,24 @@ private:
 };
 
 typedef std::shared_ptr<VertexBuffer> StrongVertexBufferPtr;
+
+////////////////////////////////////////////////////
+//  class IndexBuffer
+////////////////////////////////////////////////////
+
+class IndexBuffer
+{
+    friend class VertexArray;
+
+public:
+    IndexBuffer(ssize_t size, uint32_t usage);
+    ~IndexBuffer();
+
+    void MapMemory(int64_t offset, ssize_t size, const void* pData);
+
+private:
+    ssize_t     m_Size;
+    uint32_t    m_BufferID;
+};
+
+typedef std::shared_ptr<IndexBuffer> StrongIndexBufferPtr;

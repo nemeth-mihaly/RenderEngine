@@ -43,3 +43,24 @@ void VertexBuffer::MapMemory(int64_t offset, ssize_t size, const void* pData)
 {
     glNamedBufferSubData(m_BufferID, offset, size, pData);
 }
+
+////////////////////////////////////////////////////
+//  IndexBuffer Implementation
+////////////////////////////////////////////////////
+
+IndexBuffer::IndexBuffer(ssize_t size, uint32_t usage)
+    : m_Size(size)
+{
+    glCreateBuffers(1, &m_BufferID);
+    glNamedBufferData(m_BufferID, size, nullptr, usage);
+}
+
+IndexBuffer::~IndexBuffer()
+{
+    glDeleteBuffers(1, &m_BufferID);
+}
+
+void IndexBuffer::MapMemory(int64_t offset, ssize_t size, const void* pData)
+{
+    glNamedBufferSubData(m_BufferID, offset, size, pData);
+}
