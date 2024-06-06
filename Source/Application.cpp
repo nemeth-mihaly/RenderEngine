@@ -128,7 +128,7 @@ void Application::RunLoop()
 
         /**  */
 
-        const float cameraSpeed = 2.5f;
+        const float cameraSpeed = 25.0f;
         const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 
         glm::vec2 deltaMousePos = (m_CurrentMousePos - m_PrevMousePos) * 0.2f;

@@ -287,20 +287,25 @@ void BillboardNode::Render(Scene* pScene)
 
 TerrainNode::TerrainNode()
 {
+    int width, height, heightmapChCount;
+    uint8_t* pHeightMapData = stbi_load("Assets/Heightmaps/Heightmap1.png", &width, &height, &heightmapChCount, 0);
+
     std::vector<Vertex> vertices;
-    const float dim = 1.0f;
+    const float dim = 0.25f;
 
-    const uint32_t width = 32, height = 32; // NOTE: Should be at least 2.
-
-    for (float i = 0; i < height; i++)
+    for (float i = 0; i < (float)height; i++)
     {
-        for (float j = 0; j < width; j++)
+        for (float j = 0; j < (float)width; j++)
         {
             float x = j * dim;
+
+            const uint8_t* pTexel = pHeightMapData + ((int)i * width + (int)j) * heightmapChCount;
+            float y = pTexel[0] * (64.0 / 256.0f) - 16.0f;
+
             float z = i * -dim;
 
             Vertex vertex;
-            vertex.Pos = glm::vec3(x, 0.0f, z); vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); vertex.Uv = glm::vec2(j, i);
+            vertex.Pos = glm::vec3(x, y, z); vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); vertex.Uv = glm::vec2(j, i);
             vertices.push_back(vertex);
 
             //printf("v( %f,%f,%f ) ", vertex.Pos.x, vertex.Pos.y, vertex.Pos.z);
@@ -308,6 +313,8 @@ TerrainNode::TerrainNode()
 
         //printf("\n");
     }
+
+    stbi_image_free(pHeightMapData);
 
     const ssize_t vertexBufferSize = sizeof(Vertex) * vertices.size();
     m_vertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
@@ -321,13 +328,13 @@ TerrainNode::TerrainNode()
     {
         for (int j = 0; j < (width - 1); j++)
         {            
-            indices.push_back(0 + (j + (i * width)));
-            indices.push_back(width + (j + (i * width)));
-            indices.push_back(1 + (j + (i * width)));
+            indices.push_back((i + 0) * width + j + 0);
+            indices.push_back((i + 1) * width + j + 0);
+            indices.push_back((i + 0) * width + j + 1);
             
-            indices.push_back(1 + (j + (i * width)));
-            indices.push_back(width + (j + (i * width)));
-            indices.push_back(width + 1 + (j + (i * width)));
+            indices.push_back((i + 0) * width + j + 1);
+            indices.push_back((i + 1) * width + j + 0);
+            indices.push_back((i + 1) * width + j + 1);
         }
     }
 
