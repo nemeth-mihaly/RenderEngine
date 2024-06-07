@@ -137,61 +137,111 @@ void Application::RunLoop()
         if (m_bCameraMoving)
         {
             std::shared_ptr<CameraNode>& camera = m_pScene->GetCamera();
+            std::shared_ptr<SceneNode>& cameraTargetNode = camera->m_TargetNode;
 
-            if (m_bKeyStates[SDL_SCANCODE_W])
+            if (!m_bDebugCameraEnabled)
             {
-                glm::vec3 newPos = camera->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
+                if (m_bKeyStates[SDL_SCANCODE_W])
+                {
+                    glm::vec3 newPos = cameraTargetNode->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                    cameraTargetNode->SetPosition(newPos);
+                }
+                else
+                if (m_bKeyStates[SDL_SCANCODE_S])
+                {
+                    glm::vec3 newPos = cameraTargetNode->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                    cameraTargetNode->SetPosition(newPos);
+                }
+
+                const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
+
+                if (m_bKeyStates[SDL_SCANCODE_A])
+                {
+                    glm::vec3 newPos = cameraTargetNode->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                    cameraTargetNode->SetPosition(newPos);
+                }
+                else
+                if (m_bKeyStates[SDL_SCANCODE_D])
+                {
+                    glm::vec3 newPos = cameraTargetNode->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                    cameraTargetNode->SetPosition(newPos);
+                }
+
+                if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+                {
+                    const float rotationSpeed = 0.3f;
+                    m_Yaw += deltaMousePos.x * rotationSpeed;
+                    m_Pitch += (-deltaMousePos.y) * rotationSpeed;
+
+                    glm::vec3 newForwardDirection;
+                    newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                    newForwardDirection.y = sinf(glm::radians(m_Pitch));
+                    newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                    
+                    camera->SetForwardDir(glm::normalize(newForwardDirection));
+                }
+
+                camera->m_TargetPos = camera->m_TargetNode->GetPosition();
+                camera->SetPosition(camera->m_TargetNode->GetPosition() - camera->GetForwardDir() * 15.0f);
+                camera->WorldViewProjection();
             }
             else
-            if (m_bKeyStates[SDL_SCANCODE_S])
             {
-                glm::vec3 newPos = camera->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
+                if (m_bKeyStates[SDL_SCANCODE_W])
+                {
+                    glm::vec3 newPos = camera->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
+                else
+                if (m_bKeyStates[SDL_SCANCODE_S])
+                {
+                    glm::vec3 newPos = camera->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
 
-            const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
+                const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
 
-            if (m_bKeyStates[SDL_SCANCODE_A])
-            {
-                glm::vec3 newPos = camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeyStates[SDL_SCANCODE_D])
-            {
-                glm::vec3 newPos = camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
+                if (m_bKeyStates[SDL_SCANCODE_A])
+                {
+                    glm::vec3 newPos = camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
+                else
+                if (m_bKeyStates[SDL_SCANCODE_D])
+                {
+                    glm::vec3 newPos = camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
 
-            if (m_bKeyStates[SDL_SCANCODE_LSHIFT])
-            {
-                glm::vec3 newPos = camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeyStates[SDL_SCANCODE_LCTRL])
-            {
-                glm::vec3 newPos = camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
+                if (m_bKeyStates[SDL_SCANCODE_LSHIFT])
+                {
+                    glm::vec3 newPos = camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
+                else
+                if (m_bKeyStates[SDL_SCANCODE_LCTRL])
+                {
+                    glm::vec3 newPos = camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
+                    camera->SetPosition(newPos);
+                }
 
-            if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
-            {
-                const float rotationSpeed = 0.3f;
-                m_Yaw += deltaMousePos.x * rotationSpeed;
-                m_Pitch += (-deltaMousePos.y) * rotationSpeed;
+                if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+                {
+                    const float rotationSpeed = 0.3f;
+                    m_Yaw += deltaMousePos.x * rotationSpeed;
+                    m_Pitch += (-deltaMousePos.y) * rotationSpeed;
 
-                glm::vec3 newForwardDirection;
-                newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                newForwardDirection.y = sinf(glm::radians(m_Pitch));
-                newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                
-                camera->SetForwardDir(glm::normalize(newForwardDirection));
+                    glm::vec3 newForwardDirection;
+                    newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                    newForwardDirection.y = sinf(glm::radians(m_Pitch));
+                    newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                    
+                    camera->SetForwardDir(glm::normalize(newForwardDirection));
+                }
+
+                camera->m_TargetPos = camera->GetPosition() + camera->GetForwardDir();
+                camera->WorldViewProjection();
             }
-
-            camera->m_TargetPos = camera->GetPosition() + camera->GetForwardDir();
-            camera->WorldViewProjection();
         }
 
         m_pScene->Update(deltaTime);
@@ -222,6 +272,15 @@ void Application::ProcessEvents()
 
                 if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                     m_bRunning = false;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+                {
+                    m_bDebugCameraEnabled = !m_bDebugCameraEnabled;
+
+                    if (m_bDebugCameraEnabled)
+                        printf("Debug camera enabled.\n");
+                    else
+                        printf("Debug camera disabled.\n");
+                }
                 else
                     m_bKeyStates[event.key.keysym.scancode] = true;
 

@@ -20,11 +20,13 @@ Scene::Scene()
     Material material;
     material.bUseTexture = true;
 
-    std::shared_ptr<MeshNode> suzanneTheMonkey(new MeshNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
+    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
     
     m_SceneNodes.push_back(suzanneTheMonkey);
+
+    m_Camera->m_TargetNode = suzanneTheMonkey;
 
     /** Billboard */
 
@@ -39,8 +41,8 @@ Scene::Scene()
 
     m_SceneNodes.push_back(billboard);
 
-    std::shared_ptr<TerrainNode> terrain(new TerrainNode());
-    m_SceneNodes.push_back(terrain);
+    m_TerrainNode.reset(new TerrainNode());
+    m_SceneNodes.push_back(m_TerrainNode);
 
     //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
     //floorNode->Create();
@@ -255,6 +257,10 @@ void Scene::Update(const float deltaTime)
             m_ParticleStagingBuffer.push_back(extraData);
         }
     }
+
+    glm::vec3 cameraTargetPos = m_Camera->m_TargetNode->GetPosition();
+    cameraTargetPos.y = m_TerrainNode->GetHeight() + 1.0f;
+    m_Camera->m_TargetNode->SetPosition(cameraTargetPos);
 }
 
 void Scene::Render()

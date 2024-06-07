@@ -65,6 +65,7 @@ public:
     const glm::vec3& GetForwardDir() const { return m_ForwardDir; }
 
     glm::vec3 m_TargetPos;
+    std::shared_ptr<SceneNode> m_TargetNode;
 
 private:
     glm::mat4 m_Projection;
@@ -152,9 +153,12 @@ public:
 
     virtual void Render(Scene* pScene) override;
 
+    float GetHeight() { return m_Height; }
+
 private:
     int                     m_indicesCount;
     StrongVertexBufferPtr   m_vertexBuffer;
     StrongIndexBufferPtr    m_indexBuffer;
     StrongVertexArrayPtr    m_vertexArray;
+    float m_Height;
 };

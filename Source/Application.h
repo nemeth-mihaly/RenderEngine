@@ -55,6 +55,7 @@ private:
 
     Scene*      m_pScene;
 
+    bool        m_bDebugCameraEnabled = false;
     bool        m_bCameraMoving;
     float       m_Yaw;
     float       m_Pitch;

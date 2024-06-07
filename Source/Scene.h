@@ -40,6 +40,7 @@ private:
     
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<SkyNode> m_SkyNode;
+    std::shared_ptr<TerrainNode> m_TerrainNode;
 
     StrongUniformBufferPtr m_UniformBuffer;
 

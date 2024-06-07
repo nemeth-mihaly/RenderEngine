@@ -290,21 +290,22 @@ void BillboardNode::Render(Scene* pScene)
 TerrainNode::TerrainNode()
 {
     int width, height, heightmapChCount;
-    uint8_t* pHeightMapData = stbi_load("Assets/Heightmaps/Heightmap1.png", &width, &height, &heightmapChCount, 0);
+    uint8_t* pHeightMapData = stbi_load("Assets/Heightmaps/Heightmap0.png", &width, &height, &heightmapChCount, 0);
 
     std::vector<Vertex> vertices;
-    const float dim = 0.25f;
+    const float dim = 0.5f;
 
     for (float i = 0; i < (float)height; i++)
     {
         for (float j = 0; j < (float)width; j++)
         {
-            float x = j * dim;
+            float x = (-width * dim * 0.5f) + j * dim;
 
             const uint8_t* pTexel = pHeightMapData + ((int)i * width + (int)j) * heightmapChCount;
             float y = pTexel[0] * (64.0 / 256.0f) - 16.0f;
+            m_Height = y;
 
-            float z = i * -dim;
+            float z = (-height * dim * 0.5f) + i * dim;
 
             Vertex vertex;
             vertex.Pos = glm::vec3(x, y, z); vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); vertex.Uv = glm::vec2(j, i);
