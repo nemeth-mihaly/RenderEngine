@@ -64,6 +64,8 @@ public:
     void SetForwardDir(const glm::vec3& forwardDir) { m_ForwardDir = forwardDir; }
     const glm::vec3& GetForwardDir() const { return m_ForwardDir; }
 
+    glm::vec3 m_TargetPos;
+
 private:
     glm::mat4 m_Projection;
     glm::mat4 m_View;

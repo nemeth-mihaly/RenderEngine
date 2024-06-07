@@ -189,6 +189,9 @@ void Application::RunLoop()
                 
                 camera->SetForwardDir(glm::normalize(newForwardDirection));
             }
+
+            camera->m_TargetPos = camera->GetPosition() + camera->GetForwardDir();
+            camera->WorldViewProjection();
         }
 
         m_pScene->Update(deltaTime);
