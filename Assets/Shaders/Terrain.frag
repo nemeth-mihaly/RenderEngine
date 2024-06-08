@@ -15,7 +15,10 @@ struct Material
 
 uniform Material u_Material;
 
-uniform sampler2D u_Texture;
+uniform sampler2D u_BlendMapTexture;
+uniform sampler2D u_DirtBaseTexture;
+uniform sampler2D u_StonebrickTexture;
+uniform sampler2D u_GrassTexture;
 
 // ----------------------------------------------
 
@@ -189,7 +192,14 @@ void main()
 
     if (u_Material.bUseTexture == 1)
     {
-        texColor = texture(u_Texture, v_Uv);
+        vec4 blendMapTexColor = texture(u_BlendMapTexture, v_Uv);
+        float blendMapColorAmount = 1 - (blendMapTexColor.r + blendMapTexColor.g + blendMapTexColor.b);
+
+        vec4 dirtBaseTex = texture(u_DirtBaseTexture, v_Uv * 40.0) * blendMapColorAmount;
+        vec4 stonebricksTex = texture(u_StonebrickTexture, v_Uv * 40.0) * blendMapTexColor.b;
+        vec4 grassTex = texture(u_GrassTexture, v_Uv * 40.0) * blendMapTexColor.g;
+
+        texColor = dirtBaseTex + stonebricksTex + grassTex;
 
         if (texColor.a < 0.01)
         {

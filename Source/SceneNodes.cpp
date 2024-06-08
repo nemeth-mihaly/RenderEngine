@@ -276,6 +276,11 @@ void BillboardNode::Render(Scene* pScene)
 //  TerrainNode Implementation
 ////////////////////////////////////////////////////
 
+StrongTexturePtr    g_BlendMapTex           = nullptr;
+StrongTexturePtr    g_DirtTileTex           = nullptr;
+StrongTexturePtr    g_StonebrickTileTex     = nullptr;
+StrongTexturePtr    g_GrassTileTex          = nullptr;
+
 TerrainNode::TerrainNode()
 {
     m_Material.Ambient = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -312,7 +317,7 @@ TerrainNode::TerrainNode()
             m_HeightPointValues.push_back(y);
 
             Vertex vertex;
-            vertex.Pos = glm::vec3(x * dim, y, z * dim); vertex.Uv = glm::vec2(j, i);
+            vertex.Pos = glm::vec3(x * dim, y, z * dim); vertex.Uv = glm::vec2((float)j / ((float)m_HeightMapWidth - 1.0f), (float)i / ((float)m_HeightMapHeight - 1.0f));
             vertices.push_back(vertex);
         }
     }
@@ -365,6 +370,18 @@ TerrainNode::TerrainNode()
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     m_IndexCount = indices.size();
     indices.clear();
+
+    g_BlendMapTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_BlendMapTex->LoadResource("Assets/Heightmaps/BlendMap.png");
+
+    g_DirtTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_DirtTileTex->LoadResource("Assets/Textures/elwynndirtbase2.png");
+
+    g_StonebrickTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_StonebrickTileTex->LoadResource("Assets/Textures/Stonebricks.png");
+
+    g_GrassTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_GrassTileTex->LoadResource("Assets/Textures/GrassTile.png");
 }
 
 TerrainNode::~TerrainNode()
@@ -387,9 +404,17 @@ void TerrainNode::Render(Scene* pScene)
     m_Material.bUseTexture = true;
     if (m_Material.bUseTexture)
     {
-        const uint32_t texUnit = 0;
-        g_DirtTexture->BindUnit(texUnit);
-        g_TerrainShader->SetUniform1i("u_Texture", texUnit);
+        g_BlendMapTex->BindUnit(0);
+        g_TerrainShader->SetUniform1i("u_BlendMapTexture", 0);
+
+        g_DirtTexture->BindUnit(1);
+        g_TerrainShader->SetUniform1i("u_DirtBaseTexture", 1);
+
+        g_StonebrickTileTex->BindUnit(2);
+        g_TerrainShader->SetUniform1i("u_StonebrickTexture", 2);
+
+        g_GrassTileTex->BindUnit(3);
+        g_TerrainShader->SetUniform1i("u_GrassTexture", 3);
     }
 
     m_VertexArray->Bind();
