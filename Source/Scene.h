@@ -4,10 +4,15 @@
 #include <cstdint>
 #include <cassert>
 #include <memory>
+#include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "SceneNodes.h"
 #include "Lights.h"
+
+#include "Mesh.h"
+#include "Texture.h"
 
 extern      StrongShaderPtr     g_TerrainShader;
 
@@ -33,9 +38,15 @@ public:
     void Update(const float deltaTime);
     void Render();
 
+    StrongMeshPtr GetMesh(const std::string& name);
+    StrongTexturePtr GetTexture(const std::string& name);
+
     std::shared_ptr<CameraNode>& GetCamera() { return m_Camera; }
 
 private:
+    std::unordered_map<std::string, StrongMeshPtr> m_Meshes;
+    std::unordered_map<std::string, StrongTexturePtr> m_Textures;
+
     std::vector<std::shared_ptr<SceneNode>> m_SceneNodes;
     std::vector<std::shared_ptr<LightNode>> m_LightNodes;
     std::vector<AlphaNode*> m_AlphaNodes;
@@ -44,10 +55,14 @@ private:
     std::shared_ptr<CubeMapNode> m_CubeMap;
     std::shared_ptr<TerrainNode> m_TerrainNode;
 
-    StrongUniformBufferPtr m_UniformBuffer;
+    StrongUniformBufferPtr m_UniformBufferMatrices;
+    
+    LightProperties m_LightProperties[32];
+    StrongUniformBufferPtr m_UniformBufferLighting;
 
     /** Particles */
 
+    /*
     struct ParticleExtraVertexData
     {
         glm::vec3 Pos;
@@ -66,4 +81,5 @@ private:
     };
 
     Particle m_Particles[MAX_PARTICLES];
+    */
 };

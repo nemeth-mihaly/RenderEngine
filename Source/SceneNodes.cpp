@@ -54,7 +54,7 @@ glm::mat4 CameraNode::WorldViewProjection()
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-MeshNode::MeshNode(StrongMeshPtr& mesh, StrongShaderPtr& shader, StrongTexturePtr& texture)
+MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture)
     : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
 {
 }
@@ -212,7 +212,7 @@ void CubeMapNode::Render(Scene* pScene)
 //  BillboardNode Implementation
 ////////////////////////////////////////////////////
 
-BillboardNode::BillboardNode(StrongTexturePtr& texture)
+BillboardNode::BillboardNode(const StrongTexturePtr& texture)
     : m_Texture(texture)
 {
     const uint32_t rectVertCount = 4;
@@ -276,20 +276,12 @@ void BillboardNode::Render(Scene* pScene)
 //  TerrainNode Implementation
 ////////////////////////////////////////////////////
 
-StrongTexturePtr    g_BlendMapTex           = nullptr;
-StrongTexturePtr    g_DirtTileTex           = nullptr;
-StrongTexturePtr    g_StonebrickTileTex     = nullptr;
-StrongTexturePtr    g_GrassTileTex          = nullptr;
-
 TerrainNode::TerrainNode()
 {
-    m_Material.Ambient = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Material.Specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-
     int heightMapChannelCount;
     uint8_t* pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &m_HeightMapWidth, &m_HeightMapHeight, &heightMapChannelCount, 0);
 
-    const float dim = 2.0f;
+    const float dim = 1.0f;
     std::vector<Vertex> vertices;
 
     for (uint32_t i = 0; i < m_HeightMapHeight; i++)
@@ -308,16 +300,16 @@ TerrainNode::TerrainNode()
             const uint32_t magic = 16'777'216;
             
             float height = colorRGB / (float)magic;
-            height *= 128.0f;
+            height *= 40.0f;
 
-            const float x = j;
-            const float y = height;
-            const float z = i;
+            const float x = ((-m_HeightMapWidth / 2.0f) + j) * dim;
+            const float y = height - 25.0f;
+            const float z = ((-m_HeightMapHeight / 2.0f) + i) * dim;
 
             m_HeightPointValues.push_back(y);
 
             Vertex vertex;
-            vertex.Pos = glm::vec3(x * dim, y, z * dim); vertex.Uv = glm::vec2((float)j / ((float)m_HeightMapWidth - 1.0f), (float)i / ((float)m_HeightMapHeight - 1.0f));
+            vertex.Pos = glm::vec3(x, y, z); vertex.Uv = glm::vec2((float)j / ((float)m_HeightMapWidth - 1.0f), (float)i / ((float)m_HeightMapHeight - 1.0f));
             vertices.push_back(vertex);
         }
     }
@@ -370,18 +362,6 @@ TerrainNode::TerrainNode()
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     m_IndexCount = indices.size();
     indices.clear();
-
-    g_BlendMapTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
-    g_BlendMapTex->LoadResource("Assets/Heightmaps/BlendMap.png");
-
-    g_DirtTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
-    g_DirtTileTex->LoadResource("Assets/Textures/elwynndirtbase2.png");
-
-    g_StonebrickTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
-    g_StonebrickTileTex->LoadResource("Assets/Textures/Stonebricks.png");
-
-    g_GrassTileTex.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
-    g_GrassTileTex->LoadResource("Assets/Textures/GrassTile.png");
 }
 
 TerrainNode::~TerrainNode()
@@ -404,17 +384,20 @@ void TerrainNode::Render(Scene* pScene)
     m_Material.bUseTexture = true;
     if (m_Material.bUseTexture)
     {
-        g_BlendMapTex->BindUnit(0);
+        pScene->GetTexture("Assets/Heightmaps/BlendMap.png")->BindUnit(0);
         g_TerrainShader->SetUniform1i("u_BlendMapTexture", 0);
 
-        g_DirtTexture->BindUnit(1);
+        pScene->GetTexture("Assets/Textures/Terrain/ElwynnDirtBase.png")->BindUnit(1);
         g_TerrainShader->SetUniform1i("u_DirtBaseTexture", 1);
 
-        g_StonebrickTileTex->BindUnit(2);
+        pScene->GetTexture("Assets/Textures/Terrain/ElwynnCobblestoneBase.png")->BindUnit(2);
         g_TerrainShader->SetUniform1i("u_StonebrickTexture", 2);
 
-        g_GrassTileTex->BindUnit(3);
+        pScene->GetTexture("Assets/Textures/Terrain/ElwynnGrassBase.png")->BindUnit(3);
         g_TerrainShader->SetUniform1i("u_GrassTexture", 3);
+
+        pScene->GetTexture("Assets/Textures/Terrain/ElwynnCrop.png")->BindUnit(4);
+        g_TerrainShader->SetUniform1i("u_CropTex", 4);
     }
 
     m_VertexArray->Bind();

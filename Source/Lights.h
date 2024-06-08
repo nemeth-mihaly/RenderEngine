@@ -11,7 +11,7 @@ class Scene;
 //  enum class LightType
 ////////////////////////////////////////////////////
 
-enum class LightType
+enum class LightType : uint32_t
 {
     Directional = 0,
     Point = 1,
@@ -26,6 +26,7 @@ struct LightProperties
 {
     LightType   Type;
     glm::vec3   Position;
+    float       Padding1;
     glm::vec3   Direction;
     float       Range;
     float       Falloff;

@@ -84,7 +84,7 @@ private:
 class MeshNode : public SceneNode
 {
 public:
-    MeshNode(StrongMeshPtr& mesh, StrongShaderPtr& shader, StrongTexturePtr& texture);
+    MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture);
     virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
@@ -140,7 +140,7 @@ private:
 class BillboardNode : public SceneNode
 {
 public:
-    BillboardNode(StrongTexturePtr& texture);
+    BillboardNode(const StrongTexturePtr& texture);
     virtual ~BillboardNode();
 
     virtual void Render(Scene* pScene) override;

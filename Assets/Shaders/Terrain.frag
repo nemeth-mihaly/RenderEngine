@@ -19,6 +19,7 @@ uniform sampler2D u_BlendMapTexture;
 uniform sampler2D u_DirtBaseTexture;
 uniform sampler2D u_StonebrickTexture;
 uniform sampler2D u_GrassTexture;
+uniform sampler2D u_CropTex;
 
 // ----------------------------------------------
 
@@ -192,14 +193,19 @@ void main()
 
     if (u_Material.bUseTexture == 1)
     {
+        vec2 tiledUv;
+        tiledUv.x = v_Uv.x * 40.0;
+        tiledUv.y = v_Uv.y * 40.0;
+
         vec4 blendMapTexColor = texture(u_BlendMapTexture, v_Uv);
         float blendMapColorAmount = 1 - (blendMapTexColor.r + blendMapTexColor.g + blendMapTexColor.b);
 
-        vec4 dirtBaseTex = texture(u_DirtBaseTexture, v_Uv * 40.0) * blendMapColorAmount;
-        vec4 stonebricksTex = texture(u_StonebrickTexture, v_Uv * 40.0) * blendMapTexColor.b;
-        vec4 grassTex = texture(u_GrassTexture, v_Uv * 40.0) * blendMapTexColor.g;
+        vec4 dirtBaseTex    = texture(u_DirtBaseTexture,    tiledUv) * blendMapColorAmount;
+        vec4 crop           = texture(u_CropTex,            tiledUv) * blendMapTexColor.r;
+        vec4 stonebricksTex = texture(u_StonebrickTexture,  tiledUv) * blendMapTexColor.b;
+        vec4 grassTex       = texture(u_GrassTexture,       tiledUv) * blendMapTexColor.g;
 
-        texColor = dirtBaseTex + stonebricksTex + grassTex;
+        texColor = dirtBaseTex + stonebricksTex + grassTex + crop;
 
         if (texColor.a < 0.01)
         {

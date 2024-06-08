@@ -9,18 +9,8 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "Scene.h"
-
-#include "VertexArray.h"
 #include "Shader.h"
-#include "Lights.h"
-#include "Mesh.h"
-
-extern StrongTexturePtr g_UvGridTexture;
-extern StrongTexturePtr g_SphereGlowTexture;
-extern StrongTexturePtr g_DirtTexture;
-
-extern StrongMeshPtr g_MonkeyMesh;
+#include "Scene.h"
 
 extern StrongShaderPtr g_TexturedLitShader;
 extern StrongShaderPtr g_SkyShader;

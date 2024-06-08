@@ -1,4 +1,5 @@
 #version 460 core
+
 out vec4 v_FragmentColor;
 
 // --- Material ---------------------------------
@@ -23,19 +24,19 @@ uniform sampler2D u_Texture;
 
 struct Light
 {
-    int Type;
-    vec3 Position;
-    vec3 Direction;
-    vec4 Ambient;
-    vec4 Diffuse;
-    vec4 Specular;
-    float Range;
-    float Falloff;
-    float ConstantAttenuation;
-    float LinearAttenuation;
-    float QuadraticAttenuation;
-    float Theta;
-    float Phi;
+    int         Type;
+    vec3        Position;
+    vec3        Direction;
+    vec4        Ambient;
+    vec4        Diffuse;
+    vec4        Specular;
+    float       Range;
+    float       Falloff;
+    float       ConstantAttenuation;
+    float       LinearAttenuation;
+    float       QuadraticAttenuation;
+    float       Theta;
+    float       Phi;
 };
 
 #define LightType_Directional 0

@@ -25,7 +25,7 @@ Scene::Scene()
     Material material;
     material.bUseTexture = true;
 
-    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(g_MonkeyMesh, g_TexturedLitShader, g_UvGridTexture));
+    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_TexturedLitShader, GetTexture("Assets/Textures/UvGrid.png")));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
     
@@ -40,7 +40,7 @@ Scene::Scene()
     alphaMaterial.Emissive = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
     alphaMaterial.bUseTexture = true;
     
-    std::shared_ptr<BillboardNode> billboard(new BillboardNode(g_SphereGlowTexture));
+    std::shared_ptr<BillboardNode> billboard(new BillboardNode(GetTexture("Assets/Textures/SphereGlow.png")));
     billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
 
@@ -49,99 +49,11 @@ Scene::Scene()
     m_TerrainNode.reset(new TerrainNode());
     m_SceneNodes.push_back(m_TerrainNode);
 
-    //auto floorNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    //floorNode->Create();
-    //floorNode->SetPosition(glm::vec3(0.0f, -0.55f, -0.0f));
-    //floorNode->SetScale(glm::vec3(10.0f, 0.1f, 10.0f));
-    //floorNode->GetMaterial().Diffuse = glm::vec4(0.0f, 0.7f, 0.0f, 1.0f);
-    //floorNode->GetMaterial().Specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-    //floorNode->GetMaterial().bUseTexture = false;
-
-    //auto node1 = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    //node1->Create();
-    //node1->SetPosition(glm::vec3(-1.5f, 0.0f, -2.5f));
-    //node1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //node1->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //node1->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //node1->GetMaterial().bUseTexture = true;
-
-    //auto node2 = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    //node2->Create();
-    //node2->SetPosition(glm::vec3(2.0f, 0.0f, -2.5f));
-    //node2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //node2->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //node2->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //node2->GetMaterial().bUseTexture = true;
-
-    //auto node3 = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Cube.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    //node3->Create();
-    //node3->SetPosition(glm::vec3(1.0f, 0.0f, -3.5f));
-    //node3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //node3->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //node3->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //node3->GetMaterial().bUseTexture = true;
-
-    //auto monkeyNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
-    //monkeyNode->Create();
-    //monkeyNode->SetPosition(glm::vec3(0.0f, 1.0f, -5.0f));
-    //monkeyNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //monkeyNode->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //monkeyNode->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //monkeyNode->GetMaterial().bUseTexture = true;
-
-    //std::vector<glm::vec3> grassPositions =
-    //{
-    //    glm::vec3(-1.5f, 0.0f, -0.48f),
-    //    glm::vec3( 1.5f, 0.0f, 0.51f),
-    //    glm::vec3( 0.0f, 0.0f, 0.7f),
-    //    glm::vec3(-0.3f, 0.0f, -2.3f),
-    //    glm::vec3(0.5f, 0.0f, -0.6f)
-    //};
-
-    //for (uint32_t i = 0; i < grassPositions.size(); ++i)
-    //{
-    //    auto grassNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Grass.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets\\Textures\\Grass.png"));
-    //    grassNode->Create();
-    //    grassNode->SetPosition(grassPositions[i]);
-    //    grassNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //    grassNode->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //    grassNode->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //    grassNode->GetMaterial().bUseTexture = true; 
-    //}
-
-    //std::vector<glm::vec3> glowPositions =
-    //{
-    //    glm::vec3(-1.5f, 0.3f, 0.48f),
-    //    glm::vec3( 1.5f, 0.3f, 1.51f),
-    //    glm::vec3( 0.0f, 0.3f, 1.7f),
-    //    glm::vec3(-0.3f, 0.3f, 2.3f),
-    //    glm::vec3(0.5f, 0.3f, 0.6f)
-    //};
-
-    //for (uint32_t i = 0; i < glowPositions.size(); ++i)
-    //{
-    //    std::string textureName = "Assets\\Textures\\SphereGlow.png";
-//
-    //    if (i % 2 == 0)
-    //    {
-    //        textureName = "Assets\\Textures\\AlphaWindow.png";
-    //    }
-//
-    //    auto grassNode = m_SceneNodes.emplace_back(new MeshSceneNode("Assets\\Models\\Rectangle.obj", "Assets/Shaders/TexturedLit.progpipeline", textureName));
-    //    grassNode->Create();
-    //    grassNode->SetPosition(glowPositions[i]);
-    //    grassNode->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-    //    grassNode->SetRotation(glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
-    //    grassNode->GetMaterial().Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
-    //    grassNode->GetMaterial().Specular = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //    grassNode->GetMaterial().bUseTexture = true; 
-    //}
-
     /** Directional Light */
 
     LightProperties DirectionalLightProperties;
     DirectionalLightProperties.Type = LightType::Directional;
-    DirectionalLightProperties.Direction = glm::vec3(1.2f, -1.0f, 1.3f);
+    DirectionalLightProperties.Direction = glm::vec3(1.0f, -1.0f, 1.3f);
 
     std::shared_ptr<LightNode> DirectionalLight(new LightNode(DirectionalLightProperties));
 
@@ -185,15 +97,20 @@ Scene::Scene()
 
     m_CubeMap.reset(new CubeMapNode());
 
-    m_UniformBuffer.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
+    m_UniformBufferMatrices.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
+    m_UniformBufferLighting.reset(new UniformBuffer(1, 32 * sizeof(LightProperties), GL_DYNAMIC_DRAW));
 
     g_TexturedLitShader->SetUniformBlockBinding(0, "Matrices");
     g_SkyShader->SetUniformBlockBinding(0, "Matrices");
     g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
     g_TerrainShader->SetUniformBlockBinding(0, "Matrices");
 
+    g_TexturedLitShader->SetUniformBlockBinding(1, "Lighting");
+    g_TerrainShader->SetUniformBlockBinding(1, "Lighting");
+
     /** Particles */
 
+    /*
     std::vector<Vertex> particleVertices =
     {
         {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
@@ -231,6 +148,7 @@ Scene::Scene()
         m_Particles[i].Velocity = glm::vec3(0.0f, 1.0f, 0.0f);
         m_Particles[i].Life = 10.0f;
     }
+    */
 }
 
 Scene::~Scene()
@@ -246,6 +164,7 @@ void Scene::Update(const float deltaTime)
         node->Update(this, deltaTime);
     }
 
+    /*
     for (uint32_t i = 0; i < MAX_PARTICLES; i++)
     {
         Particle& particle = m_Particles[i];
@@ -262,6 +181,7 @@ void Scene::Update(const float deltaTime)
             m_ParticleStagingBuffer.push_back(extraData);
         }
     }
+    */
 
     glm::vec3 cameraTargetPos = m_Camera->m_TargetNode->GetPosition();
     cameraTargetPos.y = m_TerrainNode->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
@@ -270,8 +190,8 @@ void Scene::Update(const float deltaTime)
 
 void Scene::Render()
 {
-    m_UniformBuffer->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetProjection()));
-    m_UniformBuffer->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_Camera->GetView()));
+    m_UniformBufferMatrices->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetProjection()));
+    m_UniformBufferMatrices->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_Camera->GetView()));
 
     /** Actor Pass */
 
@@ -339,11 +259,11 @@ void Scene::Render()
         }
     }
 
-    /** Sky Pass */
+    //  Draw Sky Node
 
     m_CubeMap->Render(this);
 
-    /** Alpha Pass */
+    //  Draw Alpha Nodes
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -381,6 +301,7 @@ void Scene::Render()
 
     /** Particles */
 
+    /*
     g_BillboardShader->Bind();
 
     uint32_t textureUnit = 0;
@@ -392,8 +313,41 @@ void Scene::Render()
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, m_ParticleVertexCount, m_ParticleStagingBuffer.size());
     m_ParticleStagingBuffer.clear();
+    */
+}
 
-    /** Postproc Effects */
+StrongMeshPtr Scene::GetMesh(const std::string& name)
+{
+    StrongMeshPtr mesh(nullptr);
 
-    /** End */
+    std::unordered_map<std::string, StrongMeshPtr>::iterator it = m_Meshes.find(name);
+    if (it != m_Meshes.end())
+        mesh = (*it).second;
+    else
+    {
+        mesh.reset(new Mesh());
+        mesh->LoadResource(name);
+
+        m_Meshes[name] = mesh;
+    }
+
+    return mesh;
+}
+
+StrongTexturePtr Scene::GetTexture(const std::string& name)
+{
+    StrongTexturePtr texture(nullptr);
+
+    std::unordered_map<std::string, StrongTexturePtr>::iterator it = m_Textures.find(name);
+    if (it != m_Textures.end())
+        texture = (*it).second;
+    else
+    {
+        texture.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+        texture->LoadResource(name);
+
+        m_Textures[name] = texture;
+    }
+
+    return texture;
 }
