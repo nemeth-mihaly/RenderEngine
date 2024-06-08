@@ -6,17 +6,17 @@
 #include <memory>
 #include <vector>
 
-#include "VertexArray.h"
+#include "Material.h"
 #include "Mesh.h"
+#include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Material.h"
 
 class Scene;
 
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //  class SceneNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 class SceneNode
 {
@@ -27,28 +27,31 @@ public:
     virtual void Update(Scene* pScene, const float deltaTime);
     virtual void Render(Scene* pScene);
 
-    void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
-    const glm::vec3& GetPosition() const { return m_Pos; }
+    void SetPosition(const glm::vec3& position) { m_Position = position; }
+    const glm::vec3& GetPosition() const { return m_Position; }
 
-    void SetScale(const glm::vec3& scale) { m_Scale = scale; }
-    const glm::vec3& GetScale() const { return m_Scale; }
-
-    void SetRotation(const glm::vec3& axis, float degrees) { m_Rotation = glm::vec4(axis, degrees); }
-    const glm::vec4& GetRotation() const { return m_Rotation; }
-
-    void SetMaterial(const Material& InMaterial) { Material = InMaterial; }
-    const Material& GetMaterial() const { return Material; }
+    void SetMaterial(const Material& material) { m_Material = material; }
+    const Material& GetMaterial() const { return m_Material; }
 
 protected:
-    glm::vec3 m_Pos;
-    glm::vec3 m_Scale;
-    glm::vec4 m_Rotation;
-    Material Material;
+    glm::mat4       m_WorldTransform;
+    glm::vec3       m_Position;
+
+    Material        m_Material;
 };
 
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//  struct AlphaNode
+//////////////////////////////////////////////////////
+
+struct AlphaNode
+{
+    std::shared_ptr<SceneNode> Node;
+};
+
+//////////////////////////////////////////////////////
 //  class CameraSceneNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 class CameraNode : public SceneNode
 {
@@ -68,82 +71,93 @@ public:
     std::shared_ptr<SceneNode> m_TargetNode;
 
 private:
-    glm::mat4 m_Projection;
-    glm::mat4 m_View;
+    glm::mat4   m_View;
+    glm::mat4   m_Projection;
 
-    glm::vec3 m_ForwardDir;
+    glm::vec3   m_ForwardDir;
 };
 
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //  class MeshSceneNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 class MeshNode : public SceneNode
 {
 public:
-    MeshNode(const std::string& meshName, const std::string& shaderProgName, const std::string& textureName);
-
+    MeshNode(StrongMeshPtr& mesh, StrongShaderPtr& shader, StrongTexturePtr& texture);
     virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
 
 private:
-    std::string m_MeshName;
-    std::string m_ShaderProgName;
-    std::string m_TextureName;
+    StrongMeshPtr       m_Mesh;
+    StrongShaderPtr     m_Shader;
+    StrongTexturePtr    m_Texture;
 };
 
-////////////////////////////////////////////////////
-//  struct AlphaNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//  enum CubeMapSide
+//////////////////////////////////////////////////////
 
-struct AlphaNode
+enum CubeMapSide
 {
-    std::shared_ptr<SceneNode> Node;
+    CubeMapSide_E       = 0,
+    CubeMapSide_W       = 1,
+    CubeMapSide_U       = 2,
+    CubeMapSide_D       = 3,
+    CubeMapSide_N       = 4,
+    CubeMapSide_S       = 5,
+    CubeMapSide_Count   = 6,
 };
 
-////////////////////////////////////////////////////
-//  class SkyNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//  class CubeMapNode
+//////////////////////////////////////////////////////
 
-class SkyNode : public SceneNode
+class CubeMapNode : public SceneNode
 {
 public:
-    SkyNode();
-    virtual ~SkyNode();
+    CubeMapNode();
+    virtual ~CubeMapNode();
 
     virtual void Render(Scene* pScene) override;
 
 private:
-    int                     m_VertexCount;
-    StrongVertexBufferPtr   m_VertexBuffer;
-    StrongVertexArrayPtr    m_VertexArray;
+    uint32_t                m_CubeMapSideVertCount;
 
-    StrongTexturePtr m_Textures[6];
+    uint32_t                m_VertCount;
+
+    StrongVertexArrayPtr    m_VertexArray;
+    StrongVertexBufferPtr   m_VertexBuffer;
+
+    StrongTexturePtr        m_Textures[CubeMapSide_Count];
 };
 
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //  class BillboardNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 class BillboardNode : public SceneNode
 {
 public:
-    BillboardNode();
+    BillboardNode(StrongTexturePtr& texture);
     virtual ~BillboardNode();
 
     virtual void Render(Scene* pScene) override;
 
 private:
-    int                     m_indicesCount;
-    StrongVertexBufferPtr   m_vertexBuffer;
-    StrongIndexBufferPtr    m_indexBuffer;
-    StrongVertexArrayPtr    m_vertexArray;
+    uint32_t                m_IndexCount;
+
+    StrongVertexArrayPtr    m_VertexArray;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongIndexBufferPtr    m_IndexBuffer;
+
+    StrongTexturePtr        m_Texture;
 };
 
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //  class TerrainNode
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 class TerrainNode : public SceneNode
 {
@@ -153,12 +167,17 @@ public:
 
     virtual void Render(Scene* pScene) override;
 
-    float GetHeight() { return m_Height; }
+    float HeightAt(float x, float z);
 
 private:
-    int                     m_indicesCount;
-    StrongVertexBufferPtr   m_vertexBuffer;
-    StrongIndexBufferPtr    m_indexBuffer;
-    StrongVertexArrayPtr    m_vertexArray;
-    float m_Height;
+    uint32_t                m_IndexCount;
+
+    StrongVertexArrayPtr    m_VertexArray;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongIndexBufferPtr    m_IndexBuffer;
+
+    int                     m_HeightMapWidth;
+    int                     m_HeightMapHeight;
+
+    std::vector<float>      m_HeightPointValues;
 };

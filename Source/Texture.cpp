@@ -4,9 +4,14 @@
 //  Texture Implementation
 ////////////////////////////////////////////////////
 
-Texture::Texture(uint32_t target)
+Texture::Texture(uint32_t target, uint32_t wrapping, uint32_t filtering)
 {
     glCreateTextures(target, 1, &m_TextureID);
+
+    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrapping);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrapping);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filtering);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
 Texture::~Texture()
@@ -14,14 +19,9 @@ Texture::~Texture()
     glDeleteTextures(1, &m_TextureID);
 }
 
-void Texture::LoadFromFile(const std::string& resource)
+void Texture::LoadResource(const std::string& resource)
 {
     stbi_set_flip_vertically_on_load(true);
-
-    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, channelCount;
     

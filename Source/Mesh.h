@@ -34,15 +34,17 @@ public:
     Mesh();
     ~Mesh();
 
-    void LoadFromFile(const std::string& resource);
+    void LoadResource(const std::string& name);
 
-    int GetVertexCount() { return m_VertexCount; }
+    uint32_t GetVertexCount() const { return m_VertCount; }
     const StrongVertexArrayPtr& GetVertexArray() const { return m_VertexArray; }
 
 private:
-    int                     m_VertexCount;
-    StrongVertexBufferPtr   m_VertexBuffer;
+    uint32_t                m_VertCount;
+
     StrongVertexArrayPtr    m_VertexArray;
+    StrongVertexBufferPtr   m_VertexBuffer;
+    StrongIndexBufferPtr    m_IndexBuffer;
 };
 
 typedef std::shared_ptr<Mesh> StrongMeshPtr;

@@ -9,6 +9,8 @@
 #include "SceneNodes.h"
 #include "Lights.h"
 
+extern      StrongShaderPtr     g_TerrainShader;
+
 constexpr int MAX_PARTICLES = 256;
 
 class Particles
@@ -39,7 +41,7 @@ private:
     std::vector<AlphaNode*> m_AlphaNodes;
     
     std::shared_ptr<CameraNode> m_Camera;
-    std::shared_ptr<SkyNode> m_SkyNode;
+    std::shared_ptr<CubeMapNode> m_CubeMap;
     std::shared_ptr<TerrainNode> m_TerrainNode;
 
     StrongUniformBufferPtr m_UniformBuffer;

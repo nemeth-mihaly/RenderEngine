@@ -2,12 +2,17 @@
 
 #include "Application.h"
 
+StrongShaderPtr     g_TerrainShader = nullptr;
+
 ////////////////////////////////////////////////////
 //  Scene Implementation
 ////////////////////////////////////////////////////
 
 Scene::Scene()
 {
+    g_TerrainShader.reset(new Shader());
+    g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
+
     /** Main Camera */
 
     m_Camera.reset(new CameraNode());
@@ -20,7 +25,7 @@ Scene::Scene()
     Material material;
     material.bUseTexture = true;
 
-    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode("Assets/Models/Monkey.obj", "Assets/Shaders/TexturedLit.progpipeline", "Assets/Textures/UvGrid.png"));
+    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(g_MonkeyMesh, g_TexturedLitShader, g_UvGridTexture));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
     
@@ -35,7 +40,7 @@ Scene::Scene()
     alphaMaterial.Emissive = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
     alphaMaterial.bUseTexture = true;
     
-    std::shared_ptr<BillboardNode> billboard(new BillboardNode());
+    std::shared_ptr<BillboardNode> billboard(new BillboardNode(g_SphereGlowTexture));
     billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
 
@@ -178,7 +183,7 @@ Scene::Scene()
 
     /** Sky */
 
-    m_SkyNode.reset(new SkyNode());
+    m_CubeMap.reset(new CubeMapNode());
 
     m_UniformBuffer.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
 
@@ -259,7 +264,7 @@ void Scene::Update(const float deltaTime)
     }
 
     glm::vec3 cameraTargetPos = m_Camera->m_TargetNode->GetPosition();
-    cameraTargetPos.y = m_TerrainNode->GetHeight() + 1.0f;
+    cameraTargetPos.y = m_TerrainNode->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
     m_Camera->m_TargetNode->SetPosition(cameraTargetPos);
 }
 
@@ -296,6 +301,27 @@ void Scene::Render()
         g_TexturedLitShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
 
+    g_TerrainShader->Bind();
+
+    for (uint32_t i = 0; i < m_LightNodes.size(); i++)
+    {
+        const std::string strIndex = std::to_string(i);
+
+        const Material& material = m_LightNodes[i]->GetMaterial();
+        const LightProperties& lightProperties = m_LightNodes[i]->GetProperties();
+
+        g_TerrainShader->SetUniform1i(("u_Lights[" + strIndex + "].Type"), static_cast<int>(lightProperties.Type));
+        g_TerrainShader->SetUniform3f(("u_Lights[" + strIndex + "].Position"), lightProperties.Position);
+        g_TerrainShader->SetUniform3f(("u_Lights[" + strIndex + "].Direction"), lightProperties.Direction);
+        g_TerrainShader->SetUniform4f(("u_Lights[" + strIndex + "].Ambient"), material.Ambient);
+        g_TerrainShader->SetUniform4f(("u_Lights[" + strIndex + "].Diffuse"), material.Diffuse);
+        g_TerrainShader->SetUniform4f(("u_Lights[" + strIndex + "].Specular"), material.Specular);
+        g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].Falloff"), lightProperties.Falloff);
+        g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].ConstantAttenuation"), lightProperties.ConstantAttenuation);
+        g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
+        g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
+    }
+
     for (const std::shared_ptr<SceneNode>& sceneNode : m_SceneNodes)
     {
         const float alpha = sceneNode->GetMaterial().Diffuse.a;
@@ -315,7 +341,7 @@ void Scene::Render()
 
     /** Sky Pass */
 
-    m_SkyNode->Render(this);
+    m_CubeMap->Render(this);
 
     /** Alpha Pass */
 

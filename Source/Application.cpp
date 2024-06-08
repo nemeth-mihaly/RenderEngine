@@ -12,7 +12,6 @@ StrongShaderPtr g_SkyShader = NULL;
 StrongShaderPtr g_BillboardShader = NULL;
 
 StrongTexturePtr g_DirtTexture = nullptr;
-StrongShaderPtr g_TerrainShader = nullptr;
 
 ////////////////////////////////////////////////////
 //  Application Implementation
@@ -79,17 +78,17 @@ bool Application::Initialize()
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
 
-    g_UvGridTexture.reset(new Texture(GL_TEXTURE_2D));
-    g_UvGridTexture->LoadFromFile("Assets/Textures/UvGrid.png");
+    g_UvGridTexture.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_UvGridTexture->LoadResource("Assets/Textures/UvGrid.png");
 
-    g_SphereGlowTexture.reset(new Texture(GL_TEXTURE_2D));
-    g_SphereGlowTexture->LoadFromFile("Assets/Textures/SphereGlow.png");
+    g_SphereGlowTexture.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_SphereGlowTexture->LoadResource("Assets/Textures/SphereGlow.png");
 
-    g_DirtTexture.reset(new Texture(GL_TEXTURE_2D));
-    g_DirtTexture->LoadFromFile("Assets/Textures/elwynndirtbase2.png");
+    g_DirtTexture.reset(new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR));
+    g_DirtTexture->LoadResource("Assets/Textures/elwynndirtbase2.png");
 
     g_MonkeyMesh.reset(new Mesh());
-    g_MonkeyMesh->LoadFromFile("Assets/Models/Monkey.obj");
+    g_MonkeyMesh->LoadResource("Assets/Models/Monkey.obj");
 
     g_TexturedLitShader.reset(new Shader());
     g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit_vert.glsl", "Assets/Shaders/TexturedLit_frag.glsl");
@@ -100,8 +99,8 @@ bool Application::Initialize()
     g_BillboardShader.reset(new Shader());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard_vert.glsl", "Assets/Shaders/Billboard_frag.glsl");
 
-    g_TerrainShader.reset(new Shader());
-    g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain_vert.glsl", "Assets/Shaders/Terrain_frag.glsl");
+    //g_TerrainShader.reset(new Shader());
+    //g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain_vert.glsl", "Assets/Shaders/Terrain_frag.glsl");
 
     m_pScene = new Scene();
 

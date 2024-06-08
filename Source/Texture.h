@@ -18,10 +18,10 @@
 class Texture
 {
 public:
-    Texture(uint32_t target);
+    Texture(uint32_t target, uint32_t wrapping, uint32_t filtering);
     ~Texture();
 
-    void LoadFromFile(const std::string& resource);
+    void LoadResource(const std::string& filename);
 
     void BindUnit(uint32_t unit = 0);
 

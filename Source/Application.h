@@ -25,7 +25,6 @@ extern StrongMeshPtr g_MonkeyMesh;
 extern StrongShaderPtr g_TexturedLitShader;
 extern StrongShaderPtr g_SkyShader;
 extern StrongShaderPtr g_BillboardShader;
-extern StrongShaderPtr g_TerrainShader;
 
 ////////////////////////////////////////////////////
 //  class Application

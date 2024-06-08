@@ -12,10 +12,10 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::LoadFromFile(const std::string& resource)
+void Mesh::LoadResource(const std::string& name)
 {
-    FILE* fp = fopen(resource.c_str(), "r");
-    assert(fp != NULL);
+    FILE* fp = fopen(name.c_str(), "r");
+    assert(fp != nullptr);
 
     std::vector<Vertex> vertices;
 
@@ -23,7 +23,7 @@ void Mesh::LoadFromFile(const std::string& resource)
     std::vector<glm::vec3>      vn;
     std::vector<glm::vec2>      vt;
 
-    while (true)
+    while (1)
     {
         char data[BUFSIZ];
         
@@ -34,7 +34,6 @@ void Mesh::LoadFromFile(const std::string& resource)
         {
             glm::vec3 pos;
             fscanf(fp, "%f %f %f\n", &pos.x, &pos.y, &pos.z);
-
             v.push_back(pos);
         }
         else
@@ -42,7 +41,6 @@ void Mesh::LoadFromFile(const std::string& resource)
         {
             glm::vec3 normal;
             fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-
             vn.push_back(normal);
         }
         else
@@ -50,53 +48,54 @@ void Mesh::LoadFromFile(const std::string& resource)
         {
             glm::vec2 uv;
             fscanf(fp, "%f %f\n", &uv.x, &uv.y);
-
             vt.push_back(uv);
         }
         else
         if (strcmp(data, "f") == 0)
         {
-            // [0]: v; [1]: vt; [2]: vn;
-            uint32_t FaceIndices1[3];
-            uint32_t FaceIndices2[3];
-            uint32_t FaceIndices3[3];
+            //  f = v -> vt -> vn
+
+            struct ObjFace
+            {
+                uint32_t    vIndex;
+                uint32_t    vtIndex;
+                uint32_t    vnIndex;
+            };
+
+            const uint32_t faceCount = 3;
+            ObjFace faces[faceCount];
 
             fscanf(
                 fp, 
                 "%u/%u/%u %u/%u/%u %u/%u/%u\n", 
-                &FaceIndices1[0], &FaceIndices1[1], &FaceIndices1[2],
-                &FaceIndices2[0], &FaceIndices2[1], &FaceIndices2[2], 
-                &FaceIndices3[0], &FaceIndices3[1], &FaceIndices3[2]
-            );
+                &faces[0].vIndex, &faces[0].vtIndex, &faces[0].vnIndex,
+                &faces[1].vIndex, &faces[1].vtIndex, &faces[1].vnIndex, 
+                &faces[2].vIndex, &faces[2].vtIndex, &faces[2].vnIndex);
 
-            auto GetVertexFromFace = [&v, &vn, &vt](uint32_t Indices[3])
+            for (uint32_t i = 0; i < faceCount; i++)
             {
+                ObjFace& face = faces[i];
+                --face.vIndex;
+                --face.vtIndex;
+                --face.vnIndex;
+
                 Vertex vertex;
-
-                vertex.Pos = v[(Indices[0] - 1)];
-                vertex.Normal = vn[(Indices[2] - 1)];
-                vertex.Uv = vt[(Indices[1] - 1)];  
-
-                return vertex;
-            };
-
-            vertices.push_back(GetVertexFromFace(FaceIndices1));
-            vertices.push_back(GetVertexFromFace(FaceIndices2));
-            vertices.push_back(GetVertexFromFace(FaceIndices3));
+                vertex.Pos = v[faces[i].vIndex]; vertex.Normal = vn[face.vnIndex]; vertex.Uv = vt[face.vtIndex];
+                vertices.push_back(vertex);
+            }
         }
     }
 
     fclose(fp);
 
-    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
-    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
-
     m_VertexArray.reset(new VertexArray());
-    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
     m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
-    m_VertexCount = vertices.size();
+    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
+    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
+    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
+    m_VertCount = vertices.size();
     vertices.clear();
 }
