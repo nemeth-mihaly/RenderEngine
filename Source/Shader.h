@@ -14,14 +14,32 @@
 #include "3rdParty/glm/gtc/type_ptr.hpp"
 
 ////////////////////////////////////////////////////
-//  class VertexArray
+//  class ShaderProgram
 ////////////////////////////////////////////////////
 
-class Shader
+class ShaderProgram
+{
+    friend class ProgramPipeline;
+
+public:
+    ShaderProgram(GLenum type);
+    ~ShaderProgram();
+
+    void LoadResource(const std::string& filepath);
+
+private:
+    GLuint      m_ShaderID;
+};
+
+////////////////////////////////////////////////////
+//  class ProgramPipeline
+////////////////////////////////////////////////////
+
+class ProgramPipeline
 {
 public:
-    Shader();
-    ~Shader();
+    ProgramPipeline();
+    ~ProgramPipeline();
 
     void LoadFromFile(const std::string& vertexShaderResource, const std::string& fragShaderResource);
 
@@ -50,4 +68,4 @@ private:
     uint32_t    m_ProgramID;
 };
 
-typedef std::shared_ptr<Shader> StrongShaderPtr;
+typedef std::shared_ptr<ProgramPipeline> StrongProgramPipelinePtr;

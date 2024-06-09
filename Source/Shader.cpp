@@ -1,18 +1,37 @@
 #include "Shader.h"
 
 ////////////////////////////////////////////////////
-//  Shader Implementation
+//  ShaderProgram Implementation
 ////////////////////////////////////////////////////
 
-Shader::Shader()
+ShaderProgram::ShaderProgram(GLenum type)
+{
+    m_ShaderID = glCreateShader(type);
+}
+
+ShaderProgram::~ShaderProgram()
+{
+    glDeleteShader(m_ShaderID);
+}
+
+void ShaderProgram::LoadResource(const std::string& filepath)
+{
+
+}
+
+////////////////////////////////////////////////////
+//  ProgramPipeline Implementation
+////////////////////////////////////////////////////
+
+ProgramPipeline::ProgramPipeline()
 {
 }
 
-Shader::~Shader()
+ProgramPipeline::~ProgramPipeline()
 {
 }
 
-void Shader::LoadFromFile(const std::string& vertexShaderResource, const std::string& fragShaderResource)
+void ProgramPipeline::LoadFromFile(const std::string& vertexShaderResource, const std::string& fragShaderResource)
 {
     auto Compile = [](const std::string& resource, uint32_t shaderType)
     {
@@ -62,53 +81,53 @@ void Shader::LoadFromFile(const std::string& vertexShaderResource, const std::st
     glDeleteShader(fragShaderID);
 }
 
-void Shader::Bind()
+void ProgramPipeline::Bind()
 {
     glUseProgram(m_ProgramID);
 }
 
-void Shader::SetUniformBlockBinding(uint32_t binding, const std::string& uniformBlockName)
+void ProgramPipeline::SetUniformBlockBinding(uint32_t binding, const std::string& uniformBlockName)
 {
     const uint32_t uniformBlockIndex = glGetUniformBlockIndex(m_ProgramID, uniformBlockName.c_str());
     glUniformBlockBinding(m_ProgramID, uniformBlockIndex, binding);
 }
 
-void Shader::SetUniform1b(const std::string& name, bool value)
+void ProgramPipeline::SetUniform1b(const std::string& name, bool value)
 {
     SetUniform1i(name, static_cast<int>(value));
 }
 
-void Shader::SetUniform1i(const std::string& name, int value)
+void ProgramPipeline::SetUniform1i(const std::string& name, int value)
 {
     glUniform1i(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform1ui(const std::string& name, uint32_t value)
+void ProgramPipeline::SetUniform1ui(const std::string& name, uint32_t value)
 {
     glUniform1ui(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform1f(const std::string& name, float value)
+void ProgramPipeline::SetUniform1f(const std::string& name, float value)
 {
     glUniform1f(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform3f(const std::string& name, const glm::vec3& value)
+void ProgramPipeline::SetUniform3f(const std::string& name, const glm::vec3& value)
 {
     glUniform3f(GetUniformLocation(name), value[0], value[1], value[2]);
 }
 
-void Shader::SetUniform4f(const std::string& name, const glm::vec4& value)
+void ProgramPipeline::SetUniform4f(const std::string& name, const glm::vec4& value)
 {
     glUniform4f(GetUniformLocation(name), value[0], value[1], value[2], value[3]);
 }
 
-void Shader::SetUniformMatrix4f(const std::string& name, const glm::mat4& value)
+void ProgramPipeline::SetUniformMatrix4f(const std::string& name, const glm::mat4& value)
 {
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-uint32_t Shader::GetUniformLocation(const std::string& name)
+uint32_t ProgramPipeline::GetUniformLocation(const std::string& name)
 {
     return glGetUniformLocation(m_ProgramID, name.c_str());
 }

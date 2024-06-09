@@ -1,9 +1,9 @@
 #include "Application.h"
 
 Application* g_pApp = NULL;
-StrongShaderPtr g_TexturedLitShader = NULL;
-StrongShaderPtr g_SkyShader = NULL;
-StrongShaderPtr g_BillboardShader = NULL;
+StrongProgramPipelinePtr g_TexturedLitShader = NULL;
+StrongProgramPipelinePtr g_SkyShader = NULL;
+StrongProgramPipelinePtr g_BillboardShader = NULL;
 
 ////////////////////////////////////////////////////
 //  Application Implementation
@@ -15,10 +15,10 @@ Application::Application()
 
     m_bRunning = false;
     
-    m_pWindow = NULL;
-    m_pContext = NULL;
+    m_pWindow = nullptr;
+    m_Context = nullptr;
 
-    m_pScene = NULL;
+    m_pScene = nullptr;
 }
 
 Application::~Application()
@@ -26,8 +26,8 @@ Application::~Application()
     if (m_pScene)
         delete m_pScene;
 
-    if (m_pContext)
-        SDL_GL_DeleteContext(m_pContext);
+    if (m_Context)
+        SDL_GL_DeleteContext(m_Context);
 
     if (m_pWindow)
         SDL_DestroyWindow(m_pWindow);
@@ -35,7 +35,7 @@ Application::~Application()
     SDL_Quit();
 
     if (g_pApp)
-        g_pApp = NULL;
+        g_pApp = nullptr;
 }
 
 bool Application::Initialize()
@@ -60,8 +60,8 @@ bool Application::Initialize()
     m_pWindow = SDL_CreateWindow("Render Engine | Testbed", 100, 100, 1280, 720, SDL_WINDOW_OPENGL);
     assert(m_pWindow != NULL);
 
-    m_pContext = SDL_GL_CreateContext(m_pWindow);
-    assert(m_pContext != NULL);
+    m_Context = SDL_GL_CreateContext(m_pWindow);
+    assert(m_Context != NULL);
 
     int bGladLoadGLResult = gladLoadGL();
     assert(bGladLoadGLResult != GL_FALSE);
@@ -70,13 +70,13 @@ bool Application::Initialize()
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
 
-    g_TexturedLitShader.reset(new Shader());
+    g_TexturedLitShader.reset(new ProgramPipeline());
     g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit.vert", "Assets/Shaders/TexturedLit.frag");
 
-    g_SkyShader.reset(new Shader());
+    g_SkyShader.reset(new ProgramPipeline());
     g_SkyShader->LoadFromFile("Assets/Shaders/Sky.vert", "Assets/Shaders/Sky.frag");
 
-    g_BillboardShader.reset(new Shader());
+    g_BillboardShader.reset(new ProgramPipeline());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard.vert", "Assets/Shaders/Billboard.frag");
 
     m_pScene = new Scene();

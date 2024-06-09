@@ -2,7 +2,7 @@
 
 #include "Application.h"
 
-StrongShaderPtr     g_TerrainShader = nullptr;
+StrongProgramPipelinePtr     g_TerrainShader = nullptr;
 
 ////////////////////////////////////////////////////
 //  Scene Implementation
@@ -10,7 +10,7 @@ StrongShaderPtr     g_TerrainShader = nullptr;
 
 Scene::Scene()
 {
-    g_TerrainShader.reset(new Shader());
+    g_TerrainShader.reset(new ProgramPipeline());
     g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
 
     /** Main Camera */

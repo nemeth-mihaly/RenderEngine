@@ -17,13 +17,15 @@ SceneNode::~SceneNode()
 
 void SceneNode::Update(Scene* pScene, const float deltaTime)
 {
+    (void)pScene; (void)deltaTime;
+
     const glm::mat4 idmat = glm::mat4(1.0f);
     m_WorldTransform = glm::translate(idmat, m_Position);
 }
 
 void SceneNode::Render(Scene* pScene)
 {
-    return;
+    (void)pScene;
 }
 
 ////////////////////////////////////////////////////
@@ -54,7 +56,7 @@ glm::mat4 CameraNode::WorldViewProjection()
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture)
+MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongProgramPipelinePtr& shader, const StrongTexturePtr& texture)
     : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
 {
 }
@@ -65,6 +67,8 @@ MeshNode::~MeshNode()
 
 void MeshNode::Render(Scene* pScene)
 {
+    (void)pScene;
+
     m_Shader->Bind();
 
     m_Shader->SetUniformMatrix4f("u_World", m_WorldTransform);
@@ -257,6 +261,8 @@ BillboardNode::~BillboardNode()
 
 void BillboardNode::Render(Scene* pScene)
 {
+    (void)pScene;
+
     g_BillboardShader->Bind();
 
     if (m_Material.bUseTexture)
@@ -284,9 +290,9 @@ TerrainNode::TerrainNode()
     const float dim = 1.0f;
     std::vector<Vertex> vertices;
 
-    for (uint32_t i = 0; i < m_HeightMapHeight; i++)
+    for (int i = 0; i < m_HeightMapHeight; i++)
     {
-        for (uint32_t j = 0; j < m_HeightMapWidth; j++)
+        for (int j = 0; j < m_HeightMapWidth; j++)
         {
             const long long heightMapDataOffset = (i * m_HeightMapWidth + j) * heightMapChannelCount;
             const uint8_t colorR = pHeightMapData[heightMapDataOffset + 0];
@@ -316,9 +322,9 @@ TerrainNode::TerrainNode()
 
     stbi_image_free(pHeightMapData);
 
-    for (uint32_t i = 0; i < m_HeightMapHeight; i++)
+    for (int i = 0; i < m_HeightMapHeight; i++)
     {
-        for (uint32_t j = 0; j < m_HeightMapWidth; j++)
+        for (int j = 0; j < m_HeightMapWidth; j++)
         {
             float hL = HeightAt((j - 1 + m_HeightMapHeight) % m_HeightMapHeight, i    );
             float hR = HeightAt((j + 1 + m_HeightMapHeight) % m_HeightMapHeight, i    );

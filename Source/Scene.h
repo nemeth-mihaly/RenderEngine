@@ -14,7 +14,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 
-extern      StrongShaderPtr     g_TerrainShader;
+extern      StrongProgramPipelinePtr     g_TerrainShader;
 
 constexpr int MAX_PARTICLES = 256;
 

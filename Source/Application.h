@@ -12,9 +12,9 @@
 #include "Shader.h"
 #include "Scene.h"
 
-extern StrongShaderPtr g_TexturedLitShader;
-extern StrongShaderPtr g_SkyShader;
-extern StrongShaderPtr g_BillboardShader;
+extern StrongProgramPipelinePtr g_TexturedLitShader;
+extern StrongProgramPipelinePtr g_SkyShader;
+extern StrongProgramPipelinePtr g_BillboardShader;
 
 ////////////////////////////////////////////////////
 //  class Application
@@ -36,7 +36,7 @@ private:
     bool    m_bRunning;
 
     SDL_Window*     m_pWindow;
-    SDL_GLContext   m_pContext;
+    SDL_GLContext   m_Context;
 
     bool        m_bKeyStates[SDL_NUM_SCANCODES];
     glm::vec2   m_CurrentMousePos;

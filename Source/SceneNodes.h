@@ -84,14 +84,14 @@ private:
 class MeshNode : public SceneNode
 {
 public:
-    MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture);
+    MeshNode(const StrongMeshPtr& mesh, const StrongProgramPipelinePtr& shader, const StrongTexturePtr& texture);
     virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
 
 private:
     StrongMeshPtr       m_Mesh;
-    StrongShaderPtr     m_Shader;
+    StrongProgramPipelinePtr     m_Shader;
     StrongTexturePtr    m_Texture;
 };
 
