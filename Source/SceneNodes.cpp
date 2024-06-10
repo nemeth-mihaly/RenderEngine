@@ -167,7 +167,7 @@ CubeMapNode::CubeMapNode()
     m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
-    const ssize_t vertexBufferSize = sizeof(Vertex) * vertices.size();
+    const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
     m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
@@ -241,13 +241,13 @@ BillboardNode::BillboardNode(const StrongTexturePtr& texture)
     m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
-    const ssize_t vertexBufferSize = sizeof(Vertex) * vertices.size();
+    const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
     m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     vertices.clear();
 
-    const ssize_t indexBufferSize = sizeof(uint32_t) * indices.size();
+    const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
     m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
     m_IndexBuffer->MapMemory(0, indexBufferSize, indices.data());
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
@@ -356,13 +356,13 @@ TerrainNode::TerrainNode()
     m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
-    const ssize_t vertexBufferSize = sizeof(Vertex) * vertices.size();
+    const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
     m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     vertices.clear();
 
-    const ssize_t indexBufferSize = sizeof(uint32_t) * indices.size();
+    const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
     m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
     m_IndexBuffer->MapMemory(0, indexBufferSize, indices.data());
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
