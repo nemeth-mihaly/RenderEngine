@@ -26,6 +26,10 @@ Application::~Application()
     if (m_pScene)
         delete m_pScene;
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
     if (m_Context)
         SDL_GL_DeleteContext(m_Context);
 
@@ -70,6 +74,18 @@ bool Application::Initialize()
     m_CurrentMousePos = glm::vec2(0.0f, 0.0f);
     m_PrevMousePos = m_CurrentMousePos;
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_Context);
+    ImGui_ImplOpenGL3_Init();
+
     g_TexturedLitShader.reset(new ProgramPipeline());
     g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit.vert", "Assets/Shaders/TexturedLit.frag");
 
@@ -85,6 +101,17 @@ bool Application::Initialize()
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 
+    stbi_set_flip_vertically_on_load(0);
+    pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
+
+    int x = (HeightMapWidth / 2), y = (HeightMapHeight / 2);
+    
+    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0];
+    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1];
+    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2];
+
+    stbi_image_free(pHeightMapData);
+
     m_bRunning = true;
     
     return true;
@@ -94,6 +121,10 @@ void Application::RunLoop()
 {
     uint64_t prevTime = (uint64_t)SDL_GetPerformanceCounter();
 
+    float frameTimer = 0.0f;
+    int frameCount = 0;
+    int fps;
+
     while (m_bRunning)
     {
         ProcessEvents();
@@ -101,6 +132,16 @@ void Application::RunLoop()
         uint64_t currentTime = (uint64_t)SDL_GetPerformanceCounter();
         float deltaTime = ((float)(currentTime - prevTime) / (float)SDL_GetPerformanceFrequency());
         prevTime = currentTime;
+
+        frameTimer += deltaTime;
+        frameCount++;
+
+        if (frameTimer >= 1.0f)
+        {
+            frameTimer = 0.0f;
+            fps = frameCount;
+            frameCount = 0;
+        }
 
         /**  */
 
@@ -224,6 +265,22 @@ void Application::RunLoop()
 
         m_pScene->Render();
 
+        // (After event loop)
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
+        // Show metrics
+        ImGui::Begin("Metrics");
+        ImGui::Text("Application average %.3f ms/frame (%i FPS)", 1000.0f / (float)fps, fps);
+        ImGui::Text("Current Color value: %i", Colorv);
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         SDL_GL_SetSwapInterval(0);
         SDL_GL_SwapWindow(m_pWindow);
     }
@@ -235,6 +292,9 @@ void Application::ProcessEvents()
 
     while (SDL_PollEvent(&event))
     {
+        // (Where your code calls SDL_PollEvent())
+        ImGui_ImplSDL2_ProcessEvent(&event); // Forward your event to backend
+
         switch (event.type)
         {
             case SDL_QUIT:
@@ -256,6 +316,33 @@ void Application::ProcessEvents()
                         printf("Debug camera enabled.\n");
                     else
                         printf("Debug camera disabled.\n");
+                }
+                else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE)
+                {
+                    stbi_set_flip_vertically_on_load(0);
+                    pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
+
+                    int x = (HeightMapWidth / 2), y = (HeightMapHeight / 2);
+
+                    pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0] = Colorv;
+                    pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1] = Colorv;
+                    pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2] = Colorv;
+
+                    stbi_flip_vertically_on_write(0);
+                    stbi_write_png("Assets/Heightmaps/HeightMap1.png", HeightMapWidth, HeightMapHeight, HeightMapChannelCount, pHeightMapData, (HeightMapWidth * HeightMapChannelCount));
+                    stbi_image_free(pHeightMapData);
+
+                    m_pScene->ReloadTerrain();
+                }
+                else if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+                {
+                    if (Colorv < UINT8_MAX)
+                        ++Colorv;
+                }
+                else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+                {
+                    if (Colorv > 0)
+                        --Colorv;
                 }
                 else
                     m_bKeyStates[event.key.keysym.scancode] = true;

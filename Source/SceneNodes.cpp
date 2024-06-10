@@ -284,6 +284,10 @@ void BillboardNode::Render(Scene* pScene)
 
 TerrainNode::TerrainNode()
 {
+    printf("Generating terrain..\n");
+
+    stbi_set_flip_vertically_on_load(0);
+
     int heightMapChannelCount;
     uint8_t* pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &m_HeightMapWidth, &m_HeightMapHeight, &heightMapChannelCount, 0);
 
@@ -372,6 +376,7 @@ TerrainNode::TerrainNode()
 
 TerrainNode::~TerrainNode()
 {
+    printf("Destroying terrain..\n");
 }
 
 void TerrainNode::Render(Scene* pScene)

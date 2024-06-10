@@ -46,8 +46,8 @@ Scene::Scene()
 
     m_SceneNodes.push_back(billboard);
 
-    m_TerrainNode.reset(new TerrainNode());
-    m_SceneNodes.push_back(m_TerrainNode);
+    m_Terrain.reset(new TerrainNode());
+    m_SceneNodes.push_back(m_Terrain);
 
     /** Directional Light */
 
@@ -184,7 +184,7 @@ void Scene::Update(const float deltaTime)
     */
 
     glm::vec3 cameraTargetPos = m_Camera->m_TargetNode->GetPosition();
-    cameraTargetPos.y = m_TerrainNode->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
+    cameraTargetPos.y = m_Terrain->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
     m_Camera->m_TargetNode->SetPosition(cameraTargetPos);
 }
 
@@ -350,4 +350,16 @@ StrongTexturePtr Scene::GetTexture(const std::string& name)
     }
 
     return texture;
+}
+
+void Scene::ReloadTerrain()
+{
+    for (std::list<std::shared_ptr<SceneNode>>::iterator i = m_SceneNodes.begin(); i != m_SceneNodes.end(); i++)
+    {
+        if ((*i) == m_Terrain)
+            i = m_SceneNodes.erase(i);
+    }
+
+    m_Terrain.reset(new TerrainNode());
+    m_SceneNodes.push_back(m_Terrain);
 }

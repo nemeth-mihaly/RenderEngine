@@ -9,6 +9,13 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
+#include "3rdParty/stb/stb_image.h"
+#include "3rdParty/stb/stb_image_write.h"
+
+#include "3rdParty/imgui/imgui.h"
+#include "3rdParty/imgui/imgui_impl_sdl2.h"
+#include "3rdParty/imgui/imgui_impl_opengl3.h"
+
 #include "Shader.h"
 #include "Scene.h"
 
@@ -28,6 +35,12 @@ public:
 
     bool Initialize();
     void RunLoop();    
+
+    uint8_t     Colorv;
+    int         HeightMapWidth;
+    int         HeightMapHeight;
+    int         HeightMapChannelCount;
+    uint8_t*    pHeightMapData;
 
 private:
     void ProcessEvents();

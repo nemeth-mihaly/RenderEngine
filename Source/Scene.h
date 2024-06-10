@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <cassert>
 #include <memory>
+#include <algorithm>
 #include <string>
+#include <list>
 #include <vector>
 #include <unordered_map>
 
@@ -41,19 +43,21 @@ public:
     StrongMeshPtr GetMesh(const std::string& name);
     StrongTexturePtr GetTexture(const std::string& name);
 
+    void ReloadTerrain();
+
     std::shared_ptr<CameraNode>& GetCamera() { return m_Camera; }
 
 private:
     std::unordered_map<std::string, StrongMeshPtr> m_Meshes;
     std::unordered_map<std::string, StrongTexturePtr> m_Textures;
 
-    std::vector<std::shared_ptr<SceneNode>> m_SceneNodes;
+    std::list<std::shared_ptr<SceneNode>> m_SceneNodes;
     std::vector<std::shared_ptr<LightNode>> m_LightNodes;
     std::vector<AlphaNode*> m_AlphaNodes;
     
     std::shared_ptr<CameraNode> m_Camera;
     std::shared_ptr<CubeMapNode> m_CubeMap;
-    std::shared_ptr<TerrainNode> m_TerrainNode;
+    std::shared_ptr<TerrainNode> m_Terrain;
 
     StrongUniformBufferPtr m_UniformBufferMatrices;
     
