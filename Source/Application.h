@@ -23,9 +23,9 @@ extern StrongProgramPipelinePtr g_TexturedLitShader;
 extern StrongProgramPipelinePtr g_SkyShader;
 extern StrongProgramPipelinePtr g_BillboardShader;
 
-////////////////////////////////////////////////////
-//  class Application
-////////////////////////////////////////////////////
+//---------------------------------------------------------
+// class Application
+//---------------------------------------------------------
 
 class Application
 {
@@ -43,24 +43,49 @@ public:
     uint8_t*    pHeightMapData;
 
 private:
-    void ProcessEvents();
+    void ProcessMessages();
+    bool OnMsgProc(const SDL_Event& event);
+    bool OnImGUIMsgProc(const SDL_Event& event);
+
+    bool OnKeyDown(int key);
+    bool OnKeyUp(int key);
+    bool OnMouseMove(const glm::ivec2& pos);
+    bool OnMouseButtonDown(int button);
+    bool OnMouseButtonUp(int button);
+
+    void Update(const float deltaTime);
+    void UpdateMovementController(const float deltaTime);
+
+    void Render();
+    void ImGUIRender();
 
 private:
-    bool    m_bRunning;
+    bool            m_bRunning;
 
     SDL_Window*     m_pWindow;
     SDL_GLContext   m_Context;
 
-    bool        m_bKeyStates[SDL_NUM_SCANCODES];
-    glm::vec2   m_CurrentMousePos;
-    glm::vec2   m_PrevMousePos;
+    uint64_t        m_currentTime;
+    uint64_t        m_lastTime;
 
-    Scene*      m_pScene;
+    float           m_deltaTime;
 
-    bool        m_bDebugCameraEnabled = false;
-    bool        m_bCameraMoving;
-    float       m_Yaw;
-    float       m_Pitch;
+    float           m_fpsTimer;
+    int             m_fpsCounter;
+    int             m_fps;
+
+    static const int MAX_KEYS = 512;
+    bool            m_bKeys[MAX_KEYS];
+
+    glm::vec2       m_currentMousePos;
+    glm::vec2       m_lastMousePos;
+
+    Scene*          m_pScene;
+
+    bool            m_bDebugCameraEnabled = false;
+    bool            m_bCameraMoving;
+    float           m_Yaw;
+    float           m_Pitch;
 };
 
 extern Application* g_pApp;

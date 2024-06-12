@@ -1,0 +1,7 @@
+C:/Dev/RenderEngine/Temp/CMakeFiles/Engine.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/edit_cache.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/rebuild_cache.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/list_install_components.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/install.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/install/local.dir
+C:/Dev/RenderEngine/Temp/CMakeFiles/install/strip.dir
