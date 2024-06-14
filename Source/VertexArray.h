@@ -9,9 +9,9 @@
 
 #include "Buffers.h"
 
-////////////////////////////////////////////////////
-//  enum VertexArrayInputRate
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// enum VertexArrayInputRate
+//-----------------------------------------------------------------------------
 
 enum VertexArrayInputRate
 {
@@ -19,9 +19,9 @@ enum VertexArrayInputRate
     VertexArrayInputRate_Instance    = 1
 };
 
-////////////////////////////////////////////////////
-//  class VertexArray
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// class VertexArray
+//-----------------------------------------------------------------------------
 
 class VertexArray
 {
@@ -31,13 +31,13 @@ public:
 
     void Bind() const;
 
-    void SetVertexBuffer(uint32_t binding, StrongVertexBufferPtr& vertexBuffer, int stride, uint32_t inputRate);
+    void SetVertexBuffer(GLuint binding, StrongVertexBufferPtr& vertexBuffer, GLsizei stride, GLuint inputRate);
     void SetIndexBuffer(StrongIndexBufferPtr& indexBuffer);
 
-    void SetVertexAttribute(uint32_t binding, uint32_t location, int size, uint32_t type, uint32_t offset);
+    void SetVertexAttribute(GLuint binding, GLuint location, GLint size, GLenum type, GLuint offset);
 
 public:
-   uint32_t   m_ArrayID;
+   GLuint   m_arrayID;
 };
 
 typedef std::shared_ptr<VertexArray> StrongVertexArrayPtr;

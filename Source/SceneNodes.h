@@ -21,6 +21,8 @@ class Scene;
 class SceneNode
 {
 public:
+    std::string m_name;
+
     SceneNode();
     virtual ~SceneNode();
 
@@ -28,7 +30,7 @@ public:
     virtual void Render(Scene* pScene);
 
     void SetPosition(const glm::vec3& position) { m_Position = position; }
-    const glm::vec3& GetPosition() const { return m_Position; }
+    glm::vec3& GetPosition() { return m_Position; }
 
     void SetMaterial(const Material& material) { m_Material = material; }
     const Material& GetMaterial() const { return m_Material; }
@@ -84,14 +86,14 @@ private:
 class MeshNode : public SceneNode
 {
 public:
-    MeshNode(const StrongMeshPtr& mesh, const StrongProgramPipelinePtr& shader, const StrongTexturePtr& texture);
+    MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture);
     virtual ~MeshNode();
 
     virtual void Render(Scene* pScene);
 
 private:
     StrongMeshPtr       m_Mesh;
-    StrongProgramPipelinePtr     m_Shader;
+    StrongShaderPtr     m_Shader;
     StrongTexturePtr    m_Texture;
 };
 

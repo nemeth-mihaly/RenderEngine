@@ -2,7 +2,7 @@
 
 #include "Application.h"
 
-StrongProgramPipelinePtr     g_TerrainShader = nullptr;
+StrongShaderPtr     g_TerrainShader = nullptr;
 
 ////////////////////////////////////////////////////
 //  Scene Implementation
@@ -10,13 +10,14 @@ StrongProgramPipelinePtr     g_TerrainShader = nullptr;
 
 Scene::Scene()
 {
-    g_TerrainShader.reset(new ProgramPipeline());
+    g_TerrainShader.reset(new Shader());
     g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
 
     /** Main Camera */
 
     m_Camera.reset(new CameraNode());
     assert(m_Camera != NULL);
+    m_Camera->m_name = "Camera";
 
     m_SceneNodes.push_back(m_Camera);
 
@@ -28,6 +29,7 @@ Scene::Scene()
     std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_TexturedLitShader, GetTexture("Assets/Textures/UvGrid.png")));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
+    suzanneTheMonkey->m_name = "Monkey";
     
     m_SceneNodes.push_back(suzanneTheMonkey);
 
@@ -43,10 +45,12 @@ Scene::Scene()
     std::shared_ptr<BillboardNode> billboard(new BillboardNode(GetTexture("Assets/Textures/SphereGlow.png")));
     billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
+    billboard->m_name = "Fake Glow";
 
     m_SceneNodes.push_back(billboard);
 
     m_Terrain.reset(new TerrainNode());
+    m_Terrain->m_name = "Terrain";
     m_SceneNodes.push_back(m_Terrain);
 
     /** Directional Light */
@@ -56,7 +60,7 @@ Scene::Scene()
     DirectionalLightProperties.Direction = glm::vec3(1.0f, -1.0f, 1.3f);
 
     std::shared_ptr<LightNode> DirectionalLight(new LightNode(DirectionalLightProperties));
-
+    DirectionalLight->m_name = "Directional Light";
     m_SceneNodes.push_back(DirectionalLight);
     m_LightNodes.push_back(DirectionalLight);
 
@@ -71,6 +75,7 @@ Scene::Scene()
 
     std::shared_ptr<LightNode> PointLight(new LightNode(PointLightProperties));
     PointLight->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
+    PointLight->m_name = "Point Light";
 
     m_SceneNodes.push_back(PointLight);
     m_LightNodes.push_back(PointLight);
@@ -89,6 +94,7 @@ Scene::Scene()
 
     std::shared_ptr<LightNode> SpotLight(new LightNode(SpotLightProperties));
     SpotLight->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
+    SpotLight->m_name = "Spot Light";
 
     m_SceneNodes.push_back(SpotLight);
     m_LightNodes.push_back(SpotLight);
@@ -104,6 +110,7 @@ Scene::Scene()
     g_SkyShader->SetUniformBlockBinding(0, "Matrices");
     g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
     g_TerrainShader->SetUniformBlockBinding(0, "Matrices");
+    g_pShader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
 
     g_TexturedLitShader->SetUniformBlockBinding(1, "Lighting");
     g_TerrainShader->SetUniformBlockBinding(1, "Lighting");

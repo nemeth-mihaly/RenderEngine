@@ -56,7 +56,7 @@ glm::mat4 CameraNode::WorldViewProjection()
 //  MeshNode Implementation
 ////////////////////////////////////////////////////
 
-MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongProgramPipelinePtr& shader, const StrongTexturePtr& texture)
+MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture)
     : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
 {
 }
@@ -310,10 +310,10 @@ TerrainNode::TerrainNode()
             const uint32_t magic = 16'777'216;
             
             float height = colorRGB / (float)magic;
-            height *= 40.0f;
+            height *= 255.0f;
 
             const float x = ((-m_HeightMapWidth / 2.0f) + j) * dim;
-            const float y = height - 25.0f;
+            const float y = height - 100.0f;
             const float z = ((-m_HeightMapHeight / 2.0f) + i) * dim;
 
             m_HeightPointValues.push_back(y);
@@ -335,7 +335,7 @@ TerrainNode::TerrainNode()
             float hD = HeightAt(j    , (i - 1 + m_HeightMapHeight) % m_HeightMapHeight);
             float hU = HeightAt(j    , (i + 1 + m_HeightMapHeight) % m_HeightMapHeight);
 
-            vertices[i * m_HeightMapWidth + j].Normal = glm::normalize(glm::vec3(hL - hR, dim * 10.0f, hD - hU));
+            vertices[i * m_HeightMapWidth + j].Normal = glm::normalize(glm::vec3(hL - hR, dim * 4.0f, hD - hU));
         }
     }
 

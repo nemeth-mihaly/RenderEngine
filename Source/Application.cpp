@@ -3,13 +3,15 @@
 Application* g_pApp = nullptr;
 
 
-StrongProgramPipelinePtr g_TexturedLitShader = NULL;
-StrongProgramPipelinePtr g_SkyShader = NULL;
-StrongProgramPipelinePtr g_BillboardShader = NULL;
+StrongShaderPtr g_TexturedLitShader = NULL;
+StrongShaderPtr g_SkyShader = NULL;
+StrongShaderPtr g_BillboardShader = NULL;
 
-//---------------------------------------------------------
+StrongShaderPtr g_pShader_UnlitColored = nullptr;
+
+//-----------------------------------------------------------------------------
 // Application Implementation
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 Application::Application()
 {
@@ -24,10 +26,6 @@ Application::Application()
     m_lastTime = 0;
     
     m_deltaTime = 0;
-
-    m_fpsTimer = 0;
-    m_fpsCounter = 0;
-    m_fps = 0;
 
     m_pScene = nullptr;
 }
@@ -98,14 +96,19 @@ bool Application::Initialize()
     ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_Context);
     ImGui_ImplOpenGL3_Init();
 
-    g_TexturedLitShader.reset(new ProgramPipeline());
-    g_TexturedLitShader->LoadFromFile("Assets/Shaders/TexturedLit.vert", "Assets/Shaders/TexturedLit.frag");
+    g_TexturedLitShader.reset(new Shader({ 
+        _ShaderStage(GL_VERTEX_SHADER,      "Assets/Shaders/TexturedLit.vert"), 
+        _ShaderStage(GL_FRAGMENT_SHADER,    "Assets/Shaders/TexturedLit.frag") 
+    }));
 
-    g_SkyShader.reset(new ProgramPipeline());
+    g_SkyShader.reset(new Shader());
     g_SkyShader->LoadFromFile("Assets/Shaders/Sky.vert", "Assets/Shaders/Sky.frag");
 
-    g_BillboardShader.reset(new ProgramPipeline());
+    g_BillboardShader.reset(new Shader());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard.vert", "Assets/Shaders/Billboard.frag");
+
+    g_pShader_UnlitColored.reset(new Shader());
+    g_pShader_UnlitColored->LoadFromFile("Assets/Shaders/UnlitColored.vert", "Assets/Shaders/UnlitColored.frag");
 
     m_pScene = new Scene();
 
@@ -123,6 +126,8 @@ bool Application::Initialize()
     Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2];
 
     stbi_image_free(pHeightMapData);
+
+    // m_brush.Load();
 
     m_bRunning = true;
     
@@ -143,17 +148,6 @@ void Application::RunLoop()
 
         Update(m_deltaTime);
         Render();
-
-        m_fpsTimer += m_deltaTime;
-        m_fpsCounter++;
-
-        if (m_fpsTimer >= 1.0f)
-        {
-            m_fpsTimer = 0.0f;
-
-            m_fps = m_fpsCounter;
-            m_fpsCounter = 0;
-        }
     }
 }
 
@@ -247,18 +241,19 @@ bool Application::OnKeyDown(int key)
 
         case SDL_SCANCODE_SPACE:
         {
-            stbi_set_flip_vertically_on_load(0);
-            pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
+            //stbi_set_flip_vertically_on_load(0);
+            //pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
 
-            int x = (HeightMapWidth / 2), y = (HeightMapHeight / 2);
+            //int x = (HeightMapWidth / 2);
+            //int y = (HeightMapHeight / 2);
 
-            pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0] = Colorv;
-            pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1] = Colorv;
-            pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2] = Colorv;
+            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0] = Colorv;
+            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1] = Colorv;
+            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2] = Colorv;
 
-            stbi_flip_vertically_on_write(0);
-            stbi_write_png("Assets/Heightmaps/HeightMap1.png", HeightMapWidth, HeightMapHeight, HeightMapChannelCount, pHeightMapData, (HeightMapWidth * HeightMapChannelCount));
-            stbi_image_free(pHeightMapData);
+            //stbi_flip_vertically_on_write(0);
+            //stbi_write_png("Assets/Heightmaps/HeightMap1.png", HeightMapWidth, HeightMapHeight, HeightMapChannelCount, pHeightMapData, (HeightMapWidth * HeightMapChannelCount));
+            //stbi_image_free(pHeightMapData);
 
             m_pScene->ReloadTerrain();
 
@@ -329,6 +324,9 @@ void Application::Update(const float deltaTime)
 {
     UpdateMovementController(deltaTime);
     m_pScene->Update(deltaTime);
+
+    m_performanceInfoControl.Update(deltaTime);
+    // m_brush.Update(deltaTime);
 }
 
 void Application::UpdateMovementController(const float deltaTime)
@@ -455,6 +453,7 @@ void Application::Render()
     // Start the frame.
 
     m_pScene->Render();
+    // m_brush.Render();
     ImGUIRender();
 
     // End the frame.
@@ -472,11 +471,38 @@ void Application::ImGUIRender()
     // Show demo.
     ImGui::ShowDemoWindow();
 
-    // Show metrics.
-    ImGui::Begin("Metrics");
-    ImGui::Text("Application average %.3f ms/frame (%i FPS)", 1000.0f / (float)m_fps, m_fps);
-    ImGui::Text("Current Color value: %i", Colorv);
+    // Show Node Control.
+
+    ImGui::Begin("Nodes");
+
+    static std::shared_ptr<SceneNode> selected = nullptr;
+
+    int n = 0;
+    for (std::shared_ptr<SceneNode>& node : m_pScene->GetSceneNodes())
+    {
+        char name[120];
+        sprintf_s(name, "%s %d", node->m_name.c_str(), n);
+
+        if (ImGui::Selectable(name, selected == node))
+        {
+            selected = node;
+        }
+
+        ++n;
+    }
+    
+    ImGui::Separator();
+
+    // Property Editor.
+    if (selected)
+    {
+        ImGui::SeparatorText("Transform");
+        ImGui::InputFloat3("Position", glm::value_ptr(selected->GetPosition()));
+    }
+
     ImGui::End();
+
+    m_performanceInfoControl.Render();
 
     // End the Dear ImGui frame
     ImGui::Render();

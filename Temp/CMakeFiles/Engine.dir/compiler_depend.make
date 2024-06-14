@@ -2224,10 +2224,13 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -2237,13 +2240,20 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/list.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
@@ -2251,6 +2261,7 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/node_handle.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -2278,6 +2289,8 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uniform_int_dist.h \
@@ -2300,6 +2313,7 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -2310,19 +2324,26 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/list \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -2341,10 +2362,15 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/c++/13.2.0/unordered_map \
   C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -2389,6 +2415,7 @@ CMakeFiles/Engine.dir/Source/Application.cpp.obj: C:/Dev/RenderEngine/Source/App
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/include/winapifamily.h \
   C:/MSYS64/ucrt64/include/winsdkver.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/adxintrin.h \
@@ -2825,10 +2852,13 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -2838,13 +2868,20 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/list.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
@@ -2852,6 +2889,7 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/node_handle.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -2879,6 +2917,8 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uniform_int_dist.h \
@@ -2901,6 +2941,7 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -2911,19 +2952,26 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/list \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -2942,10 +2990,15 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/unordered_map \
   C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -2985,6 +3038,7 @@ CMakeFiles/Engine.dir/Source/Lights.cpp.obj: C:/Dev/RenderEngine/Source/Lights.c
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/limits.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/mm_malloc.h \
@@ -3877,10 +3931,13 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -3890,13 +3947,20 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/list.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
@@ -3904,6 +3968,7 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/node_handle.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -3931,6 +3996,8 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uniform_int_dist.h \
@@ -3953,6 +4020,7 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -3963,19 +4031,26 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/list \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -3994,10 +4069,15 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/c++/13.2.0/unordered_map \
   C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -4042,6 +4122,7 @@ CMakeFiles/Engine.dir/Source/Scene.cpp.obj: C:/Dev/RenderEngine/Source/Scene.cpp
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/include/winapifamily.h \
   C:/MSYS64/ucrt64/include/winsdkver.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/adxintrin.h \
@@ -4421,10 +4502,13 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -4434,13 +4518,20 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/list.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
@@ -4448,6 +4539,7 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/node_handle.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -4475,6 +4567,8 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uniform_int_dist.h \
@@ -4497,6 +4591,7 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -4507,19 +4602,26 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/list \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -4538,10 +4640,15 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/c++/13.2.0/unordered_map \
   C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -4586,6 +4693,7 @@ CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj: C:/Dev/RenderEngine/Source/Scen
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/include/winapifamily.h \
   C:/MSYS64/ucrt64/include/winsdkver.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/adxintrin.h \
@@ -4897,10 +5005,13 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -4908,16 +5019,24 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/move.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -4931,6 +5050,7 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/specfun.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/std_abs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_algobase.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_bvector.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_construct.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_function.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_iterator.h \
@@ -4940,12 +5060,16 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_raw_storage_iter.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/unique_ptr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uses_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uses_allocator_args.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/utility.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/vector.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cassert \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cerrno \
@@ -4959,6 +5083,7 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -4969,17 +5094,24 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -4995,11 +5127,17 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/c++/13.2.0/tuple \
   C:/MSYS64/ucrt64/include/c++/13.2.0/type_traits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/typeinfo \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -5039,6 +5177,7 @@ CMakeFiles/Engine.dir/Source/Shader.cpp.obj: C:/Dev/RenderEngine/Source/Shader.c
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/limits.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/mm_malloc.h \
@@ -5579,10 +5718,13 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_base.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/atomic_lockfree_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/char_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/concept_check.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cpp_type_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h \
@@ -5592,13 +5734,20 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_defines.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functexcept.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/functional_hash.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/invoke.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/list.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memory_resource.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h \
@@ -5606,6 +5755,7 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/node_handle.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream_insert.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/postypes.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/predefined_ops.h \
@@ -5633,6 +5783,8 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_uninitialized.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_vector.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/string_view.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/bits/uniform_int_dist.h \
@@ -5655,6 +5807,7 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstdlib \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cstring \
   C:/MSYS64/ucrt64/include/c++/13.2.0/cwchar \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/assertions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/debug/debug.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/exception \
@@ -5665,19 +5818,26 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/numeric_traits.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/string_conversions.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/ext/type_traits.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/fstream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/initializer_list \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ios \
   C:/MSYS64/ucrt64/include/c++/13.2.0/iosfwd \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/istream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/limits \
   C:/MSYS64/ucrt64/include/c++/13.2.0/list \
   C:/MSYS64/ucrt64/include/c++/13.2.0/memory \
   C:/MSYS64/ucrt64/include/c++/13.2.0/new \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/ostream \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_memory_defs.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/pstl_config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept \
   C:/MSYS64/ucrt64/include/c++/13.2.0/stdlib.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string \
   C:/MSYS64/ucrt64/include/c++/13.2.0/string_view \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/system_error \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/bessel_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/beta_function.tcc \
   C:/MSYS64/ucrt64/include/c++/13.2.0/tr1/ell_integral.tcc \
@@ -5696,10 +5856,15 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/c++/13.2.0/unordered_map \
   C:/MSYS64/ucrt64/include/c++/13.2.0/vector \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
@@ -5744,6 +5909,7 @@ CMakeFiles/Engine.dir/Source/main.cpp.obj: C:/Dev/RenderEngine/Source/main.cpp \
   C:/MSYS64/ucrt64/include/time.h \
   C:/MSYS64/ucrt64/include/vadefs.h \
   C:/MSYS64/ucrt64/include/wchar.h \
+  C:/MSYS64/ucrt64/include/wctype.h \
   C:/MSYS64/ucrt64/include/winapifamily.h \
   C:/MSYS64/ucrt64/include/winsdkver.h \
   C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/adxintrin.h \
@@ -6118,6 +6284,8 @@ C:/MSYS64/ucrt64/include/assert.h:
 
 C:/MSYS64/ucrt64/include/glm/detail/func_vector_relational.inl:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/streambuf:
+
 C:/Dev/RenderEngine/Source/3rdParty/glm/ext/quaternion_float.hpp:
 
 C:/MSYS64/ucrt64/include/fileapi.h:
@@ -6228,6 +6396,8 @@ C:/MSYS64/ucrt64/include/playsoundapi.h:
 
 C:/MSYS64/ucrt64/include/poppack.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf_iterator.h:
+
 C:/MSYS64/ucrt64/include/processenv.h:
 
 C:/MSYS64/ucrt64/include/processthreadsapi.h:
@@ -6275,6 +6445,8 @@ C:/MSYS64/ucrt64/include/psdk_inc/intrin-impl.h:
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/new_allocator.h:
 
 C:/MSYS64/ucrt64/include/glm/mat3x4.hpp:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/ext/matrix_double4x3_precision.hpp:
 
@@ -6558,6 +6730,8 @@ C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/adxintrin.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/string:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.h:
+
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/amxbf16intrin.h:
 
 C:/MSYS64/ucrt64/include/glm/detail/type_mat4x2.hpp:
@@ -6702,6 +6876,8 @@ C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h:
 
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/cldemoteintrin.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h:
+
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/clflushoptintrin.h:
 
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/clzerointrin.h:
@@ -6798,6 +6974,8 @@ C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stddef.h:
 
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/ios:
+
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/syslimits.h:
 
 C:/MSYS64/ucrt64/include/glm/ext/vector_bool2_precision.hpp:
@@ -6827,6 +7005,8 @@ C:/MSYS64/ucrt64/include/glm/packing.hpp:
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/xopintrin.h:
 
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/xsaveintrin.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/fstream:
 
 C:/MSYS64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/xsaveoptintrin.h:
 
@@ -7032,6 +7212,8 @@ C:/Dev/RenderEngine/Source/3rdParty/glm/detail/type_mat3x4.inl:
 
 C:/MSYS64/ucrt64/include/glm/ext/matrix_float2x2_precision.hpp:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/basic_file.h:
+
 C:/MSYS64/ucrt64/include/glm/ext/matrix_float2x3_precision.hpp:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/gtc/vec1.hpp:
@@ -7058,6 +7240,8 @@ C:/Dev/RenderEngine/Source/3rdParty/glm/ext/vector_uint4.hpp:
 
 C:/MSYS64/ucrt64/include/glm/ext/matrix_float3x4_precision.hpp:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/streambuf.tcc:
+
 C:/MSYS64/ucrt64/include/glm/ext/matrix_float4x3_precision.hpp:
 
 C:/MSYS64/ucrt64/include/glm/ext/matrix_float4x4_precision.hpp:
@@ -7081,6 +7265,8 @@ C:/MSYS64/ucrt64/include/glm/ext/quaternion_double_precision.hpp:
 C:/MSYS64/ucrt64/include/glm/ext/quaternion_float_precision.hpp:
 
 C:/MSYS64/ucrt64/include/glm/fwd.hpp:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/istream:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/shared_ptr_atomic.h:
 
@@ -7121,6 +7307,8 @@ C:/MSYS64/ucrt64/include/glm/ext/vector_float1_precision.hpp:
 C:/MSYS64/ucrt64/include/glm/ext/vector_float3.hpp:
 
 C:/MSYS64/ucrt64/include/glm/ext/vector_int2.hpp:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ios_base.h:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/detail/type_mat3x3.inl:
 
@@ -7207,6 +7395,8 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_init_exception.h:
 C:/Dev/RenderEngine/Source/3rdParty/SDL2/SDL_error.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/nested_exception.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.h:
 
 C:/Dev/RenderEngine/Source/3rdParty/SDL2/SDL_events.h:
 
@@ -7404,6 +7594,8 @@ C:/MSYS64/ucrt64/include/pthread_compat.h:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/ext/matrix_float4x2.hpp:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/cwctype:
+
 C:/MSYS64/ucrt64/include/c++/13.2.0/clocale:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/ext/matrix_float4x3.hpp:
@@ -7490,6 +7682,8 @@ C:/Dev/RenderEngine/Source/3rdParty/glm/gtc/constants.hpp:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/gtc/matrix_transform.inl:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_ios.tcc:
+
 C:/Dev/RenderEngine/Source/3rdParty/glm/gtc/quaternion.hpp:
 
 C:/Dev/RenderEngine/Source/3rdParty/glm/gtc/quaternion.inl:
@@ -7544,6 +7738,8 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/bits/basic_string.tcc:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/charconv.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/codecvt.h:
+
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hashtable_policy.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/cxxabi_forced.h:
@@ -7552,13 +7748,25 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/bits/erase_if.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/exception_ptr.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/fstream.tcc:
+
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/hash_bytes.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/istream.tcc:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_classes.tcc:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/locale_facets.tcc:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/cctype:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/localefwd.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/memoryfwd.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/bits/ostream.tcc:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/shared_ptr.h:
 
@@ -7573,6 +7781,8 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stl_tempbuf.h:
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/stringfwd.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/bits/unordered_map.h:
+
+C:/MSYS64/ucrt64/include/wctype.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/cerrno:
 
@@ -7594,7 +7804,13 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/list:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/new:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/ostream:
+
 C:/MSYS64/ucrt64/include/c++/13.2.0/pstl/glue_algorithm_defs.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/stdexcept:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/system_error:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/typeinfo:
 
@@ -7602,7 +7818,11 @@ C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h:
 
+C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++io.h:
+
 C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h:
+
+C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h:
 
 C:/MSYS64/ucrt64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h:
 

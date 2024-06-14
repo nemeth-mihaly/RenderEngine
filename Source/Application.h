@@ -19,13 +19,140 @@
 #include "Shader.h"
 #include "Scene.h"
 
-extern StrongProgramPipelinePtr g_TexturedLitShader;
-extern StrongProgramPipelinePtr g_SkyShader;
-extern StrongProgramPipelinePtr g_BillboardShader;
+extern StrongShaderPtr g_TexturedLitShader;
+extern StrongShaderPtr g_SkyShader;
+extern StrongShaderPtr g_BillboardShader;
 
-//---------------------------------------------------------
+extern StrongShaderPtr g_pShader_UnlitColored;
+
+//-----------------------------------------------------------------------------
+// class PerformanceInfoControl
+//-----------------------------------------------------------------------------
+
+class PerformanceInfoControl
+{
+public:
+    PerformanceInfoControl()
+    {
+        m_elapsedTimeInSeconds = 0;
+
+        m_frameCount = 0;
+        m_fps = 0;
+    }
+
+    ~PerformanceInfoControl() 
+    {
+    }
+
+    void Update(const float deltaTime) 
+    {
+        m_elapsedTimeInSeconds += deltaTime;
+        m_frameCount++;
+
+        if (m_elapsedTimeInSeconds >= 1.0f)
+        {
+            m_elapsedTimeInSeconds = 0.0f;
+
+            m_fps = m_frameCount;
+            m_frameCount = 0;
+        }
+    }
+
+    void Render() 
+    {
+        ImGui::Begin("Performance Info");
+        ImGui::Text("Application average %.3f ms/frame (%i FPS)", 1000.0f / (float)m_fps, m_fps);
+        ImGui::End();
+    }
+
+private:
+    float   m_elapsedTimeInSeconds;
+
+    int     m_frameCount;
+    int     m_fps;
+};
+
+//-----------------------------------------------------------------------------
+// struct Vertex_UnlitColored
+//-----------------------------------------------------------------------------
+
+struct Vertex_UnlitColored
+{
+    glm::vec3   pos;
+};
+
+//-----------------------------------------------------------------------------
+// class Brush
+//-----------------------------------------------------------------------------
+
+/*
+class Brush 
+{
+public:
+    Brush()
+    {
+    }
+
+    ~Brush()
+    {
+    }
+
+    void Load()
+    {
+        m_vertices.resize(4);
+        m_vertices[0].pos = glm::vec3(-0.5f, 0.0f, 0.5f);
+        m_vertices[1].pos = glm::vec3( 0.5f, 0.0f, 0.5f);
+        m_vertices[2].pos = glm::vec3(-0.5f, 0.0f,-0.5f);
+        m_vertices[3].pos = glm::vec3( 0.5f, 0.0f,-0.5f);
+    
+        std::vector<uint8_t> indices =
+        {
+            0, 2, 1,
+            1, 2, 3,
+        };
+
+        m_vertexArray.reset(new VertexArray());
+        m_vertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+
+        const signed long long vertexBufferSize = sizeof(Vertex_UnlitColored) * m_vertices.size();
+        m_vertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
+        m_vertexBuffer->MapMemory(0, vertexBufferSize, m_vertices.data());
+        m_vertexArray->SetVertexBuffer(0, m_vertexBuffer, sizeof(Vertex_UnlitColored), VertexArrayInputRate_Vertex);
+
+        const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
+        m_indexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
+        m_indexBuffer->MapMemory(0, indexBufferSize, indices.data());
+        m_vertexArray->SetIndexBuffer(m_indexBuffer);
+        m_indexCount = indices.size();
+        indices.clear();
+    }
+
+    void Update(const float deltaTime)
+    {
+    }
+
+    void Render()
+    {
+        g_pShader_UnlitColored->Bind();
+
+        m_vertexArray->Bind();
+        glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_BYTE, nullptr);
+    }
+
+private:
+    std::vector<Vertex_UnlitColored>     m_vertices;
+
+    uint32_t                m_indexCount;
+
+    StrongVertexArrayPtr    m_vertexArray;
+    StrongVertexBufferPtr   m_vertexBuffer;
+    StrongIndexBufferPtr    m_indexBuffer;
+};
+*/
+
+//-----------------------------------------------------------------------------
 // class Application
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class Application
 {
@@ -70,10 +197,6 @@ private:
 
     float           m_deltaTime;
 
-    float           m_fpsTimer;
-    int             m_fpsCounter;
-    int             m_fps;
-
     static const int MAX_KEYS = 512;
     bool            m_bKeys[MAX_KEYS];
 
@@ -86,6 +209,9 @@ private:
     bool            m_bCameraMoving;
     float           m_Yaw;
     float           m_Pitch;
+
+    PerformanceInfoControl m_performanceInfoControl;
+    // Brush m_brush;
 };
 
 extern Application* g_pApp;

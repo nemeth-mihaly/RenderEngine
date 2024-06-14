@@ -1,38 +1,38 @@
 #include "VertexArray.h"
 
-////////////////////////////////////////////////////
-//  VertexArray Implementation
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// VertexArray Implementation
+//-----------------------------------------------------------------------------
 
 VertexArray::VertexArray()
 {
-    glCreateVertexArrays(1, &m_ArrayID);
+    glCreateVertexArrays(1, &m_arrayID);
 }
 
 VertexArray::~VertexArray()
 {
-    glDeleteVertexArrays(1, &m_ArrayID);
+    glDeleteVertexArrays(1, &m_arrayID);
 }
 
 void VertexArray::Bind() const
 {
-    glBindVertexArray(m_ArrayID);
+    glBindVertexArray(m_arrayID);
 }
 
-void VertexArray::SetVertexBuffer(uint32_t binding, StrongVertexBufferPtr& vertexBuffer, int stride, uint32_t inputRate)
+void VertexArray::SetVertexBuffer(GLuint binding, StrongVertexBufferPtr& vertexBuffer, GLsizei stride, GLuint inputRate)
 {
-    glVertexArrayVertexBuffer(m_ArrayID, binding, vertexBuffer->m_BufferID, 0, stride);
-    glVertexArrayBindingDivisor(m_ArrayID, binding, inputRate);
+    glVertexArrayVertexBuffer(m_arrayID, binding, vertexBuffer->m_bufferID, 0, stride);
+    glVertexArrayBindingDivisor(m_arrayID, binding, inputRate);
 }
 
 void VertexArray::SetIndexBuffer(StrongIndexBufferPtr& indexBuffer)
 {
-    glVertexArrayElementBuffer(m_ArrayID, indexBuffer->m_BufferID);
+    glVertexArrayElementBuffer(m_arrayID, indexBuffer->m_bufferID);
 }
 
-void VertexArray::SetVertexAttribute(uint32_t binding, uint32_t location, int size, uint32_t type, uint32_t offset)
+void VertexArray::SetVertexAttribute(GLuint binding, GLuint location, GLint size, GLenum type, GLuint offset)
 {
-    glEnableVertexArrayAttrib(m_ArrayID, location);
-    glVertexArrayAttribFormat(m_ArrayID, location, size, type, GL_FALSE, offset);
-    glVertexArrayAttribBinding(m_ArrayID, location, binding);
+    glEnableVertexArrayAttrib(m_arrayID, location);
+    glVertexArrayAttribFormat(m_arrayID, location, size, type, GL_FALSE, offset);
+    glVertexArrayAttribBinding(m_arrayID, location, binding);
 }

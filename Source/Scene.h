@@ -16,7 +16,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 
-extern      StrongProgramPipelinePtr     g_TerrainShader;
+extern      StrongShaderPtr     g_TerrainShader;
 
 constexpr int MAX_PARTICLES = 256;
 
@@ -46,6 +46,8 @@ public:
     void ReloadTerrain();
 
     std::shared_ptr<CameraNode>& GetCamera() { return m_Camera; }
+
+    std::list<std::shared_ptr<SceneNode>> GetSceneNodes() const { return m_SceneNodes; }
 
 private:
     std::unordered_map<std::string, StrongMeshPtr> m_Meshes;
