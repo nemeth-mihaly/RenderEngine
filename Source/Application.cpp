@@ -461,6 +461,22 @@ void Application::Render()
     SDL_GL_SwapWindow(m_pWindow);
 }
 
+static void ImGUIRenderSceneNode(std::shared_ptr<SceneNode> node)
+{
+    if (ImGui::TreeNodeEx(node->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        SceneNodeVector::const_iterator it = node->GetChildren().begin();
+        
+        while (it != node->GetChildren().end())
+        {
+            ImGUIRenderSceneNode((*it));
+            ++it;
+        }
+
+        ImGui::TreePop();
+    }
+}
+
 void Application::ImGUIRender()
 {
     // Start the Dear ImGui frame
@@ -473,33 +489,11 @@ void Application::ImGUIRender()
 
     // Show Node Control.
 
-    ImGui::Begin("Nodes");
+    ImGui::Begin("Scene Graph");
 
-    static std::shared_ptr<SceneNode> selected = nullptr;
-
-    int n = 0;
-    for (std::shared_ptr<SceneNode>& node : m_pScene->GetSceneNodes())
-    {
-        char name[120];
-        sprintf_s(name, "%s %d", node->m_name.c_str(), n);
-
-        if (ImGui::Selectable(name, selected == node))
-        {
-            selected = node;
-        }
-
-        ++n;
-    }
+    std::shared_ptr<SceneNode> root = m_pScene->GetRoot();
+    ImGUIRenderSceneNode(root);
     
-    ImGui::Separator();
-
-    // Property Editor.
-    if (selected)
-    {
-        ImGui::SeparatorText("Transform");
-        ImGui::InputFloat3("Position", glm::value_ptr(selected->GetPosition()));
-    }
-
     ImGui::End();
 
     m_performanceInfoControl.Render();

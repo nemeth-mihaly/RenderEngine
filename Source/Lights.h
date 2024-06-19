@@ -47,7 +47,7 @@ public:
     LightNode(const LightProperties& properties);
     virtual ~LightNode();
 
-    virtual void Update(Scene* pScene, const float deltaTime) override;
+    virtual void Update(Scene& scene, const float deltaTime) override;
 
     const LightProperties& GetProperties() const { return m_Properties; }
 

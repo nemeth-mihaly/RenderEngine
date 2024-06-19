@@ -13,15 +13,12 @@ Scene::Scene()
     g_TerrainShader.reset(new Shader());
     g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
 
-    /** Main Camera */
+    m_root.reset(new SceneNode());
+    m_root->m_name = "Root";
 
     m_Camera.reset(new CameraNode());
-    assert(m_Camera != NULL);
     m_Camera->m_name = "Camera";
-
-    m_SceneNodes.push_back(m_Camera);
-
-    /** Monkey */
+    m_root->AddChild(m_Camera);
 
     Material material;
     material.bUseTexture = true;
@@ -30,8 +27,7 @@ Scene::Scene()
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->SetMaterial(material);
     suzanneTheMonkey->m_name = "Monkey";
-    
-    m_SceneNodes.push_back(suzanneTheMonkey);
+    m_root->AddChild(suzanneTheMonkey);
 
     m_Camera->m_TargetNode = suzanneTheMonkey;
 
@@ -46,14 +42,11 @@ Scene::Scene()
     billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
     billboard->m_name = "Fake Glow";
-
-    m_SceneNodes.push_back(billboard);
+    m_root->AddChild(billboard);
 
     m_Terrain.reset(new TerrainNode());
     m_Terrain->m_name = "Terrain";
-    m_SceneNodes.push_back(m_Terrain);
-
-    /** Directional Light */
+    m_root->AddChild(m_Terrain);
 
     LightProperties DirectionalLightProperties;
     DirectionalLightProperties.Type = LightType::Directional;
@@ -61,10 +54,8 @@ Scene::Scene()
 
     std::shared_ptr<LightNode> DirectionalLight(new LightNode(DirectionalLightProperties));
     DirectionalLight->m_name = "Directional Light";
-    m_SceneNodes.push_back(DirectionalLight);
+    m_root->AddChild(DirectionalLight);
     m_LightNodes.push_back(DirectionalLight);
-
-    /** Point Light */
 
     LightProperties PointLightProperties;
     PointLightProperties.Type = LightType::Point;
@@ -76,11 +67,8 @@ Scene::Scene()
     std::shared_ptr<LightNode> PointLight(new LightNode(PointLightProperties));
     PointLight->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
     PointLight->m_name = "Point Light";
-
-    m_SceneNodes.push_back(PointLight);
+    m_root->AddChild(PointLight);
     m_LightNodes.push_back(PointLight);
-
-    /** Spot Light */
 
     LightProperties SpotLightProperties;
     SpotLightProperties.Type = LightType::Spot;
@@ -95,11 +83,8 @@ Scene::Scene()
     std::shared_ptr<LightNode> SpotLight(new LightNode(SpotLightProperties));
     SpotLight->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
     SpotLight->m_name = "Spot Light";
-
-    m_SceneNodes.push_back(SpotLight);
+    m_root->AddChild(SpotLight);
     m_LightNodes.push_back(SpotLight);
-
-    /** Sky */
 
     m_CubeMap.reset(new CubeMapNode());
 
@@ -166,10 +151,12 @@ void Scene::Update(const float deltaTime)
 {
     m_Camera->WorldViewProjection();
 
-    for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
-    {
-        node->Update(this, deltaTime);
-    }
+    // for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
+    // {
+    //     node->Update((*this), deltaTime);
+    // }
+
+    m_root->Update((*this), deltaTime);
 
     /*
     for (uint32_t i = 0; i < MAX_PARTICLES; i++)
@@ -249,13 +236,14 @@ void Scene::Render()
         g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
 
+    /*
     for (const std::shared_ptr<SceneNode>& sceneNode : m_SceneNodes)
     {
         const float alpha = sceneNode->GetMaterial().Diffuse.a;
 
         if (alpha == 1.0f)
         {
-            sceneNode->Render(this);
+            sceneNode->Render((*this));
         }
         else if (alpha == 0.0f)
         {
@@ -265,10 +253,14 @@ void Scene::Render()
             m_AlphaNodes.push_back(pAlphaNode);
         }
     }
+    */
+
+    m_root->Render((*this));
+    m_root->RenderChildren((*this));
 
     //  Draw Sky Node
 
-    m_CubeMap->Render(this);
+    m_CubeMap->Render((*this));
 
     //  Draw Alpha Nodes
 
@@ -298,7 +290,7 @@ void Scene::Render()
 
     for (int i = (m_AlphaNodes.size() - 1); i >= 0; i--)
     {
-        m_AlphaNodes[i]->Node->Render(this);
+        m_AlphaNodes[i]->Node->Render((*this));
         delete m_AlphaNodes[i];
     }
 
@@ -361,12 +353,12 @@ StrongTexturePtr Scene::GetTexture(const std::string& name)
 
 void Scene::ReloadTerrain()
 {
-    for (std::list<std::shared_ptr<SceneNode>>::iterator i = m_SceneNodes.begin(); i != m_SceneNodes.end(); i++)
-    {
-        if ((*i) == m_Terrain)
-            i = m_SceneNodes.erase(i);
-    }
+    //for (std::list<std::shared_ptr<SceneNode>>::iterator i = m_SceneNodes.begin(); i != m_SceneNodes.end(); i++)
+    //{
+    //    if ((*i) == m_Terrain)
+    //        i = m_SceneNodes.erase(i);
+    //}
 
-    m_Terrain.reset(new TerrainNode());
-    m_SceneNodes.push_back(m_Terrain);
+    //m_Terrain.reset(new TerrainNode());
+    //m_SceneNodes.push_back(m_Terrain);
 }

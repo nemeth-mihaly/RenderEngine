@@ -15,6 +15,6 @@ LightNode::~LightNode()
 {
 }
 
-void LightNode::Update(Scene* pScene, const float deltaTime)
+void LightNode::Update(Scene& scene, const float deltaTime)
 {
 }

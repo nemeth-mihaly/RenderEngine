@@ -6,7 +6,6 @@
 #include <memory>
 #include <algorithm>
 #include <string>
-#include <list>
 #include <vector>
 #include <unordered_map>
 
@@ -40,6 +39,10 @@ public:
     void Update(const float deltaTime);
     void Render();
 
+    std::shared_ptr<SceneNode> GetRoot() { return m_root; }
+
+    void AddAlphaNode(AlphaNode* pAlphaNode) { m_AlphaNodes.push_back(pAlphaNode); }
+
     StrongMeshPtr GetMesh(const std::string& name);
     StrongTexturePtr GetTexture(const std::string& name);
 
@@ -47,13 +50,12 @@ public:
 
     std::shared_ptr<CameraNode>& GetCamera() { return m_Camera; }
 
-    std::list<std::shared_ptr<SceneNode>> GetSceneNodes() const { return m_SceneNodes; }
-
 private:
+    std::shared_ptr<SceneNode> m_root;
+
     std::unordered_map<std::string, StrongMeshPtr> m_Meshes;
     std::unordered_map<std::string, StrongTexturePtr> m_Textures;
 
-    std::list<std::shared_ptr<SceneNode>> m_SceneNodes;
     std::vector<std::shared_ptr<LightNode>> m_LightNodes;
     std::vector<AlphaNode*> m_AlphaNodes;
     

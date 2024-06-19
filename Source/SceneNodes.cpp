@@ -3,29 +3,78 @@
 #include "Application.h"
 #include "Scene.h"
 
-////////////////////////////////////////////////////
-//  SceneNode Implementation
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// SceneNode Implementation
+//-----------------------------------------------------------------------------
 
 SceneNode::SceneNode()
 {
+    m_name = "SceneNode";
+
+    m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 SceneNode::~SceneNode()
 {
 }
 
-void SceneNode::Update(Scene* pScene, const float deltaTime)
+void SceneNode::Init(Scene& scene)
 {
-    (void)pScene; (void)deltaTime;
+    SceneNodeVector::iterator it = m_children.begin();
 
-    const glm::mat4 idmat = glm::mat4(1.0f);
-    m_WorldTransform = glm::translate(idmat, m_Position);
+    while (it != m_children.end())
+    {
+        (*it)->m_WorldTransform = glm::translate(glm::mat4(1.0f), (*it)->m_Position);
+        it++;
+    }
 }
 
-void SceneNode::Render(Scene* pScene)
+void SceneNode::Update(Scene& scene, const float deltaTime)
 {
-    (void)pScene;
+    m_WorldTransform = glm::translate(glm::mat4(1.0f), m_Position);
+
+    SceneNodeVector::iterator it = m_children.begin();
+
+    while (it != m_children.end())
+    {
+        (*it)->m_WorldTransform = glm::translate(glm::mat4(1.0f), (*it)->m_Position);
+        it++;
+    }
+}
+
+void SceneNode::Render(Scene& scene)
+{
+}
+
+void SceneNode::RenderChildren(Scene& scene)
+{
+    SceneNodeVector::iterator it = m_children.begin();
+
+    while (it != m_children.end())
+    {
+        const float alpha = (*it)->GetMaterial().Diffuse.a;
+
+        if (alpha == 1.0f)
+        {
+            (*it)->Render(scene);
+        }
+        else if (alpha == 0.0f)
+        {
+            AlphaNode* pAlphaNode = new AlphaNode();
+            pAlphaNode->Node = (*it);
+            
+            scene.AddAlphaNode(pAlphaNode);
+        }
+
+        (*it)->RenderChildren(scene);
+        it++;
+    }
+}
+
+void SceneNode::AddChild(std::shared_ptr<SceneNode> node)
+{
+    m_children.push_back(node);
+    node->m_pParent = this;
 }
 
 ////////////////////////////////////////////////////
@@ -65,10 +114,8 @@ MeshNode::~MeshNode()
 {
 }
 
-void MeshNode::Render(Scene* pScene)
+void MeshNode::Render(Scene& scene)
 {
-    (void)pScene;
-
     m_Shader->Bind();
 
     m_Shader->SetUniformMatrix4f("u_World", m_WorldTransform);
@@ -189,13 +236,13 @@ CubeMapNode::~CubeMapNode()
 {
 }
 
-void CubeMapNode::Render(Scene* pScene)
+void CubeMapNode::Render(Scene& scene)
 {
     glDepthFunc(GL_LEQUAL);
 
     g_SkyShader->Bind();
-    g_SkyShader->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(pScene->GetCamera()->GetView())));
-    g_SkyShader->SetUniformMatrix4f("u_WorldProjection", pScene->GetCamera()->GetProjection());
+    g_SkyShader->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(scene.GetCamera()->GetView())));
+    g_SkyShader->SetUniformMatrix4f("u_WorldProjection", scene.GetCamera()->GetProjection());
 
     m_VertexArray->Bind();
 
@@ -259,10 +306,8 @@ BillboardNode::~BillboardNode()
 {
 }
 
-void BillboardNode::Render(Scene* pScene)
+void BillboardNode::Render(Scene& scene)
 {
-    (void)pScene;
-
     g_BillboardShader->Bind();
 
     if (m_Material.bUseTexture)
@@ -379,7 +424,7 @@ TerrainNode::~TerrainNode()
     printf("Destroying terrain..\n");
 }
 
-void TerrainNode::Render(Scene* pScene)
+void TerrainNode::Render(Scene& scene)
 {
     g_TerrainShader->Bind();
 
@@ -395,19 +440,19 @@ void TerrainNode::Render(Scene* pScene)
     m_Material.bUseTexture = true;
     if (m_Material.bUseTexture)
     {
-        pScene->GetTexture("Assets/Heightmaps/BlendMap.png")->BindUnit(0);
+        scene.GetTexture("Assets/Heightmaps/BlendMap.png")->BindUnit(0);
         g_TerrainShader->SetUniform1i("u_BlendMapTexture", 0);
 
-        pScene->GetTexture("Assets/Textures/Terrain/ElwynnDirtBase.png")->BindUnit(1);
+        scene.GetTexture("Assets/Textures/Terrain/ElwynnDirtBase.png")->BindUnit(1);
         g_TerrainShader->SetUniform1i("u_DirtBaseTexture", 1);
 
-        pScene->GetTexture("Assets/Textures/Terrain/ElwynnCobblestoneBase.png")->BindUnit(2);
+        scene.GetTexture("Assets/Textures/Terrain/ElwynnCobblestoneBase.png")->BindUnit(2);
         g_TerrainShader->SetUniform1i("u_StonebrickTexture", 2);
 
-        pScene->GetTexture("Assets/Textures/Terrain/ElwynnGrassBase.png")->BindUnit(3);
+        scene.GetTexture("Assets/Textures/Terrain/ElwynnGrassBase.png")->BindUnit(3);
         g_TerrainShader->SetUniform1i("u_GrassTexture", 3);
 
-        pScene->GetTexture("Assets/Textures/Terrain/ElwynnCrop.png")->BindUnit(4);
+        scene.GetTexture("Assets/Textures/Terrain/ElwynnCrop.png")->BindUnit(4);
         g_TerrainShader->SetUniform1i("u_CropTex", 4);
     }
 

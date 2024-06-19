@@ -14,20 +14,32 @@
 
 class Scene;
 
-//////////////////////////////////////////////////////
-//  class SceneNode
-//////////////////////////////////////////////////////
+class SceneNode;
+typedef std::vector<std::shared_ptr<SceneNode>> SceneNodeVector;
+
+//-----------------------------------------------------------------------------
+// class SceneNode
+//-----------------------------------------------------------------------------
 
 class SceneNode
 {
-public:
-    std::string m_name;
+    friend class Scene;
 
+public:
     SceneNode();
     virtual ~SceneNode();
 
-    virtual void Update(Scene* pScene, const float deltaTime);
-    virtual void Render(Scene* pScene);
+    virtual void Init(Scene& scene);
+
+    virtual void Update(Scene& scene, const float deltaTime);
+
+    virtual void Render(Scene& scene);
+    void RenderChildren(Scene& scene);
+
+    void AddChild(std::shared_ptr<SceneNode> node);
+    const SceneNodeVector& GetChildren() const { return m_children; }
+
+    const std::string& GetName() const { return m_name; }
 
     void SetPosition(const glm::vec3& position) { m_Position = position; }
     glm::vec3& GetPosition() { return m_Position; }
@@ -36,10 +48,15 @@ public:
     const Material& GetMaterial() const { return m_Material; }
 
 protected:
-    glm::mat4       m_WorldTransform;
-    glm::vec3       m_Position;
+    SceneNode*          m_pParent;
+    SceneNodeVector     m_children;
 
-    Material        m_Material;
+    std::string         m_name;
+
+    glm::mat4           m_WorldTransform;
+    glm::vec3           m_Position;
+
+    Material            m_Material;
 };
 
 //////////////////////////////////////////////////////
@@ -89,7 +106,7 @@ public:
     MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture);
     virtual ~MeshNode();
 
-    virtual void Render(Scene* pScene);
+    virtual void Render(Scene& scene);
 
 private:
     StrongMeshPtr       m_Mesh;
@@ -122,7 +139,7 @@ public:
     CubeMapNode();
     virtual ~CubeMapNode();
 
-    virtual void Render(Scene* pScene) override;
+    virtual void Render(Scene& scene) override;
 
 private:
     uint32_t                m_CubeMapSideVertCount;
@@ -145,7 +162,7 @@ public:
     BillboardNode(const StrongTexturePtr& texture);
     virtual ~BillboardNode();
 
-    virtual void Render(Scene* pScene) override;
+    virtual void Render(Scene& scene) override;
 
 private:
     uint32_t                m_IndexCount;
@@ -167,7 +184,7 @@ public:
     TerrainNode();
     virtual ~TerrainNode();
 
-    virtual void Render(Scene* pScene) override;
+    virtual void Render(Scene& scene) override;
 
     float HeightAt(float x, float z);
 
