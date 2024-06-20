@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include <iostream>
+
 #include "Application.h"
 
 StrongShaderPtr     g_TerrainShader = nullptr;
@@ -10,26 +12,44 @@ StrongShaderPtr     g_TerrainShader = nullptr;
 
 Scene::Scene()
 {
+}
+
+Scene::~Scene()
+{
+}
+
+void Scene::Init()
+{
     g_TerrainShader.reset(new Shader());
     g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
 
     m_root.reset(new SceneNode());
     m_root->m_name = "Root";
 
-    m_Camera.reset(new CameraNode());
-    m_Camera->m_name = "Camera";
-    m_root->AddChild(m_Camera);
+    m_camera.reset(new CameraNode());
+    m_camera->m_name = "Camera";
+    //m_root->AddChild(m_camera);
+    AddSceneNode(m_camera);
 
-    Material material;
-    material.bUseTexture = true;
-
-    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_TexturedLitShader, GetTexture("Assets/Textures/UvGrid.png")));
+    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_shader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
-    suzanneTheMonkey->SetMaterial(material);
     suzanneTheMonkey->m_name = "Monkey";
-    m_root->AddChild(suzanneTheMonkey);
+    suzanneTheMonkey->SetRotation(glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    // suzanneTheMonkey->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
+    //m_root->AddChild(suzanneTheMonkey);
+    AddSceneNode(suzanneTheMonkey);
 
-    m_Camera->m_TargetNode = suzanneTheMonkey;
+    m_camera->m_TargetNode = suzanneTheMonkey;
+
+    std::shared_ptr<SceneNode> cube(new MeshNode(GetMesh("Assets/Models/Cube.obj"), g_shader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
+    cube->SetPosition({-5.0f, 0.0f, 0.0f});
+    cube->m_name = "Child of Monkey";
+    suzanneTheMonkey->AddChild(cube);
+
+    std::shared_ptr<SceneNode> lamp(new LampNode());
+    lamp->SetPosition({-5.0f, 5.0f, 0.0f});
+    lamp->Init((*this));
+    AddSceneNode(lamp);
 
     /** Billboard */
 
@@ -42,11 +62,13 @@ Scene::Scene()
     billboard->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     billboard->SetMaterial(alphaMaterial);
     billboard->m_name = "Fake Glow";
-    m_root->AddChild(billboard);
+    //m_root->AddChild(billboard);
+    AddSceneNode(billboard);
 
     m_Terrain.reset(new TerrainNode());
     m_Terrain->m_name = "Terrain";
-    m_root->AddChild(m_Terrain);
+    //m_root->AddChild(m_Terrain);
+    AddSceneNode(m_Terrain);
 
     LightProperties DirectionalLightProperties;
     DirectionalLightProperties.Type = LightType::Directional;
@@ -67,7 +89,8 @@ Scene::Scene()
     std::shared_ptr<LightNode> PointLight(new LightNode(PointLightProperties));
     PointLight->SetPosition(glm::vec3(-0.4f, 0.5f, -1.0f));
     PointLight->m_name = "Point Light";
-    m_root->AddChild(PointLight);
+    //m_root->AddChild(PointLight);
+    AddSceneNode(PointLight);
     m_LightNodes.push_back(PointLight);
 
     LightProperties SpotLightProperties;
@@ -83,7 +106,8 @@ Scene::Scene()
     std::shared_ptr<LightNode> SpotLight(new LightNode(SpotLightProperties));
     SpotLight->SetPosition(glm::vec3(0.4f, 1.0f, -2.0f));
     SpotLight->m_name = "Spot Light";
-    m_root->AddChild(SpotLight);
+    //m_root->AddChild(SpotLight);
+    AddSceneNode(SpotLight);
     m_LightNodes.push_back(SpotLight);
 
     m_CubeMap.reset(new CubeMapNode());
@@ -91,13 +115,13 @@ Scene::Scene()
     m_UniformBufferMatrices.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
     m_UniformBufferLighting.reset(new UniformBuffer(1, 32 * sizeof(LightProperties), GL_DYNAMIC_DRAW));
 
-    g_TexturedLitShader->SetUniformBlockBinding(0, "Matrices");
+    g_shader_LitTextured->SetUniformBlockBinding(0, "Matrices");
     g_SkyShader->SetUniformBlockBinding(0, "Matrices");
     g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
     g_TerrainShader->SetUniformBlockBinding(0, "Matrices");
-    g_pShader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
+    g_shader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
 
-    g_TexturedLitShader->SetUniformBlockBinding(1, "Lighting");
+    g_shader_LitTextured->SetUniformBlockBinding(1, "Lighting");
     g_TerrainShader->SetUniformBlockBinding(1, "Lighting");
 
     /** Particles */
@@ -143,13 +167,9 @@ Scene::Scene()
     */
 }
 
-Scene::~Scene()
-{
-}
-
 void Scene::Update(const float deltaTime)
 {
-    m_Camera->WorldViewProjection();
+    m_camera->WorldViewProjection();
 
     // for (const std::shared_ptr<SceneNode>& node : m_SceneNodes)
     // {
@@ -177,15 +197,15 @@ void Scene::Update(const float deltaTime)
     }
     */
 
-    glm::vec3 cameraTargetPos = m_Camera->m_TargetNode->GetPosition();
+    glm::vec3 cameraTargetPos = m_camera->m_TargetNode->GetPosition();
     cameraTargetPos.y = m_Terrain->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
-    m_Camera->m_TargetNode->SetPosition(cameraTargetPos);
+    m_camera->m_TargetNode->SetPosition(cameraTargetPos);
 }
 
 void Scene::Render()
 {
-    m_UniformBufferMatrices->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetProjection()));
-    m_UniformBufferMatrices->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_Camera->GetView()));
+    m_UniformBufferMatrices->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_camera->GetProjection()));
+    m_UniformBufferMatrices->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_camera->GetView()));
 
     /** Actor Pass */
 
@@ -194,7 +214,7 @@ void Scene::Render()
     glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    g_TexturedLitShader->Bind();
+    g_shader_LitTextured->Bind();
 
     for (uint32_t i = 0; i < m_LightNodes.size(); i++)
     {
@@ -203,16 +223,16 @@ void Scene::Render()
         const Material& material = m_LightNodes[i]->GetMaterial();
         const LightProperties& lightProperties = m_LightNodes[i]->GetProperties();
 
-        g_TexturedLitShader->SetUniform1i(("u_Lights[" + strIndex + "].Type"), static_cast<int>(lightProperties.Type));
-        g_TexturedLitShader->SetUniform3f(("u_Lights[" + strIndex + "].Position"), lightProperties.Position);
-        g_TexturedLitShader->SetUniform3f(("u_Lights[" + strIndex + "].Direction"), lightProperties.Direction);
-        g_TexturedLitShader->SetUniform4f(("u_Lights[" + strIndex + "].Ambient"), material.Ambient);
-        g_TexturedLitShader->SetUniform4f(("u_Lights[" + strIndex + "].Diffuse"), material.Diffuse);
-        g_TexturedLitShader->SetUniform4f(("u_Lights[" + strIndex + "].Specular"), material.Specular);
-        g_TexturedLitShader->SetUniform1f(("u_Lights[" + strIndex + "].Falloff"), lightProperties.Falloff);
-        g_TexturedLitShader->SetUniform1f(("u_Lights[" + strIndex + "].ConstantAttenuation"), lightProperties.ConstantAttenuation);
-        g_TexturedLitShader->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
-        g_TexturedLitShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
+        g_shader_LitTextured->SetUniform1i(("u_Lights[" + strIndex + "].Type"), static_cast<int>(lightProperties.Type));
+        g_shader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Position"), lightProperties.Position);
+        g_shader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Direction"), lightProperties.Direction);
+        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Ambient"), material.Ambient);
+        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Diffuse"), material.Diffuse);
+        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Specular"), material.Specular);
+        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].Falloff"), lightProperties.Falloff);
+        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].ConstantAttenuation"), lightProperties.ConstantAttenuation);
+        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
+        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
 
     g_TerrainShader->Bind();
@@ -250,7 +270,7 @@ void Scene::Render()
             AlphaNode* pAlphaNode = new AlphaNode();
             pAlphaNode->Node = sceneNode;
 
-            m_AlphaNodes.push_back(pAlphaNode);
+            m_alphaNodes.push_back(pAlphaNode);
         }
     }
     */
@@ -267,34 +287,34 @@ void Scene::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    for (uint32_t i = 0; i < m_AlphaNodes.size(); i++)
+    for (uint32_t i = 0; i < m_alphaNodes.size(); i++)
     {
-        for (uint32_t j = (i + 1); j < m_AlphaNodes.size(); j++)
+        for (uint32_t j = (i + 1); j < m_alphaNodes.size(); j++)
         {
             auto Vec3Length = [](const glm::vec3& p) -> float
             {
                 return (p.x * p.x + p.y * p.y + p.z * p.z);
             };
 
-            if (Vec3Length(m_Camera->GetPosition() - m_AlphaNodes[i]->Node->GetPosition()) 
-            > Vec3Length(m_Camera->GetPosition() - m_AlphaNodes[j]->Node->GetPosition()))
+            if (Vec3Length(m_camera->GetPosition() - m_alphaNodes[i]->node->GetPosition()) 
+            > Vec3Length(m_camera->GetPosition() - m_alphaNodes[j]->node->GetPosition()))
             {
-                AlphaNode* pTempAlphaNode = new AlphaNode();
-                pTempAlphaNode->Node = m_AlphaNodes[i]->Node;
+                AlphaSceneNode* pTempAlphaNode = new AlphaSceneNode();
+                pTempAlphaNode->node = m_alphaNodes[i]->node;
 
-                m_AlphaNodes[i] = m_AlphaNodes[j];
-                m_AlphaNodes[j] = pTempAlphaNode;
+                m_alphaNodes[i] = m_alphaNodes[j];
+                m_alphaNodes[j] = pTempAlphaNode;
             }
         }
     }
 
-    for (int i = (m_AlphaNodes.size() - 1); i >= 0; i--)
+    for (int i = (m_alphaNodes.size() - 1); i >= 0; i--)
     {
-        m_AlphaNodes[i]->Node->Render((*this));
-        delete m_AlphaNodes[i];
+        m_alphaNodes[i]->node->Render((*this));
+        delete m_alphaNodes[i];
     }
 
-    m_AlphaNodes.clear();
+    m_alphaNodes.clear();
 
     glDisable(GL_BLEND);
 
@@ -313,6 +333,16 @@ void Scene::Render()
     glDrawArraysInstanced(GL_TRIANGLES, 0, m_ParticleVertexCount, m_ParticleStagingBuffer.size());
     m_ParticleStagingBuffer.clear();
     */
+}
+
+void Scene::AddSceneNode(std::shared_ptr<SceneNode> node)
+{
+    m_root->AddChild(node);
+}
+
+void Scene::AddAlphaSceneNode(AlphaSceneNode* pAlphaSceneNode)
+{
+    m_alphaNodes.push_back(pAlphaSceneNode); 
 }
 
 StrongMeshPtr Scene::GetMesh(const std::string& name)
@@ -349,16 +379,4 @@ StrongTexturePtr Scene::GetTexture(const std::string& name)
     }
 
     return texture;
-}
-
-void Scene::ReloadTerrain()
-{
-    //for (std::list<std::shared_ptr<SceneNode>>::iterator i = m_SceneNodes.begin(); i != m_SceneNodes.end(); i++)
-    //{
-    //    if ((*i) == m_Terrain)
-    //        i = m_SceneNodes.erase(i);
-    //}
-
-    //m_Terrain.reset(new TerrainNode());
-    //m_SceneNodes.push_back(m_Terrain);
 }

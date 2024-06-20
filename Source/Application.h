@@ -19,11 +19,11 @@
 #include "Shader.h"
 #include "Scene.h"
 
-extern StrongShaderPtr g_TexturedLitShader;
 extern StrongShaderPtr g_SkyShader;
 extern StrongShaderPtr g_BillboardShader;
 
-extern StrongShaderPtr g_pShader_UnlitColored;
+extern StrongShaderPtr g_shader_UnlitColored;
+extern StrongShaderPtr g_shader_LitTextured;
 
 //-----------------------------------------------------------------------------
 // class PerformanceInfoControl
@@ -162,12 +162,6 @@ public:
 
     bool Initialize();
     void RunLoop();    
-
-    uint8_t     Colorv;
-    int         HeightMapWidth;
-    int         HeightMapHeight;
-    int         HeightMapChannelCount;
-    uint8_t*    pHeightMapData;
 
 private:
     void ProcessMessages();

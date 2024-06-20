@@ -11,7 +11,9 @@ SceneNode::SceneNode()
 {
     m_name = "SceneNode";
 
-    m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 SceneNode::~SceneNode()
@@ -24,20 +26,33 @@ void SceneNode::Init(Scene& scene)
 
     while (it != m_children.end())
     {
-        (*it)->m_WorldTransform = glm::translate(glm::mat4(1.0f), (*it)->m_Position);
+        (*it)->m_transform = glm::translate(glm::mat4(1.0f), (*it)->m_pos);
         it++;
     }
 }
 
 void SceneNode::Update(Scene& scene, const float deltaTime)
 {
-    m_WorldTransform = glm::translate(glm::mat4(1.0f), m_Position);
+    if (m_pParent)
+    {
+        m_transform = glm::translate(glm::mat4(1.0f), m_pos)
+        * glm::toMat4(m_rotation)
+        * glm::scale(glm::mat4(1.0f), m_scale);
+        
+        m_transform = m_pParent->m_transform * m_transform;
+    }
+    else
+    {
+        m_transform = glm::translate(glm::mat4(1.0f), m_pos)
+        * glm::toMat4(m_rotation)
+        * glm::scale(glm::mat4(1.0f), m_scale);
+    }
 
     SceneNodeVector::iterator it = m_children.begin();
 
     while (it != m_children.end())
     {
-        (*it)->m_WorldTransform = glm::translate(glm::mat4(1.0f), (*it)->m_Position);
+        (*it)->Update(scene, deltaTime);
         it++;
     }
 }
@@ -58,12 +73,13 @@ void SceneNode::RenderChildren(Scene& scene)
         {
             (*it)->Render(scene);
         }
-        else if (alpha == 0.0f)
+        else 
+        if (alpha == 0.0f)
         {
-            AlphaNode* pAlphaNode = new AlphaNode();
-            pAlphaNode->Node = (*it);
+            AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
+            pAlphaSceneNode->node = (*it);
             
-            scene.AddAlphaNode(pAlphaNode);
+            scene.AddAlphaSceneNode(pAlphaSceneNode);
         }
 
         (*it)->RenderChildren(scene);
@@ -83,9 +99,9 @@ void SceneNode::AddChild(std::shared_ptr<SceneNode> node)
 
 CameraNode::CameraNode()
 {
-    m_Position = glm::vec3(0.0f, 0.0f, 3.0f);
+    m_pos = glm::vec3(0.0f, 0.0f, 3.0f);
     m_ForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
-    m_TargetPos = m_Position + m_ForwardDir;
+    m_TargetPos = m_pos + m_ForwardDir;
     m_Projection = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
     WorldViewProjection();
 }
@@ -97,7 +113,7 @@ CameraNode::~CameraNode()
 glm::mat4 CameraNode::WorldViewProjection()
 {
     //m_View = glm::lookAt(m_Pos, (m_Pos + m_ForwardDir), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_View = glm::lookAt(m_Position, m_TargetPos, glm::vec3(0.0f, 1.0f, 0.0f));
+    m_View = glm::lookAt(m_pos, m_TargetPos, glm::vec3(0.0f, 1.0f, 0.0f));
     return (m_Projection * m_View);
 }
 
@@ -108,9 +124,14 @@ glm::mat4 CameraNode::WorldViewProjection()
 MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture)
     : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
 {
+    m_meshResource = "";
 }
 
 MeshNode::~MeshNode()
+{
+}
+
+void MeshNode::Init(Scene& scene)
 {
 }
 
@@ -118,21 +139,23 @@ void MeshNode::Render(Scene& scene)
 {
     m_Shader->Bind();
 
-    m_Shader->SetUniformMatrix4f("u_World", m_WorldTransform);
+    m_Shader->SetUniformMatrix4f("u_World", m_transform);
 
-    m_Shader->SetUniform4f("u_Material.Ambient", m_Material.Ambient);
-    m_Shader->SetUniform4f("u_Material.Diffuse", m_Material.Diffuse);
-    m_Shader->SetUniform4f("u_Material.Specular", m_Material.Specular);
-    m_Shader->SetUniform4f("u_Material.Emissive", m_Material.Emissive);
-    m_Shader->SetUniform1f("u_Material.SpecularPower", m_Material.SpecularPower);
-    m_Shader->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
+    m_Shader->SetUniform4f("u_Material.Ambient", m_material.Ambient);
+    m_Shader->SetUniform4f("u_Material.Diffuse", m_material.Diffuse);
+    m_Shader->SetUniform4f("u_Material.Specular", m_material.Specular);
+    m_Shader->SetUniform4f("u_Material.Emissive", m_material.Emissive);
+    m_Shader->SetUniform1f("u_Material.SpecularPower", m_material.SpecularPower);
+    m_Shader->SetUniform1b("u_Material.bUseTexture", m_material.bUseTexture);
 
-    if (m_Material.bUseTexture)
+    if (m_material.bUseTexture)
     {
         const uint32_t textureUnit = 0;
         m_Texture->BindUnit(textureUnit);
         m_Shader->SetUniform1i("u_Texture", textureUnit);
     }
+
+    //std::shared_ptr<Mesh> mesh = scene.GetMesh(m_meshResource);
 
     m_Mesh->GetVertexArray()->Bind();
     glDrawArrays(GL_TRIANGLES, 0, m_Mesh->GetVertexCount());
@@ -266,6 +289,8 @@ void CubeMapNode::Render(Scene& scene)
 BillboardNode::BillboardNode(const StrongTexturePtr& texture)
     : m_Texture(texture)
 {
+    scale = 1.0f;
+
     const uint32_t rectVertCount = 4;
     std::vector<Vertex> vertices;
     vertices.resize(rectVertCount);
@@ -310,14 +335,16 @@ void BillboardNode::Render(Scene& scene)
 {
     g_BillboardShader->Bind();
 
-    if (m_Material.bUseTexture)
+    if (m_material.bUseTexture)
     {
         const uint32_t texUnit = 0;
         m_Texture->BindUnit(texUnit);
         g_BillboardShader->SetUniform1i("u_Texture", texUnit);
     }
 
-    g_BillboardShader->SetUniform3f("u_Position", m_Position);
+    m_pos = m_pParent->GetPosition();
+    g_BillboardShader->SetUniform3f("u_Position", m_pos);
+    g_BillboardShader->SetUniform1f("scale", scale);
 
     m_VertexArray->Bind();
     glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, nullptr);
@@ -355,10 +382,10 @@ TerrainNode::TerrainNode()
             const uint32_t magic = 16'777'216;
             
             float height = colorRGB / (float)magic;
-            height *= 255.0f;
+            height *= 85.0f;
 
             const float x = ((-m_HeightMapWidth / 2.0f) + j) * dim;
-            const float y = height - 100.0f;
+            const float y = height - 20.0f;
             const float z = ((-m_HeightMapHeight / 2.0f) + i) * dim;
 
             m_HeightPointValues.push_back(y);
@@ -430,15 +457,15 @@ void TerrainNode::Render(Scene& scene)
 
     g_TerrainShader->SetUniformMatrix4f("u_World", glm::mat4(1.0f));
 
-    g_TerrainShader->SetUniform4f("u_Material.Ambient", m_Material.Ambient);
-    g_TerrainShader->SetUniform4f("u_Material.Diffuse", m_Material.Diffuse);
-    g_TerrainShader->SetUniform4f("u_Material.Specular", m_Material.Specular);
-    g_TerrainShader->SetUniform4f("u_Material.Emissive", m_Material.Emissive);
-    g_TerrainShader->SetUniform1f("u_Material.SpecularPower", m_Material.SpecularPower);
-    g_TerrainShader->SetUniform1b("u_Material.bUseTexture", m_Material.bUseTexture);
+    g_TerrainShader->SetUniform4f("u_Material.Ambient", m_material.Ambient);
+    g_TerrainShader->SetUniform4f("u_Material.Diffuse", m_material.Diffuse);
+    g_TerrainShader->SetUniform4f("u_Material.Specular", m_material.Specular);
+    g_TerrainShader->SetUniform4f("u_Material.Emissive", m_material.Emissive);
+    g_TerrainShader->SetUniform1f("u_Material.SpecularPower", m_material.SpecularPower);
+    g_TerrainShader->SetUniform1b("u_Material.bUseTexture", m_material.bUseTexture);
 
-    m_Material.bUseTexture = true;
-    if (m_Material.bUseTexture)
+    m_material.bUseTexture = true;
+    if (m_material.bUseTexture)
     {
         scene.GetTexture("Assets/Heightmaps/BlendMap.png")->BindUnit(0);
         g_TerrainShader->SetUniform1i("u_BlendMapTexture", 0);
@@ -468,4 +495,47 @@ float TerrainNode::HeightAt(float x, float z)
 
     const float height = m_HeightPointValues[z * m_HeightMapWidth + x];
     return height;
+}
+
+//-----------------------------------------------------------------------------
+// LampNode Implementation
+//-----------------------------------------------------------------------------
+
+LampNode::LampNode()
+{
+    m_elapsedTimeInSeconds = 0.0f;
+    m_glowScale = 1.0f;
+}
+
+LampNode::~LampNode()
+{
+}
+
+void LampNode::Init(Scene& scene)
+{
+    m_lamp.reset(new MeshNode(scene.GetMesh("Assets/Models/Cube.obj"), g_shader_LitTextured, scene.GetTexture("Assets/Textures/UvGrid.png")));
+    m_lamp->SetScale({0.2f, 0.2f, 0.2f});
+    AddChild(m_lamp);
+
+    Material alphaMaterial;
+    alphaMaterial.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+    alphaMaterial.Emissive = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+    alphaMaterial.bUseTexture = true;
+
+    m_glow.reset(new BillboardNode(scene.GetTexture("Assets/Textures/SphereGlow.png")));
+    m_glow->SetMaterial(alphaMaterial);
+    AddChild(m_glow);
+}
+
+void LampNode::Update(Scene& scene, const float deltaTime)
+{
+    SceneNode::Update(scene, deltaTime);
+
+    m_elapsedTimeInSeconds += deltaTime;
+    m_glowScale = m_glowScale + sinf(m_elapsedTimeInSeconds * 2.0f) * 0.002f;
+    m_glow->scale = m_glowScale;
+}
+
+void LampNode::Render(Scene& scene)
+{
 }

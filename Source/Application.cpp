@@ -2,12 +2,11 @@
 
 Application* g_pApp = nullptr;
 
-
-StrongShaderPtr g_TexturedLitShader = NULL;
 StrongShaderPtr g_SkyShader = NULL;
 StrongShaderPtr g_BillboardShader = NULL;
 
 StrongShaderPtr g_pShader_UnlitColored = nullptr;
+StrongShaderPtr g_shader_LitTextured = nullptr;
 
 //-----------------------------------------------------------------------------
 // Application Implementation
@@ -33,7 +32,9 @@ Application::Application()
 Application::~Application()
 {
     if (m_pScene)
+    {
         delete m_pScene;
+    }
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
@@ -48,7 +49,9 @@ Application::~Application()
     SDL_Quit();
 
     if (g_pApp)
+    {
         g_pApp = nullptr;
+    }
 }
 
 bool Application::Initialize()
@@ -96,7 +99,7 @@ bool Application::Initialize()
     ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_Context);
     ImGui_ImplOpenGL3_Init();
 
-    g_TexturedLitShader.reset(new Shader({ 
+    g_shader_LitTextured.reset(new Shader({ 
         _ShaderStage(GL_VERTEX_SHADER,      "Assets/Shaders/TexturedLit.vert"), 
         _ShaderStage(GL_FRAGMENT_SHADER,    "Assets/Shaders/TexturedLit.frag") 
     }));
@@ -107,27 +110,15 @@ bool Application::Initialize()
     g_BillboardShader.reset(new Shader());
     g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard.vert", "Assets/Shaders/Billboard.frag");
 
-    g_pShader_UnlitColored.reset(new Shader());
-    g_pShader_UnlitColored->LoadFromFile("Assets/Shaders/UnlitColored.vert", "Assets/Shaders/UnlitColored.frag");
+    g_shader_UnlitColored.reset(new Shader());
+    g_shader_UnlitColored->LoadFromFile("Assets/Shaders/UnlitColored.vert", "Assets/Shaders/UnlitColored.frag");
 
     m_pScene = new Scene();
+    m_pScene->Init();
 
     m_bCameraMoving = false;
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
-
-    stbi_set_flip_vertically_on_load(0);
-    pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
-
-    int x = (HeightMapWidth / 2), y = (HeightMapHeight / 2);
-    
-    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0];
-    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1];
-    Colorv = pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2];
-
-    stbi_image_free(pHeightMapData);
-
-    // m_brush.Load();
 
     m_bRunning = true;
     
@@ -238,43 +229,6 @@ bool Application::OnKeyDown(int key)
             m_bDebugCameraEnabled = !m_bDebugCameraEnabled;
             return true;
         }
-
-        case SDL_SCANCODE_SPACE:
-        {
-            //stbi_set_flip_vertically_on_load(0);
-            //pHeightMapData = stbi_load("Assets/Heightmaps/HeightMap1.png", &HeightMapWidth, &HeightMapHeight, &HeightMapChannelCount, 0);
-
-            //int x = (HeightMapWidth / 2);
-            //int y = (HeightMapHeight / 2);
-
-            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 0] = Colorv;
-            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 1] = Colorv;
-            //pHeightMapData[((y * HeightMapWidth + x) * HeightMapChannelCount) + 2] = Colorv;
-
-            //stbi_flip_vertically_on_write(0);
-            //stbi_write_png("Assets/Heightmaps/HeightMap1.png", HeightMapWidth, HeightMapHeight, HeightMapChannelCount, pHeightMapData, (HeightMapWidth * HeightMapChannelCount));
-            //stbi_image_free(pHeightMapData);
-
-            m_pScene->ReloadTerrain();
-
-            return true;
-        }
-
-        case SDL_SCANCODE_UP:
-        {
-            if (Colorv < UINT8_MAX)
-                Colorv += 1;
-
-            return true;
-        }
-
-        case SDL_SCANCODE_DOWN:
-        {
-            if (Colorv > 0)
-                Colorv -= 1;
-
-            return true;
-        }
     }
 
     m_bKeys[key] = true;
@@ -339,7 +293,7 @@ void Application::UpdateMovementController(const float deltaTime)
 
     if (m_bCameraMoving)
     {
-        std::shared_ptr<CameraNode>& camera = m_pScene->GetCamera();
+        std::shared_ptr<CameraNode> camera = m_pScene->GetCamera();
         std::shared_ptr<SceneNode>& cameraTargetNode = camera->m_TargetNode;
 
         if (!m_bDebugCameraEnabled)
@@ -463,7 +417,12 @@ void Application::Render()
 
 static void ImGUIRenderSceneNode(std::shared_ptr<SceneNode> node)
 {
-    if (ImGui::TreeNodeEx(node->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+
+    if (node->GetChildren().empty()) 
+        flags |= ImGuiTreeNodeFlags_Leaf;
+
+    if (ImGui::TreeNodeEx(node->GetName().c_str(), flags))
     {
         SceneNodeVector::const_iterator it = node->GetChildren().begin();
         
