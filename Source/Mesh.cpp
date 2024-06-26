@@ -15,7 +15,7 @@ Mesh::~Mesh()
 void Mesh::LoadResource(const std::string& name)
 {
     FILE* fp = fopen(name.c_str(), "r");
-    assert(fp != nullptr);
+    
 
     std::vector<Vertex> vertices;
 

@@ -1,32 +1,30 @@
 #include "Shader.h"
 
+#include <fstream>
+
+char* LoadShaderResource(const std::string& name)
+{
+    std::ifstream file(name, std::ios::binary);
+
+    file.seekg(0, file.end);
+    const size_t size = static_cast<size_t>(file.tellg());
+    file.seekg(0, file.beg);
+
+    char* pBuffer = new char[size + 1];
+    file.read(pBuffer, size);
+    pBuffer[size] = '\0';
+
+    file.close();
+
+    return pBuffer;
+}
+
 //-----------------------------------------------------------------------------
 // Shader Implementation
 //-----------------------------------------------------------------------------
 
-Shader::Shader(std::vector<_ShaderStage> stages)
+Shader::Shader()
 {
-    m_programID = glCreateProgram();
-
-    for (_ShaderStage& stage : stages)
-    {
-        stage.Load();
-        glAttachShader(m_programID, stage.m_shaderID);
-    }
-
-    glLinkProgram(m_programID);
-
-    int bResult;
-    glGetProgramiv(m_programID, GL_LINK_STATUS, &bResult);
-
-    if (bResult != GL_TRUE)
-    {
-        const int infoLogSize = 512;
-        char infoLog[infoLogSize];
-
-        glGetProgramInfoLog(m_programID, infoLogSize, nullptr, infoLog);
-        printf_s("%s\n", infoLog);
-    }
 }
 
 Shader::~Shader()
@@ -34,54 +32,29 @@ Shader::~Shader()
     glDeleteProgram(m_programID);
 }
 
-void Shader::LoadFromFile(const std::string& vertexShaderResource, const std::string& fragShaderResource)
+void Shader::Load(const std::string& vertResource, const std::string& fragResource)
 {
-    auto Compile = [](const std::string& resource, uint32_t shaderType)
-    {
-        uint32_t shaderID = glCreateShader(shaderType);
+    char* pVertResBuffer = LoadShaderResource(vertResource);
+    char* pFragResBuffer = LoadShaderResource(fragResource);
 
-        FILE* fp = fopen(resource.c_str(), "rb");
+    GLuint vertID = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragID = glCreateShader(GL_FRAGMENT_SHADER);
 
-        fseek(fp, 0, SEEK_END);
-        size_t size = ftell(fp);
-        rewind(fp);
+    glShaderSource(vertID, 1, &pVertResBuffer, nullptr);
+    glShaderSource(fragID, 1, &pFragResBuffer, nullptr);
 
-        char* pData = new char[size + 1];
-        fread(&pData[0], sizeof(char), size, fp);
-        pData[size] = '\0';
+    delete[] pVertResBuffer;
+    delete[] pFragResBuffer;
 
-        fclose(fp);
-
-        glShaderSource(shaderID, 1, &pData, NULL);
-        glCompileShader(shaderID);
-
-        int result;
-        glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
-
-        if (result == GL_FALSE)
-        {
-            char infoLog[BUFSIZ];
-            glGetShaderInfoLog(shaderID, BUFSIZ, NULL, infoLog);
-            printf("%s\n", infoLog);
-        }
-
-        delete[] pData;
-
-        return shaderID;
-    };
-
-    uint32_t vertexShaderID = Compile(vertexShaderResource, GL_VERTEX_SHADER);
-    uint32_t fragShaderID = Compile(fragShaderResource, GL_FRAGMENT_SHADER);
+    glCompileShader(vertID);
+    glCompileShader(fragID);
 
     m_programID = glCreateProgram();
 
-    glAttachShader(m_programID, vertexShaderID);
-    glAttachShader(m_programID, fragShaderID);
+    glAttachShader(m_programID, vertID);
+    glAttachShader(m_programID, fragID);    
 
     glLinkProgram(m_programID);
-
-    glDeleteShader(vertexShaderID);
-    glDeleteShader(fragShaderID);
 }
 
 void Shader::Bind()

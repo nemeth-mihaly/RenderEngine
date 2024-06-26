@@ -22,7 +22,8 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 #include "3rdParty/glm/gtx/quaternion.hpp"
 
-extern      StrongShaderPtr     g_TerrainShader;
+extern StrongShaderPtr g_pShader_UnlitColored;
+extern StrongShaderPtr g_pShader_LitTextured;
 
 constexpr int MAX_PARTICLES = 256;
 

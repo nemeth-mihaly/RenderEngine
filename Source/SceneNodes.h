@@ -157,14 +157,15 @@ class CubeMapNode : public SceneNode
 {
 public:
     CubeMapNode();
-    virtual ~CubeMapNode();
 
+    virtual void Init(Scene& scene) override;
     virtual void Render(Scene& scene) override;
 
 private:
-    uint32_t                m_CubeMapSideVertCount;
+    Shader  m_shader;
+    size_t  m_numVerts;
 
-    uint32_t                m_VertCount;
+    uint32_t                m_CubeMapSideVertCount;
 
     StrongVertexArrayPtr    m_VertexArray;
     StrongVertexBufferPtr   m_VertexBuffer;
@@ -187,6 +188,7 @@ public:
     float scale;
 
 private:
+    Shader m_shader;
 
     uint32_t                m_IndexCount;
 
@@ -212,6 +214,8 @@ public:
     float HeightAt(float x, float z);
 
 private:
+    Shader m_shader;
+
     uint32_t                m_IndexCount;
 
     StrongVertexArrayPtr    m_VertexArray;

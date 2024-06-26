@@ -241,7 +241,7 @@ CubeMapNode::CubeMapNode()
     m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
-    m_VertCount = vertices.size();
+    m_numVerts = vertices.size();
     vertices.clear();
 
     for (uint32_t i = 0; i < CubeMapSide_Count; i++)
@@ -255,17 +255,21 @@ CubeMapNode::CubeMapNode()
     m_Textures[CubeMapSide_S]->LoadResource("Assets/Textures/Sky_NZ_dbg.png");
 }
 
-CubeMapNode::~CubeMapNode()
+void CubeMapNode::Init(Scene& scene)
 {
+    SceneNode::Init(scene);
+
+    m_shader.Load("Assets/Shaders/Sky.vert", "Assets/Shaders/Sky.frag");
+    m_shader.SetUniformBlockBinding(0, "Matrices");
 }
 
 void CubeMapNode::Render(Scene& scene)
 {
     glDepthFunc(GL_LEQUAL);
 
-    g_SkyShader->Bind();
-    g_SkyShader->SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(scene.GetCamera()->GetView())));
-    g_SkyShader->SetUniformMatrix4f("u_WorldProjection", scene.GetCamera()->GetProjection());
+    m_shader.Bind();
+    m_shader.SetUniformMatrix4f("u_WorldView", glm::mat4(glm::mat3(scene.GetCamera()->GetView())));
+    m_shader.SetUniformMatrix4f("u_WorldProjection", scene.GetCamera()->GetProjection());
 
     m_VertexArray->Bind();
 
@@ -273,7 +277,7 @@ void CubeMapNode::Render(Scene& scene)
     {
         const uint32_t texUnit = 0;
         m_Textures[i]->BindUnit(texUnit);
-        g_SkyShader->SetUniform1i("u_Texture", texUnit);
+        m_shader.SetUniform1i("u_Texture", texUnit);
 
         const int vertFirst = i * m_CubeMapSideVertCount;
         glDrawArrays(GL_TRIANGLES, vertFirst, m_CubeMapSideVertCount);
@@ -289,6 +293,9 @@ void CubeMapNode::Render(Scene& scene)
 BillboardNode::BillboardNode(const StrongTexturePtr& texture)
     : m_Texture(texture)
 {
+    m_shader.Load("Assets/Shaders/Billboard.vert", "Assets/Shaders/Billboard.frag");
+    m_shader.SetUniformBlockBinding(0, "Matrices");
+
     scale = 1.0f;
 
     const uint32_t rectVertCount = 4;
@@ -333,18 +340,18 @@ BillboardNode::~BillboardNode()
 
 void BillboardNode::Render(Scene& scene)
 {
-    g_BillboardShader->Bind();
+    m_shader.Bind();
 
     if (m_material.bUseTexture)
     {
         const uint32_t texUnit = 0;
         m_Texture->BindUnit(texUnit);
-        g_BillboardShader->SetUniform1i("u_Texture", texUnit);
+        m_shader.SetUniform1i("u_Texture", texUnit);
     }
 
     m_pos = m_pParent->GetPosition();
-    g_BillboardShader->SetUniform3f("u_Position", m_pos);
-    g_BillboardShader->SetUniform1f("scale", scale);
+    m_shader.SetUniform3f("u_Position", m_pos);
+    m_shader.SetUniform1f("scale", scale);
 
     m_VertexArray->Bind();
     glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_INT, nullptr);
@@ -356,6 +363,10 @@ void BillboardNode::Render(Scene& scene)
 
 TerrainNode::TerrainNode()
 {
+    m_shader.Load("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
+    m_shader.SetUniformBlockBinding(0, "Matrices");
+    m_shader.SetUniformBlockBinding(1, "Lighting");
+    
     printf("Generating terrain..\n");
 
     stbi_set_flip_vertically_on_load(0);
@@ -453,34 +464,34 @@ TerrainNode::~TerrainNode()
 
 void TerrainNode::Render(Scene& scene)
 {
-    g_TerrainShader->Bind();
+    m_shader.Bind();
 
-    g_TerrainShader->SetUniformMatrix4f("u_World", glm::mat4(1.0f));
+    m_shader.SetUniformMatrix4f("u_World", glm::mat4(1.0f));
 
-    g_TerrainShader->SetUniform4f("u_Material.Ambient", m_material.Ambient);
-    g_TerrainShader->SetUniform4f("u_Material.Diffuse", m_material.Diffuse);
-    g_TerrainShader->SetUniform4f("u_Material.Specular", m_material.Specular);
-    g_TerrainShader->SetUniform4f("u_Material.Emissive", m_material.Emissive);
-    g_TerrainShader->SetUniform1f("u_Material.SpecularPower", m_material.SpecularPower);
-    g_TerrainShader->SetUniform1b("u_Material.bUseTexture", m_material.bUseTexture);
+    m_shader.SetUniform4f("u_Material.Ambient", m_material.Ambient);
+    m_shader.SetUniform4f("u_Material.Diffuse", m_material.Diffuse);
+    m_shader.SetUniform4f("u_Material.Specular", m_material.Specular);
+    m_shader.SetUniform4f("u_Material.Emissive", m_material.Emissive);
+    m_shader.SetUniform1f("u_Material.SpecularPower", m_material.SpecularPower);
+    m_shader.SetUniform1b("u_Material.bUseTexture", m_material.bUseTexture);
 
     m_material.bUseTexture = true;
     if (m_material.bUseTexture)
     {
         scene.GetTexture("Assets/Heightmaps/BlendMap.png")->BindUnit(0);
-        g_TerrainShader->SetUniform1i("u_BlendMapTexture", 0);
+        m_shader.SetUniform1i("u_BlendMapTexture", 0);
 
         scene.GetTexture("Assets/Textures/Terrain/ElwynnDirtBase.png")->BindUnit(1);
-        g_TerrainShader->SetUniform1i("u_DirtBaseTexture", 1);
+        m_shader.SetUniform1i("u_DirtBaseTexture", 1);
 
         scene.GetTexture("Assets/Textures/Terrain/ElwynnCobblestoneBase.png")->BindUnit(2);
-        g_TerrainShader->SetUniform1i("u_StonebrickTexture", 2);
+        m_shader.SetUniform1i("u_StonebrickTexture", 2);
 
         scene.GetTexture("Assets/Textures/Terrain/ElwynnGrassBase.png")->BindUnit(3);
-        g_TerrainShader->SetUniform1i("u_GrassTexture", 3);
+        m_shader.SetUniform1i("u_GrassTexture", 3);
 
         scene.GetTexture("Assets/Textures/Terrain/ElwynnCrop.png")->BindUnit(4);
-        g_TerrainShader->SetUniform1i("u_CropTex", 4);
+        m_shader.SetUniform1i("u_CropTex", 4);
     }
 
     m_VertexArray->Bind();
@@ -513,7 +524,7 @@ LampNode::~LampNode()
 
 void LampNode::Init(Scene& scene)
 {
-    m_lamp.reset(new MeshNode(scene.GetMesh("Assets/Models/Cube.obj"), g_shader_LitTextured, scene.GetTexture("Assets/Textures/UvGrid.png")));
+    m_lamp.reset(new MeshNode(scene.GetMesh("Assets/Models/Cube.obj"), g_pShader_LitTextured, scene.GetTexture("Assets/Textures/UvGrid.png")));
     m_lamp->SetScale({0.2f, 0.2f, 0.2f});
     AddChild(m_lamp);
 

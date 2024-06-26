@@ -19,12 +19,6 @@
 #include "Shader.h"
 #include "Scene.h"
 
-extern StrongShaderPtr g_SkyShader;
-extern StrongShaderPtr g_BillboardShader;
-
-extern StrongShaderPtr g_shader_UnlitColored;
-extern StrongShaderPtr g_shader_LitTextured;
-
 //-----------------------------------------------------------------------------
 // class PerformanceInfoControl
 //-----------------------------------------------------------------------------

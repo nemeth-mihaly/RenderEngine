@@ -4,7 +4,8 @@
 
 #include "Application.h"
 
-StrongShaderPtr     g_TerrainShader = nullptr;
+StrongShaderPtr g_pShader_UnlitColored = nullptr;
+StrongShaderPtr g_pShader_LitTextured = nullptr;
 
 ////////////////////////////////////////////////////
 //  Scene Implementation
@@ -20,8 +21,12 @@ Scene::~Scene()
 
 void Scene::Init()
 {
-    g_TerrainShader.reset(new Shader());
-    g_TerrainShader->LoadFromFile("Assets/Shaders/Terrain.vert", "Assets/Shaders/Terrain.frag");
+
+    g_pShader_LitTextured.reset(new Shader());
+    g_pShader_LitTextured->Load("Assets/Shaders/TexturedLit.vert", "Assets/Shaders/TexturedLit.frag");
+
+    g_pShader_UnlitColored.reset(new Shader());
+    g_pShader_UnlitColored->Load("Assets/Shaders/UnlitColored.vert", "Assets/Shaders/UnlitColored.frag");
 
     m_root.reset(new SceneNode());
     m_root->m_name = "Root";
@@ -31,7 +36,7 @@ void Scene::Init()
     //m_root->AddChild(m_camera);
     AddSceneNode(m_camera);
 
-    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_shader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
+    std::shared_ptr<SceneNode> suzanneTheMonkey(new MeshNode(GetMesh("Assets/Models/Monkey.obj"), g_pShader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
     suzanneTheMonkey->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
     suzanneTheMonkey->m_name = "Monkey";
     suzanneTheMonkey->SetRotation(glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -41,7 +46,7 @@ void Scene::Init()
 
     m_camera->m_TargetNode = suzanneTheMonkey;
 
-    std::shared_ptr<SceneNode> cube(new MeshNode(GetMesh("Assets/Models/Cube.obj"), g_shader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
+    std::shared_ptr<SceneNode> cube(new MeshNode(GetMesh("Assets/Models/Cube.obj"), g_pShader_LitTextured, GetTexture("Assets/Textures/UvGrid.png")));
     cube->SetPosition({-5.0f, 0.0f, 0.0f});
     cube->m_name = "Child of Monkey";
     suzanneTheMonkey->AddChild(cube);
@@ -111,18 +116,15 @@ void Scene::Init()
     m_LightNodes.push_back(SpotLight);
 
     m_CubeMap.reset(new CubeMapNode());
+    m_CubeMap->Init((*this));
 
     m_UniformBufferMatrices.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
     m_UniformBufferLighting.reset(new UniformBuffer(1, 32 * sizeof(LightProperties), GL_DYNAMIC_DRAW));
 
-    g_shader_LitTextured->SetUniformBlockBinding(0, "Matrices");
-    g_SkyShader->SetUniformBlockBinding(0, "Matrices");
-    g_BillboardShader->SetUniformBlockBinding(0, "Matrices");
-    g_TerrainShader->SetUniformBlockBinding(0, "Matrices");
-    g_shader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
+    g_pShader_LitTextured->SetUniformBlockBinding(0, "Matrices");
+    g_pShader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
 
-    g_shader_LitTextured->SetUniformBlockBinding(1, "Lighting");
-    g_TerrainShader->SetUniformBlockBinding(1, "Lighting");
+    g_pShader_LitTextured->SetUniformBlockBinding(1, "Lighting");
 
     /** Particles */
 
@@ -165,6 +167,8 @@ void Scene::Init()
         m_Particles[i].Life = 10.0f;
     }
     */
+
+   m_root->Init((*this));
 }
 
 void Scene::Update(const float deltaTime)
@@ -214,7 +218,7 @@ void Scene::Render()
     glClearColor(0.05f, 0.05f, 0.05f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    g_shader_LitTextured->Bind();
+    g_pShader_LitTextured->Bind();
 
     for (uint32_t i = 0; i < m_LightNodes.size(); i++)
     {
@@ -223,18 +227,19 @@ void Scene::Render()
         const Material& material = m_LightNodes[i]->GetMaterial();
         const LightProperties& lightProperties = m_LightNodes[i]->GetProperties();
 
-        g_shader_LitTextured->SetUniform1i(("u_Lights[" + strIndex + "].Type"), static_cast<int>(lightProperties.Type));
-        g_shader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Position"), lightProperties.Position);
-        g_shader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Direction"), lightProperties.Direction);
-        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Ambient"), material.Ambient);
-        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Diffuse"), material.Diffuse);
-        g_shader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Specular"), material.Specular);
-        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].Falloff"), lightProperties.Falloff);
-        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].ConstantAttenuation"), lightProperties.ConstantAttenuation);
-        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
-        g_shader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
+        g_pShader_LitTextured->SetUniform1i(("u_Lights[" + strIndex + "].Type"), static_cast<int>(lightProperties.Type));
+        g_pShader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Position"), lightProperties.Position);
+        g_pShader_LitTextured->SetUniform3f(("u_Lights[" + strIndex + "].Direction"), lightProperties.Direction);
+        g_pShader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Ambient"), material.Ambient);
+        g_pShader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Diffuse"), material.Diffuse);
+        g_pShader_LitTextured->SetUniform4f(("u_Lights[" + strIndex + "].Specular"), material.Specular);
+        g_pShader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].Falloff"), lightProperties.Falloff);
+        g_pShader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].ConstantAttenuation"), lightProperties.ConstantAttenuation);
+        g_pShader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
+        g_pShader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
 
+    /*
     g_TerrainShader->Bind();
 
     for (uint32_t i = 0; i < m_LightNodes.size(); i++)
@@ -255,6 +260,7 @@ void Scene::Render()
         g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
         g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
+    */
 
     /*
     for (const std::shared_ptr<SceneNode>& sceneNode : m_SceneNodes)

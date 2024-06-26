@@ -2,12 +2,6 @@
 
 Application* g_pApp = nullptr;
 
-StrongShaderPtr g_SkyShader = NULL;
-StrongShaderPtr g_BillboardShader = NULL;
-
-StrongShaderPtr g_shader_UnlitColored = nullptr;
-StrongShaderPtr g_shader_LitTextured = nullptr;
-
 //-----------------------------------------------------------------------------
 // Application Implementation
 //-----------------------------------------------------------------------------
@@ -98,20 +92,6 @@ bool Application::Initialize()
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_Context);
     ImGui_ImplOpenGL3_Init();
-
-    g_shader_LitTextured.reset(new Shader({ 
-        _ShaderStage(GL_VERTEX_SHADER,      "Assets/Shaders/TexturedLit.vert"), 
-        _ShaderStage(GL_FRAGMENT_SHADER,    "Assets/Shaders/TexturedLit.frag") 
-    }));
-
-    g_SkyShader.reset(new Shader());
-    g_SkyShader->LoadFromFile("Assets/Shaders/Sky.vert", "Assets/Shaders/Sky.frag");
-
-    g_BillboardShader.reset(new Shader());
-    g_BillboardShader->LoadFromFile("Assets/Shaders/Billboard.vert", "Assets/Shaders/Billboard.frag");
-
-    g_shader_UnlitColored.reset(new Shader());
-    g_shader_UnlitColored->LoadFromFile("Assets/Shaders/UnlitColored.vert", "Assets/Shaders/UnlitColored.frag");
 
     m_pScene = new Scene();
     m_pScene->Init();
