@@ -5,7 +5,7 @@ Application* g_pApp = nullptr;
 StrongShaderPtr g_SkyShader = NULL;
 StrongShaderPtr g_BillboardShader = NULL;
 
-StrongShaderPtr g_pShader_UnlitColored = nullptr;
+StrongShaderPtr g_shader_UnlitColored = nullptr;
 StrongShaderPtr g_shader_LitTextured = nullptr;
 
 //-----------------------------------------------------------------------------
