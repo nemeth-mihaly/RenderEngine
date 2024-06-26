@@ -2,6 +2,9 @@
 
 #include <fstream>
 
+int g_numShaderSwaps = 0;
+int g_numUniformLocationLookups = 0;
+
 char* LoadShaderResource(const std::string& name)
 {
     std::ifstream file(name, std::ios::binary);
@@ -59,6 +62,7 @@ void Shader::Load(const std::string& vertResource, const std::string& fragResour
 
 void Shader::Bind()
 {
+    g_numShaderSwaps++;
     glUseProgram(m_programID);
 }
 
@@ -105,5 +109,6 @@ void Shader::SetUniformMatrix4f(const std::string& name, const glm::mat4& value)
 
 uint32_t Shader::GetUniformLocation(const std::string& name)
 {
+    g_numUniformLocationLookups++;
     return glGetUniformLocation(m_programID, name.c_str());
 }

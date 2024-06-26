@@ -1,0 +1,134 @@
+[
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/cc.exe  @CMakeFiles/Engine.dir/includes_C.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/glad/glad.c.obj -c C:/Dev/RenderEngine/Source/3rdParty/glad/glad.c",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/glad/glad.c",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/glad/glad.c.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/glm/detail/glm.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/glm/detail/glm.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/glm/detail/glm.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/glm/detail/glm.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_demo.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_demo.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_demo.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_demo.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_draw.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_draw.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_draw.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_draw.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_impl_opengl3.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_impl_sdl2.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_impl_sdl2.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_tables.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_tables.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_tables.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_tables.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_widgets.cpp.obj -c C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_widgets.cpp",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/imgui/imgui_widgets.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_widgets.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/cc.exe  @CMakeFiles/Engine.dir/includes_C.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/stb/stb_image.c.obj -c C:/Dev/RenderEngine/Source/3rdParty/stb/stb_image.c",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/stb/stb_image.c",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/stb/stb_image.c.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/cc.exe  @CMakeFiles/Engine.dir/includes_C.rsp -g -o CMakeFiles/Engine.dir/Source/3rdParty/stb/stb_image_write.c.obj -c C:/Dev/RenderEngine/Source/3rdParty/stb/stb_image_write.c",
+  "file": "C:/Dev/RenderEngine/Source/3rdParty/stb/stb_image_write.c",
+  "output": "CMakeFiles/Engine.dir/Source/3rdParty/stb/stb_image_write.c.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Application.cpp.obj -c C:/Dev/RenderEngine/Source/Application.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Application.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Application.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Buffers.cpp.obj -c C:/Dev/RenderEngine/Source/Buffers.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Buffers.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Buffers.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Lights.cpp.obj -c C:/Dev/RenderEngine/Source/Lights.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Lights.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Lights.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Material.cpp.obj -c C:/Dev/RenderEngine/Source/Material.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Material.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Material.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Mesh.cpp.obj -c C:/Dev/RenderEngine/Source/Mesh.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Mesh.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Mesh.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Scene.cpp.obj -c C:/Dev/RenderEngine/Source/Scene.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Scene.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Scene.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj -c C:/Dev/RenderEngine/Source/SceneNodes.cpp",
+  "file": "C:/Dev/RenderEngine/Source/SceneNodes.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/SceneNodes.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Shader.cpp.obj -c C:/Dev/RenderEngine/Source/Shader.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Shader.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Shader.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/Texture.cpp.obj -c C:/Dev/RenderEngine/Source/Texture.cpp",
+  "file": "C:/Dev/RenderEngine/Source/Texture.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/Texture.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/VertexArray.cpp.obj -c C:/Dev/RenderEngine/Source/VertexArray.cpp",
+  "file": "C:/Dev/RenderEngine/Source/VertexArray.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/VertexArray.cpp.obj"
+},
+{
+  "directory": "C:/Dev/RenderEngine/build",
+  "command": "C:/MSYS64/ucrt64/bin/c++.exe  @CMakeFiles/Engine.dir/includes_CXX.rsp -g -o CMakeFiles/Engine.dir/Source/main.cpp.obj -c C:/Dev/RenderEngine/Source/main.cpp",
+  "file": "C:/Dev/RenderEngine/Source/main.cpp",
+  "output": "CMakeFiles/Engine.dir/Source/main.cpp.obj"
+}
+]

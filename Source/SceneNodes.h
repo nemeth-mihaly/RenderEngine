@@ -33,6 +33,8 @@ class SceneNode
     friend class Scene;
 
 public:
+    bool                m_bVisible = true;
+
     SceneNode();
     virtual ~SceneNode();
 

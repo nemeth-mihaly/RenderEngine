@@ -11,6 +11,8 @@ SceneNode::SceneNode()
 {
     m_name = "SceneNode";
 
+    // m_bVisible = true;
+
     m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
     m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -67,22 +69,26 @@ void SceneNode::RenderChildren(Scene& scene)
 
     while (it != m_children.end())
     {
-        const float alpha = (*it)->GetMaterial().Diffuse.a;
-
-        if (alpha == 1.0f)
+        if (m_bVisible)
         {
-            (*it)->Render(scene);
-        }
-        else 
-        if (alpha == 0.0f)
-        {
-            AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
-            pAlphaSceneNode->node = (*it);
-            
-            scene.AddAlphaSceneNode(pAlphaSceneNode);
+            const float alpha = (*it)->GetMaterial().Diffuse.a;
+
+            if (alpha == 1.0f)
+            {
+                (*it)->Render(scene);
+            }
+            else 
+            if (alpha == 0.0f)
+            {
+                AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
+                pAlphaSceneNode->node = (*it);
+                
+                scene.AddAlphaSceneNode(pAlphaSceneNode);
+            }
+
+            (*it)->RenderChildren(scene);
         }
 
-        (*it)->RenderChildren(scene);
         it++;
     }
 }

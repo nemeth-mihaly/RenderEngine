@@ -395,14 +395,28 @@ void Application::Render()
     SDL_GL_SwapWindow(m_pWindow);
 }
 
+static std::shared_ptr<SceneNode> selected = nullptr;
+
 static void ImGUIRenderSceneNode(std::shared_ptr<SceneNode> node)
 {
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 
+    if (selected == node)
+    {
+        flags |= ImGuiTreeNodeFlags_Selected;
+    }
+
     if (node->GetChildren().empty()) 
         flags |= ImGuiTreeNodeFlags_Leaf;
 
-    if (ImGui::TreeNodeEx(node->GetName().c_str(), flags))
+    bool bTreeNodeOpen = ImGui::TreeNodeEx(node->GetName().c_str(), flags);
+
+    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+    {
+        selected = node;
+    }
+
+    if (bTreeNodeOpen)
     {
         SceneNodeVector::const_iterator it = node->GetChildren().begin();
         
@@ -433,6 +447,16 @@ void Application::ImGUIRender()
     std::shared_ptr<SceneNode> root = m_pScene->GetRoot();
     ImGUIRenderSceneNode(root);
     
+    ImGui::End();
+
+    ImGui::Begin("Scene Node");
+
+    if (selected)
+    {
+        ImGui::Text("%s", selected->GetName().c_str());
+        ImGui::Checkbox("Visible", &selected->m_bVisible);
+    }
+
     ImGui::End();
 
     m_performanceInfoControl.Render();

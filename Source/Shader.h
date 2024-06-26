@@ -15,6 +15,9 @@
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
 #include "3rdParty/glm/gtc/type_ptr.hpp"
 
+extern int g_numShaderSwaps;
+extern int g_numUniformLocationLookups;
+
 //-----------------------------------------------------------------------------
 // class Shader
 //-----------------------------------------------------------------------------

@@ -13,6 +13,7 @@
 #include "Lights.h"
 
 #include "Mesh.h"
+#include "Shader.h"
 #include "Texture.h"
 
 #include "3rdParty/glm/glm.hpp"

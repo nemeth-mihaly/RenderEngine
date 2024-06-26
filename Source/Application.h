@@ -9,14 +9,10 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "3rdParty/stb/stb_image.h"
-#include "3rdParty/stb/stb_image_write.h"
-
 #include "3rdParty/imgui/imgui.h"
 #include "3rdParty/imgui/imgui_impl_sdl2.h"
 #include "3rdParty/imgui/imgui_impl_opengl3.h"
 
-#include "Shader.h"
 #include "Scene.h"
 
 //-----------------------------------------------------------------------------
@@ -32,6 +28,9 @@ public:
 
         m_frameCount = 0;
         m_fps = 0;
+
+        m_numShaderSwaps = 0;
+        m_numShaderUniformLookups = 0;
     }
 
     ~PerformanceInfoControl() 
@@ -49,6 +48,11 @@ public:
 
             m_fps = m_frameCount;
             m_frameCount = 0;
+        
+            m_numShaderSwaps = g_numShaderSwaps / m_fps;
+            m_numShaderUniformLookups = g_numUniformLocationLookups / m_fps;
+            g_numShaderSwaps = 0;
+            g_numUniformLocationLookups = 0;
         }
     }
 
@@ -56,6 +60,8 @@ public:
     {
         ImGui::Begin("Performance Info");
         ImGui::Text("Application average %.3f ms/frame (%i FPS)", 1000.0f / (float)m_fps, m_fps);
+        ImGui::Text("Num shader swaps: %d", m_numShaderSwaps);
+        ImGui::Text("Num shader uniform lookups: %d", m_numShaderUniformLookups);
         ImGui::End();
     }
 
@@ -64,6 +70,9 @@ private:
 
     int     m_frameCount;
     int     m_fps;
+
+    int m_numShaderSwaps;
+    int m_numShaderUniformLookups;
 };
 
 //-----------------------------------------------------------------------------
