@@ -9,6 +9,8 @@
 
 SceneNode::SceneNode()
 {
+    m_pParent = nullptr;
+
     m_name = "SceneNode";
 
     // m_bVisible = true;
@@ -69,25 +71,22 @@ void SceneNode::RenderChildren(Scene& scene)
 
     while (it != m_children.end())
     {
-        if (m_bVisible)
+        const float alpha = (*it)->GetMaterial().Diffuse.a;
+
+        if (alpha == 1.0f)
         {
-            const float alpha = (*it)->GetMaterial().Diffuse.a;
-
-            if (alpha == 1.0f)
-            {
-                (*it)->Render(scene);
-            }
-            else 
-            if (alpha == 0.0f)
-            {
-                AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
-                pAlphaSceneNode->node = (*it);
-                
-                scene.AddAlphaSceneNode(pAlphaSceneNode);
-            }
-
-            (*it)->RenderChildren(scene);
+            (*it)->Render(scene);
         }
+        else 
+        if (alpha == 0.0f)
+        {
+            AlphaSceneNode* pAlphaSceneNode = new AlphaSceneNode();
+            pAlphaSceneNode->node = (*it);
+            
+            scene.AddAlphaSceneNode(pAlphaSceneNode);
+        }
+
+        (*it)->RenderChildren(scene);
 
         it++;
     }
@@ -99,16 +98,16 @@ void SceneNode::AddChild(std::shared_ptr<SceneNode> node)
     node->m_pParent = this;
 }
 
-////////////////////////////////////////////////////
-//  CameraNode Implementation
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// CameraNode Implementation
+//-----------------------------------------------------------------------------
 
 CameraNode::CameraNode()
 {
     m_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_ForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
-    m_TargetPos = m_pos + m_ForwardDir;
-    m_Projection = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
+    m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
+    m_TargetPos = m_pos + m_forward;
+    m_proj = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
     WorldViewProjection();
 }
 
@@ -119,8 +118,8 @@ CameraNode::~CameraNode()
 glm::mat4 CameraNode::WorldViewProjection()
 {
     //m_View = glm::lookAt(m_Pos, (m_Pos + m_ForwardDir), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_View = glm::lookAt(m_pos, m_TargetPos, glm::vec3(0.0f, 1.0f, 0.0f));
-    return (m_Projection * m_View);
+    m_view = glm::lookAt(m_pos, m_TargetPos, glm::vec3(0.0f, 1.0f, 0.0f));
+    return (m_proj * m_view);
 }
 
 ////////////////////////////////////////////////////

@@ -86,9 +86,9 @@ struct AlphaSceneNode
     std::shared_ptr<SceneNode> node;
 };
 
-//////////////////////////////////////////////////////
-//  class CameraSceneNode
-//////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// class CameraNode
+//-----------------------------------------------------------------------------
 
 class CameraNode : public SceneNode
 {
@@ -96,22 +96,22 @@ public:
     CameraNode();
     virtual ~CameraNode();
 
-    const glm::mat4& GetProjection() const { return m_Projection; }
-    const glm::mat4& GetView() const { return m_View; }
+    const glm::mat4& GetProjection() const { return m_proj; }
+    const glm::mat4& GetView() const { return m_view; }
 
     glm::mat4 WorldViewProjection();
 
-    void SetForwardDir(const glm::vec3& forwardDir) { m_ForwardDir = forwardDir; }
-    const glm::vec3& GetForwardDir() const { return m_ForwardDir; }
+    void SetForwardDir(const glm::vec3& forward) { m_forward = forward; }
+    const glm::vec3& GetForwardDir() const { return m_forward; }
 
     glm::vec3 m_TargetPos;
     std::shared_ptr<SceneNode> m_TargetNode;
 
 private:
-    glm::mat4   m_View;
-    glm::mat4   m_Projection;
+    glm::mat4   m_view;
+    glm::mat4   m_proj;
 
-    glm::vec3   m_ForwardDir;
+    glm::vec3   m_forward;
 };
 
 //////////////////////////////////////////////////////

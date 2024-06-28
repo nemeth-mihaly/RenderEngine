@@ -7,13 +7,12 @@
 
 int main(int argc, char* argv[])
 {
-    (void)argc; 
-    (void)argv;
-
     Application app;
 
-    if (app.Initialize())
+    if (app.Init())
+    {
         app.RunLoop();
+    }
 
     return 0;
 }

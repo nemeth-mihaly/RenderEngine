@@ -76,84 +76,6 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-// struct Vertex_UnlitColored
-//-----------------------------------------------------------------------------
-
-struct Vertex_UnlitColored
-{
-    glm::vec3   pos;
-};
-
-//-----------------------------------------------------------------------------
-// class Brush
-//-----------------------------------------------------------------------------
-
-/*
-class Brush 
-{
-public:
-    Brush()
-    {
-    }
-
-    ~Brush()
-    {
-    }
-
-    void Load()
-    {
-        m_vertices.resize(4);
-        m_vertices[0].pos = glm::vec3(-0.5f, 0.0f, 0.5f);
-        m_vertices[1].pos = glm::vec3( 0.5f, 0.0f, 0.5f);
-        m_vertices[2].pos = glm::vec3(-0.5f, 0.0f,-0.5f);
-        m_vertices[3].pos = glm::vec3( 0.5f, 0.0f,-0.5f);
-    
-        std::vector<uint8_t> indices =
-        {
-            0, 2, 1,
-            1, 2, 3,
-        };
-
-        m_vertexArray.reset(new VertexArray());
-        m_vertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-
-        const signed long long vertexBufferSize = sizeof(Vertex_UnlitColored) * m_vertices.size();
-        m_vertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
-        m_vertexBuffer->MapMemory(0, vertexBufferSize, m_vertices.data());
-        m_vertexArray->SetVertexBuffer(0, m_vertexBuffer, sizeof(Vertex_UnlitColored), VertexArrayInputRate_Vertex);
-
-        const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
-        m_indexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
-        m_indexBuffer->MapMemory(0, indexBufferSize, indices.data());
-        m_vertexArray->SetIndexBuffer(m_indexBuffer);
-        m_indexCount = indices.size();
-        indices.clear();
-    }
-
-    void Update(const float deltaTime)
-    {
-    }
-
-    void Render()
-    {
-        g_pShader_UnlitColored->Bind();
-
-        m_vertexArray->Bind();
-        glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_BYTE, nullptr);
-    }
-
-private:
-    std::vector<Vertex_UnlitColored>     m_vertices;
-
-    uint32_t                m_indexCount;
-
-    StrongVertexArrayPtr    m_vertexArray;
-    StrongVertexBufferPtr   m_vertexBuffer;
-    StrongIndexBufferPtr    m_indexBuffer;
-};
-*/
-
-//-----------------------------------------------------------------------------
 // class Application
 //-----------------------------------------------------------------------------
 
@@ -163,7 +85,7 @@ public:
     Application();
     ~Application();
 
-    bool Initialize();
+    bool Init();
     void RunLoop();    
 
 private:
@@ -187,7 +109,7 @@ private:
     bool            m_bRunning;
 
     SDL_Window*     m_pWindow;
-    SDL_GLContext   m_Context;
+    SDL_GLContext   m_pGLContext;
 
     uint64_t        m_currentTime;
     uint64_t        m_lastTime;

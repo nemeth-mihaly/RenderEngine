@@ -13,7 +13,7 @@ Application::Application()
     m_bRunning = false;
 
     m_pWindow = nullptr;
-    m_Context = nullptr;
+    m_pGLContext = nullptr;
 
     m_currentTime = 0;
     m_lastTime = 0;
@@ -34,11 +34,15 @@ Application::~Application()
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 
-    if (m_Context)
-        SDL_GL_DeleteContext(m_Context);
+    if (m_pGLContext)
+    {
+        SDL_GL_DeleteContext(m_pGLContext);
+    }
 
     if (m_pWindow)
+    {
         SDL_DestroyWindow(m_pWindow);
+    }
 
     SDL_Quit();
 
@@ -48,10 +52,13 @@ Application::~Application()
     }
 }
 
-bool Application::Initialize()
+bool Application::Init()
 {
-    int bSDLInitResult = SDL_Init(SDL_INIT_EVERYTHING);
-    assert(bSDLInitResult >= 0);
+    // Setup the window and OpenGL.
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
+        return false;
+    }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
@@ -68,31 +75,41 @@ bool Application::Initialize()
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     m_pWindow = SDL_CreateWindow("Render Engine | Testbed", 100, 100, 1280, 720, SDL_WINDOW_OPENGL);
-    assert(m_pWindow != NULL);
+    
+    if (!m_pWindow)
+    {
+        return false;
+    }
 
-    m_Context = SDL_GL_CreateContext(m_pWindow);
-    assert(m_Context != NULL);
+    m_pGLContext = SDL_GL_CreateContext(m_pWindow);
+    
+    if (!m_pGLContext)
+    {
+        return false;
+    }
 
-    int bGladLoadGLResult = gladLoadGL();
-    assert(bGladLoadGLResult != GL_FALSE);
+    if (!gladLoadGL())
+    {
+        return false;
+    }
 
+    // Setup Input "system".
     memset(m_bKeys, 0, sizeof(m_bKeys));
 
     m_currentMousePos = glm::vec2(0.0f, 0.0f);
     m_lastMousePos = m_currentMousePos;
 
-    // Setup Dear ImGui context
+    // Setup Dear ImGui context.
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_Context);
+    // Setup Platform/Renderer backends.
+    ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_pGLContext);
     ImGui_ImplOpenGL3_Init();
 
+    // Setup the scene.
     m_pScene = new Scene();
     m_pScene->Init();
 
@@ -100,6 +117,7 @@ bool Application::Initialize()
     m_Yaw = -90.0f;
     m_Pitch = 0.0f;
 
+    // End.
     m_bRunning = true;
     
     return true;
@@ -260,7 +278,6 @@ void Application::Update(const float deltaTime)
     m_pScene->Update(deltaTime);
 
     m_performanceInfoControl.Update(deltaTime);
-    // m_brush.Update(deltaTime);
 }
 
 void Application::UpdateMovementController(const float deltaTime)
@@ -385,9 +402,7 @@ void Application::UpdateMovementController(const float deltaTime)
 void Application::Render()
 {
     // Start the frame.
-
     m_pScene->Render();
-    // m_brush.Render();
     ImGUIRender();
 
     // End the frame.
@@ -441,21 +456,10 @@ void Application::ImGUIRender()
     ImGui::ShowDemoWindow();
 
     // Show Node Control.
-
     ImGui::Begin("Scene Graph");
-
+    
     std::shared_ptr<SceneNode> root = m_pScene->GetRoot();
     ImGUIRenderSceneNode(root);
-    
-    ImGui::End();
-
-    ImGui::Begin("Scene Node");
-
-    if (selected)
-    {
-        ImGui::Text("%s", selected->GetName().c_str());
-        ImGui::Checkbox("Visible", &selected->m_bVisible);
-    }
 
     ImGui::End();
 
