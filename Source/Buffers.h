@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <memory>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
@@ -13,18 +12,18 @@
 
 class UniformBuffer
 {
-public:
-    UniformBuffer(GLuint binding, GLsizeiptr size, GLenum usage);
+ public:
+    UniformBuffer();
     ~UniformBuffer();
+
+    void Init(GLuint binding, GLsizeiptr size, GLenum usage);
 
     void MapMemory(GLintptr offset, GLsizeiptr size, const void* pData);
 
-private:
+ private:
     GLsizeiptr  m_size;
     GLuint      m_bufferID;
 };
-
-typedef std::shared_ptr<UniformBuffer> StrongUniformBufferPtr;
 
 //-----------------------------------------------------------------------------
 // class VertexBuffer
@@ -34,18 +33,18 @@ class VertexBuffer
 {
     friend class VertexArray;
 
-public:
-    VertexBuffer(GLsizeiptr size, GLenum usage);
+ public:
+    VertexBuffer();
     ~VertexBuffer();
+
+    void Init(GLsizeiptr size, GLenum usage);
 
     void MapMemory(GLintptr offset, GLsizeiptr size, const void* pData);
 
-private:
+ private:
     GLsizeiptr  m_size;
     GLuint      m_bufferID;
 };
-
-typedef std::shared_ptr<VertexBuffer> StrongVertexBufferPtr;
 
 //-----------------------------------------------------------------------------
 // class IndexBuffer
@@ -55,15 +54,15 @@ class IndexBuffer
 {
     friend class VertexArray;
 
-public:
-    IndexBuffer(GLsizeiptr size, GLenum usage);
+ public:
+    IndexBuffer();
     ~IndexBuffer();
+
+    void Init(GLsizeiptr size, GLenum usage);
 
     void MapMemory(GLintptr offset, GLsizeiptr size, const void* pData);
 
-private:
+ private:
     GLsizeiptr  m_size;
     GLuint      m_bufferID;
 };
-
-typedef std::shared_ptr<IndexBuffer> StrongIndexBufferPtr;

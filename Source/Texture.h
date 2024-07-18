@@ -11,9 +11,9 @@
 
 #include "3rdParty/stb/stb_image.h"
 
-////////////////////////////////////////////////////
-//  class Texture
-////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// class Texture
+//-----------------------------------------------------------------------------
 
 class Texture
 {
@@ -21,12 +21,10 @@ public:
     Texture(uint32_t target, uint32_t wrapping, uint32_t filtering);
     ~Texture();
 
-    void LoadResource(const std::string& filename);
+    void Load(const std::string& filename);
 
     void BindUnit(uint32_t unit = 0);
 
 private:
-    uint32_t    m_TextureID;
+    uint32_t    m_textureID;
 };
-
-typedef std::shared_ptr<Texture> StrongTexturePtr;

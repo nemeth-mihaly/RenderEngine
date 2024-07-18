@@ -1,27 +1,28 @@
 #include "Mesh.h"
 
-////////////////////////////////////////////////////
-//  Mesh Implementation
-////////////////////////////////////////////////////
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
+
+//-----------------------------------------------------------------------------
+// Mesh Implementation
+//-----------------------------------------------------------------------------
 
 Mesh::Mesh()
 {
+    m_numVerts = 0;
 }
 
-Mesh::~Mesh()
+void Mesh::Load(const std::string& filename)
 {
-}
-
-void Mesh::LoadResource(const std::string& name)
-{
-    FILE* fp = fopen(name.c_str(), "r");
+    FILE* fp = fopen(filename.c_str(), "r");
     
+    std::vector<Vertex_LitTexturedColored> verts;
 
-    std::vector<Vertex> vertices;
-
-    std::vector<glm::vec3>      v;
-    std::vector<glm::vec3>      vn;
-    std::vector<glm::vec2>      vt;
+    std::vector<glm::vec3>  v;
+    std::vector<glm::vec3>  vn;
+    std::vector<glm::vec2>  vt;
 
     while (1)
     {
@@ -79,23 +80,35 @@ void Mesh::LoadResource(const std::string& name)
                 --face.vtIndex;
                 --face.vnIndex;
 
-                Vertex vertex;
-                vertex.Pos = v[faces[i].vIndex]; vertex.Normal = vn[face.vnIndex]; vertex.Uv = vt[face.vtIndex];
-                vertices.push_back(vertex);
+                Vertex_LitTexturedColored vert;
+                vert.pos = v[faces[i].vIndex]; vert.norm = vn[face.vnIndex]; vert.color = glm::vec3(1, 1, 1); vert.uv = vt[face.vtIndex];
+                verts.push_back(vert);
             }
         }
     }
 
     fclose(fp);
 
-    m_VertexArray.reset(new VertexArray());
-    m_VertexArray->SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
-    m_VertexArray->SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
-    m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
+    m_numVerts = verts.size();
 
-    m_VertexBuffer.reset(new VertexBuffer(sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW));
-    m_VertexBuffer->MapMemory(0, sizeof(Vertex) * vertices.size(), vertices.data());
-    m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
-    m_VertCount = vertices.size();
-    vertices.clear();
+    m_vertexArray.Init();
+    m_vertexArray.SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_vertexArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_vertexArray.SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+    m_vertexArray.SetVertexAttribute(0, 3, 2, GL_FLOAT, 36);
+
+    long long vertBufferSize = sizeof(Vertex_LitTexturedColored) * verts.size();
+
+    m_vertexBuffer.Init(vertBufferSize, GL_STATIC_DRAW);
+    m_vertexBuffer.MapMemory(0, vertBufferSize, verts.data());
+
+    m_vertexArray.SetVertexBuffer(0, &m_vertexBuffer, sizeof(Vertex_LitTexturedColored), VertexArrayInputRate_Vertex);
+    
+    verts.clear();
+}
+
+void Mesh::Render()
+{
+    m_vertexArray.Bind();
+    glDrawArrays(GL_TRIANGLES, 0, m_numVerts);
 }

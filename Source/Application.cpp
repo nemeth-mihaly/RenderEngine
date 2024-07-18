@@ -1,50 +1,112 @@
 #include "Application.h"
 
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
+#include "3rdParty/ImGui/imgui.h"
+#include "3rdParty/ImGui/imgui_impl_glfw.h"
+#include "3rdParty/ImGui/imgui_impl_opengl3.h"
+
 Application* g_pApp = nullptr;
+
+//-----------------------------------------------------------------------------
+// enum SceneNodeEditorType
+//-----------------------------------------------------------------------------
+
+enum SceneNodeEditorType
+{
+    SceneNodeEditorType_Integer,
+    SceneNodeEditorType_Float,
+    SceneNodeEditorType_Vec3,
+    SceneNodeEditorType_String,
+};
 
 //-----------------------------------------------------------------------------
 // Application Implementation
 //-----------------------------------------------------------------------------
+
+static void CloseCallback(GLFWwindow* pWindow)
+{
+    g_pApp->OnClose();
+}
+
+static void ResizeCallback(GLFWwindow* pWindow, int width, int height)
+{
+    g_pApp->OnResize(width, height);
+}
+
+static void KeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        g_pApp->OnKeyDown(key);
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        g_pApp->OnKeyUp(key);
+    }
+}
+
+static void MouseMoveCallback(GLFWwindow* pWindow, double xpos, double ypos)
+{
+    g_pApp->OnMouseMove(static_cast<int>(xpos), static_cast<int>(ypos));
+}
+
+static void MouseButtonCallback(GLFWwindow* pWindow, int button, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        g_pApp->OnMouseButtonDown(button);
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        g_pApp->OnMouseButtonUp(button);
+    } 
+}
 
 Application::Application()
 {
     g_pApp = this;
 
     m_bRunning = false;
+    m_bWindowedMode = true;
+    m_bMinimized = false;
 
+    m_windowPos = glm::ivec2(0, 0);
+    m_windowSize = glm::ivec2(0, 0);
     m_pWindow = nullptr;
-    m_pGLContext = nullptr;
 
-    m_currentTime = 0;
-    m_lastTime = 0;
-    
-    m_deltaTime = 0;
+    m_currentMousePos = glm::ivec2(0, 0);
 
-    m_pScene = nullptr;
+    m_deltaTime = 0.0f;
+
+    m_pRenderer = nullptr;
+
+    m_bAddChildSelectedNodeRequested = false;
+    m_bDeleteSelectedNodeRequested = false;
+    m_selectedSceneNode = nullptr;
 }
 
 Application::~Application()
 {
-    if (m_pScene)
-    {
-        delete m_pScene;
-    }
+    SaveScene("Assets/Scenes/TestScene.json");
 
     ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    if (m_pGLContext)
+    if (m_pRenderer)
     {
-        SDL_GL_DeleteContext(m_pGLContext);
+        delete m_pRenderer;
     }
 
     if (m_pWindow)
     {
-        SDL_DestroyWindow(m_pWindow);
+        glfwDestroyWindow(m_pWindow);
     }
 
-    SDL_Quit();
+    glfwTerminate();
 
     if (g_pApp)
     {
@@ -52,72 +114,66 @@ Application::~Application()
     }
 }
 
-bool Application::Init()
+bool Application::Init(int width, int height)
 {
-    // Setup the window and OpenGL.
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-    {
-        return false;
-    }
+    glfwInit();
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    m_pWindow = glfwCreateWindow(width, height, "RenderEngine | Testbed", nullptr, nullptr);
 
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    // Save the window position and size.
+    glfwGetWindowPos(m_pWindow, &m_windowPos.x, &m_windowPos.y);
+    glfwGetWindowSize(m_pWindow, &m_windowSize.x, &m_windowSize.y);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    glfwSetWindowCloseCallback(m_pWindow, CloseCallback);
+    glfwSetWindowSizeCallback(m_pWindow, ResizeCallback);
 
-    m_pWindow = SDL_CreateWindow("Render Engine | Testbed", 100, 100, 1280, 720, SDL_WINDOW_OPENGL);
-    
-    if (!m_pWindow)
-    {
-        return false;
-    }
+    glfwSetKeyCallback(m_pWindow, KeyCallback);
 
-    m_pGLContext = SDL_GL_CreateContext(m_pWindow);
-    
-    if (!m_pGLContext)
-    {
-        return false;
-    }
+    glfwSetCursorPosCallback(m_pWindow, MouseMoveCallback);
+    glfwSetMouseButtonCallback(m_pWindow, MouseButtonCallback);
 
-    if (!gladLoadGL())
-    {
-        return false;
-    }
+    glfwMakeContextCurrent(m_pWindow);
+    gladLoadGL();
 
-    // Setup Input "system".
-    memset(m_bKeys, 0, sizeof(m_bKeys));
+    glfwSwapInterval(0);
 
-    m_currentMousePos = glm::vec2(0.0f, 0.0f);
-    m_lastMousePos = m_currentMousePos;
+    m_pRenderer = new Renderer();
+    m_pRenderer->Init();
 
-    // Setup Dear ImGui context.
+    m_cameraController.Init(m_pRenderer->GetCamera());
+
+    m_sceneNodeFactory.Init();
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    // Setup Platform/Renderer backends.
-    ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_pGLContext);
+    ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
-    // Setup the scene.
-    m_pScene = new Scene();
-    m_pScene->Init();
+    // Setup SceneNode Editor
+    std::fstream file("Assets/Editor/SceneNodeDefs.json");
+    Json sceneNodeEditorSceneNodeDefsData = Json::parse(file);
+    file.close();
 
-    m_bCameraMoving = false;
-    m_Yaw = -90.0f;
-    m_Pitch = 0.0f;
+    for (Json::iterator it = sceneNodeEditorSceneNodeDefsData["sceneNodeList"].begin(); it != sceneNodeEditorSceneNodeDefsData["sceneNodeList"].end(); it++)
+    {
+        std::string sceneNodeDefName = (*it)["name"].get<std::string>();
+        m_sceneNodeEditorSceneNodeDefs.insert(std::make_pair(sceneNodeDefName, (*it)));
+    }
 
-    // End.
+    m_sceneNodeEditorTypemap.insert(std::make_pair("Integer", SceneNodeEditorType_Integer));
+    m_sceneNodeEditorTypemap.insert(std::make_pair("Float", SceneNodeEditorType_Float));
+    m_sceneNodeEditorTypemap.insert(std::make_pair("Vec3", SceneNodeEditorType_Vec3));
+    m_sceneNodeEditorTypemap.insert(std::make_pair("String", SceneNodeEditorType_String));
+
+    // ..
+    LoadScene("Assets/Scenes/TestScene.json");
+
+    // End initialization.
     m_bRunning = true;
     
     return true;
@@ -125,347 +181,441 @@ bool Application::Init()
 
 void Application::RunLoop()
 {
-    m_lastTime = (uint64_t)SDL_GetPerformanceCounter();
+    float lastTime = static_cast<float>(glfwGetTime());
 
     while (m_bRunning)
     {
-        ProcessMessages();
+        glfwPollEvents();
 
-        m_currentTime = (uint64_t)SDL_GetPerformanceCounter();
-        m_deltaTime = ((float)(m_currentTime - m_lastTime) / (float)SDL_GetPerformanceFrequency());
-        m_lastTime = m_currentTime;
-
-        Update(m_deltaTime);
-        Render();
-    }
-}
-
-void Application::ProcessMessages()
-{
-    SDL_Event event;
-    
-    while (SDL_PollEvent(&event))
-    {
-        if (OnImGUIMsgProc(event))
-            continue;
-
-        OnMsgProc(event);
-    }
-}
-
-bool Application::OnMsgProc(const SDL_Event& event)
-{
-    switch (event.type)
-    {
-        case SDL_QUIT:
-            m_bRunning = false;
-            return true;
-
-        case SDL_KEYDOWN:
+        if (!m_bMinimized)
         {
-            if (event.key.repeat != SDL_FALSE)
-                return false;
+            double currentTime = static_cast<float>(glfwGetTime());;
+            m_deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
 
-            return OnKeyDown(event.key.keysym.scancode);
+            m_cameraController.Update(m_deltaTime);
+            m_pRenderer->Update(m_deltaTime);
+
+            // Render
+            m_pRenderer->Render();
+
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            ImGui::ShowDemoWindow();
+
+            ShowSceneNodeTree();
+            ShowSceneNodeEditor();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            glfwSwapBuffers(m_pWindow);
         }
-
-        case SDL_KEYUP:
-            return OnKeyUp(event.key.keysym.scancode);
-
-        case SDL_MOUSEMOTION:
-            return OnMouseMove(glm::ivec2(event.motion.x, event.motion.y));
-
-        case SDL_MOUSEBUTTONDOWN:
-            return OnMouseButtonDown(event.button.button);        
-
-        case SDL_MOUSEBUTTONUP:
-            return OnMouseButtonUp(event.button.button);        
     }
-
-    return false;
 }
 
-bool Application::OnImGUIMsgProc(const SDL_Event& event)
+void Application::ShowMouse()
 {
-    ImGui_ImplSDL2_ProcessEvent(&event);
+    glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
 
-    ImGuiIO& io = ImGui::GetIO();
-    if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
-        return false;
+void Application::HideMouse()
+{
+    glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
 
-    switch (event.type)
+std::shared_ptr<Mesh> Application::GetMesh(const std::string& asset)
+{
+    std::shared_ptr<Mesh> mesh;
+
+    std::unordered_map<std::string, std::shared_ptr<Mesh>>::iterator it = m_meshAssets.find(asset);
+    
+    if (it != m_meshAssets.end())
     {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            return true;
+        mesh = (*it).second;
+    }
+    else
+    {
+        mesh = std::make_shared<Mesh>();
+        mesh->Load(asset);
+
+        m_meshAssets[asset] = mesh;
     }
 
-    return false;
+    return mesh;
 }
 
-bool Application::OnKeyDown(int key)
+std::shared_ptr<Texture> Application::GetTexture(const std::string& asset)
 {
-    if (!(0 <= key && key <= MAX_KEYS))
-        return false;
+    std::shared_ptr<Texture> texture;
 
+    std::unordered_map<std::string, std::shared_ptr<Texture>>::iterator it = m_textureAssets.find(asset);
+    
+    if (it != m_textureAssets.end())
+    {
+        texture = (*it).second;
+    }
+    else
+    {
+        texture = std::make_shared<Texture>(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+        texture->Load(asset);
+
+        m_textureAssets[asset] = texture;
+    }
+
+    return texture; 
+}
+
+void Application::OnClose()
+{
+    m_bRunning = false;
+}
+
+void Application::OnResize(int width, int height)
+{
+    m_windowSize = glm::ivec2(width, height);
+
+    m_bMinimized = (width == 0 || height == 0);
+
+    m_pRenderer->OnResize(width, height);
+}
+
+void Application::OnKeyDown(int key)
+{
     switch (key)
     {
-        case SDL_SCANCODE_ESCAPE:
-        {
-            SDL_Event event;
-            event.type = SDL_QUIT;
-            SDL_PushEvent(&event);
+        case GLFW_KEY_ESCAPE:
+            m_bRunning = false;
 
-            return true;
+            break;
+            
+        case GLFW_KEY_F11:
+        {
+            if (!m_bWindowedMode)
+            {
+                glfwSetWindowMonitor(m_pWindow, nullptr, m_windowPos.x, m_windowPos.y, m_windowSize.x, m_windowSize.y, 0);
+            }
+            else
+            {
+                // Save the window position and size to restore the previous settings when switching back to windowed mode.
+                glfwGetWindowPos(m_pWindow, &m_windowPos.x, &m_windowPos.y);
+                glfwGetWindowSize(m_pWindow, &m_windowSize.x, &m_windowSize.y);
+
+                GLFWmonitor* pMonitor = glfwGetPrimaryMonitor();
+
+                const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
+
+                glfwSetWindowMonitor(m_pWindow, pMonitor, 0, 0, pVideoMode->width, pVideoMode->height, 0);
+            }
+
+            m_bWindowedMode = !m_bWindowedMode;
+
+            break;
         }
 
-        case SDL_SCANCODE_Q:
-        {
-            m_bDebugCameraEnabled = !m_bDebugCameraEnabled;
-            return true;
-        }
+        default:
+            break;
     }
 
-    m_bKeys[key] = true;
-
-    return true;
+    m_cameraController.OnKeyDown(key);
 }
 
-bool Application::OnKeyUp(int key)
+void Application::OnKeyUp(int key)
 {
-    if (!(0 <= key && key <= MAX_KEYS))
-        return false;
-
-    m_bKeys[key] = false;
-
-    return true;
+    m_cameraController.OnKeyUp(key);
 }
 
-bool Application::OnMouseMove(const glm::ivec2& pos)
+void Application::OnMouseMove(int x, int y)
 {
-    m_currentMousePos = pos;
-    return true;
+    m_currentMousePos = glm::ivec2(x, y);
+
+    m_cameraController.OnMouseMove(x, y);
 }
 
-bool Application::OnMouseButtonDown(int button)
+void Application::OnMouseButtonDown(int button)
 {
-    if (button == SDL_BUTTON_RIGHT)
+    switch (button)
     {
-        m_bCameraMoving = true;
-        return true;
+        default:
+            break;
     }
 
-    return false;
+    m_cameraController.OnMouseButtonDown(button);
 }
 
-bool Application::OnMouseButtonUp(int button)
+void Application::OnMouseButtonUp(int button)
 {
-    if (button == SDL_BUTTON_RIGHT)
+    m_cameraController.OnMouseButtonUp(button);    
+}
+
+void Application::ShowSceneNodeTree()
+{
+    if (ImGui::Begin("SceneNode Tree"))
     {
-        m_bCameraMoving = false;
-        return true;
+        std::shared_ptr<SceneNode> root = m_pRenderer->GetSceneGraphRoot();
+        ShowSceneNodeTreeNode(root);
     }
 
-    return false;
-}
+    ImGui::End();
 
-void Application::Update(const float deltaTime)
-{
-    UpdateMovementController(deltaTime);
-    m_pScene->Update(deltaTime);
-
-    m_performanceInfoControl.Update(deltaTime);
-}
-
-void Application::UpdateMovementController(const float deltaTime)
-{
-    const float cameraSpeed = 25.0f;
-    const glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    glm::vec2 deltaMousePos = (m_currentMousePos - m_lastMousePos) * 0.2f;
-    m_lastMousePos = m_currentMousePos;
-
-    if (m_bCameraMoving)
+    if (m_bAddChildSelectedNodeRequested)
     {
-        std::shared_ptr<CameraNode> camera = m_pScene->GetCamera();
-        std::shared_ptr<SceneNode>& cameraTargetNode = camera->m_TargetNode;
-
-        if (!m_bDebugCameraEnabled)
+        if (ImGui::Begin("Create New Node", &m_bAddChildSelectedNodeRequested))
         {
-            if (m_bKeys[SDL_SCANCODE_W])
+            if (ImGui::Button("PawnNode"))
             {
-                glm::vec3 newPos = cameraTargetNode->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                cameraTargetNode->SetPosition(newPos);
-            }
-            else
-            if (m_bKeys[SDL_SCANCODE_S])
-            {
-                glm::vec3 newPos = cameraTargetNode->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                cameraTargetNode->SetPosition(newPos);
-            }
+                std::fstream file("Assets/SceneNodes/PawnNode.json");
+                Json data = Json::parse(file);
+                file.close();
 
-            const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
+                m_selectedSceneNode->AddChild(m_sceneNodeFactory.CreateSceneNode(data));
 
-            if (m_bKeys[SDL_SCANCODE_A])
-            {
-                glm::vec3 newPos = cameraTargetNode->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
-                cameraTargetNode->SetPosition(newPos);
-            }
-            else
-            if (m_bKeys[SDL_SCANCODE_D])
-            {
-                glm::vec3 newPos = cameraTargetNode->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
-                cameraTargetNode->SetPosition(newPos);
+                m_bAddChildSelectedNodeRequested = false;
             }
 
-            if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
+            if (ImGui::Button("TestNode"))
             {
-                const float rotationSpeed = 0.3f;
-                m_Yaw += deltaMousePos.x * rotationSpeed;
-                m_Pitch += (-deltaMousePos.y) * rotationSpeed;
+                std::fstream file("Assets/SceneNodes/TestNode.json");
+                Json data = Json::parse(file);
+                file.close();
 
-                glm::vec3 newForwardDirection;
-                newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                newForwardDirection.y = sinf(glm::radians(m_Pitch));
-                newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                
-                camera->SetForwardDir(glm::normalize(newForwardDirection));
+                m_selectedSceneNode->AddChild(m_sceneNodeFactory.CreateSceneNode(data));
+
+                m_bAddChildSelectedNodeRequested = false;
             }
 
-            camera->m_TargetPos = camera->m_TargetNode->GetPosition();
-            camera->SetPosition(camera->m_TargetNode->GetPosition() - camera->GetForwardDir() * 15.0f);
-            camera->WorldViewProjection();
+            if (ImGui::Button("MeshNode"))
+            {
+                std::fstream file("Assets/SceneNodes/MeshNode.json");
+                Json data = Json::parse(file);
+                file.close();
+
+                m_selectedSceneNode->AddChild(m_sceneNodeFactory.CreateSceneNode(data));
+
+                m_bAddChildSelectedNodeRequested = false;
+            }
+
+            if (ImGui::Button("LightNode"))
+            {
+                std::fstream file("Assets/SceneNodes/LightNode.json");
+                Json data = Json::parse(file);
+                file.close();
+
+                m_selectedSceneNode->AddChild(m_sceneNodeFactory.CreateSceneNode(data));
+
+                m_bAddChildSelectedNodeRequested = false;
+            }
         }
-        else
+        
+        ImGui::End();
+    }
+
+    if (m_bDeleteSelectedNodeRequested)
+    {
+        SceneNode* pSelectedSceneNodeParent = m_selectedSceneNode->GetParent();
+
+        if (pSelectedSceneNodeParent)
         {
-            if (m_bKeys[SDL_SCANCODE_W])
-            {
-                glm::vec3 newPos = camera->GetPosition() + (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeys[SDL_SCANCODE_S])
-            {
-                glm::vec3 newPos = camera->GetPosition() - (camera->GetForwardDir() * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-
-            const glm::vec3 rightDirection = glm::cross(camera->GetForwardDir(), upDirection);
-
-            if (m_bKeys[SDL_SCANCODE_A])
-            {
-                glm::vec3 newPos = camera->GetPosition() - (rightDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeys[SDL_SCANCODE_D])
-            {
-                glm::vec3 newPos = camera->GetPosition() + (rightDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-
-            if (m_bKeys[SDL_SCANCODE_LSHIFT])
-            {
-                glm::vec3 newPos = camera->GetPosition() + (upDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-            else
-            if (m_bKeys[SDL_SCANCODE_LCTRL])
-            {
-                glm::vec3 newPos = camera->GetPosition() - (upDirection * cameraSpeed * deltaTime);
-                camera->SetPosition(newPos);
-            }
-
-            if (!(deltaMousePos.x == 0.0f && deltaMousePos.y == 0.0f))
-            {
-                const float rotationSpeed = 0.3f;
-                m_Yaw += deltaMousePos.x * rotationSpeed;
-                m_Pitch += (-deltaMousePos.y) * rotationSpeed;
-
-                glm::vec3 newForwardDirection;
-                newForwardDirection.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                newForwardDirection.y = sinf(glm::radians(m_Pitch));
-                newForwardDirection.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
-                
-                camera->SetForwardDir(glm::normalize(newForwardDirection));
-            }
-
-            camera->m_TargetPos = camera->GetPosition() + camera->GetForwardDir();
-            camera->WorldViewProjection();
+            pSelectedSceneNodeParent->RemoveChild(m_selectedSceneNode);
         }
+
+        m_bDeleteSelectedNodeRequested = false;
+        m_selectedSceneNode = nullptr;
     }
 }
 
-void Application::Render()
-{
-    // Start the frame.
-    m_pScene->Render();
-    ImGUIRender();
-
-    // End the frame.
-    SDL_GL_SetSwapInterval(0);
-    SDL_GL_SwapWindow(m_pWindow);
-}
-
-static std::shared_ptr<SceneNode> selected = nullptr;
-
-static void ImGUIRenderSceneNode(std::shared_ptr<SceneNode> node)
+void Application::ShowSceneNodeTreeNode(std::shared_ptr<SceneNode> node)
 {
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+    flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+    flags |= ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-    if (selected == node)
+    if (m_selectedSceneNode == node)
     {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
 
     if (node->GetChildren().empty()) 
+    {
         flags |= ImGuiTreeNodeFlags_Leaf;
+    }
 
     bool bTreeNodeOpen = ImGui::TreeNodeEx(node->GetName().c_str(), flags);
 
-    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+    if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
     {
-        selected = node;
+        m_selectedSceneNode = node;
+    }
+
+    if (m_selectedSceneNode == node && ImGui::BeginPopupContextItem())
+    {
+        if (ImGui::MenuItem("Add Child Node...")) 
+        {
+            m_bAddChildSelectedNodeRequested = true;
+        }
+
+        if (ImGui::MenuItem("Delete Node(s)")) 
+        {
+            m_bDeleteSelectedNodeRequested = true;
+        }
+
+        ImGui::EndPopup();
     }
 
     if (bTreeNodeOpen)
     {
-        SceneNodeVector::const_iterator it = node->GetChildren().begin();
-        
-        while (it != node->GetChildren().end())
+        for (std::vector<std::shared_ptr<SceneNode>>::const_iterator it = node->GetChildren().begin(); it != node->GetChildren().end(); it++)
         {
-            ImGUIRenderSceneNode((*it));
-            ++it;
+            ShowSceneNodeTreeNode((*it));
         }
 
         ImGui::TreePop();
     }
 }
 
-void Application::ImGUIRender()
+void Application::ShowSceneNodeEditor()
 {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
+    if (!m_selectedSceneNode)
+    {
+        return;
+    }
 
-    // Show demo.
-    ImGui::ShowDemoWindow();
+    Json selectedSceneNodeData = m_selectedSceneNode->ToJSON();
 
-    // Show Node Control.
-    ImGui::Begin("Scene Graph");
-    
-    std::shared_ptr<SceneNode> root = m_pScene->GetRoot();
-    ImGUIRenderSceneNode(root);
+    if (ImGui::Begin("SceneNode Editor"))
+    {
+        std::string type = selectedSceneNodeData["type"].get<std::string>();
+        Json selectedSceneNodeEditorData = m_sceneNodeEditorSceneNodeDefs.at(type);
+
+        for (Json::iterator it = selectedSceneNodeEditorData["elements"].begin(); it != selectedSceneNodeEditorData["elements"].end(); it++)
+        {
+            std::string elementName = (*it).at("name").get<std::string>();
+
+            uint8_t hashedElementType = m_sceneNodeEditorTypemap.at((*it)["type"]);
+
+            switch (hashedElementType)
+            {
+                case SceneNodeEditorType_Integer:
+                {
+                    // std::string elementName = (*it).at("name");
+
+                    int v = 0;
+                    v = selectedSceneNodeData[elementName].get<int>();
+
+                    if (ImGui::DragInt(elementName.c_str(), &v))
+                    {
+                        selectedSceneNodeData[elementName] = v;
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+
+                case SceneNodeEditorType_Float:
+                {
+                    // std::string elementName = (*it).at("name");
+
+                    float v = 0;
+                    v = selectedSceneNodeData[elementName].get<float>();
+
+                    if (ImGui::DragFloat(elementName.c_str(), &v))
+                    {
+                        selectedSceneNodeData[elementName] = v;
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+
+                case SceneNodeEditorType_Vec3:
+                {
+                    // std::string elementName = (*it).at("name");
+
+                    glm::vec3 v(0, 0, 0);
+                    v.x = selectedSceneNodeData[elementName]["x"].get<float>();
+                    v.y = selectedSceneNodeData[elementName]["y"].get<float>();
+                    v.z = selectedSceneNodeData[elementName]["z"].get<float>();
+
+                    if (ImGui::DragFloat3(elementName.c_str(), glm::value_ptr(v), 0.5f))
+                    {
+                        selectedSceneNodeData[elementName]["x"] = v.x;
+                        selectedSceneNodeData[elementName]["y"] = v.y;
+                        selectedSceneNodeData[elementName]["z"] = v.z;
+
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+
+                case SceneNodeEditorType_String:
+                {
+                    // std::string elementName = (*it).at("name");
+
+                    char buffer[256];
+                    memset(buffer, 0, sizeof(buffer));
+                    strncpy_s(buffer, selectedSceneNodeData[elementName].get<std::string>().data(), sizeof(buffer));
+
+                    if (ImGui::InputText(elementName.c_str(), buffer, sizeof(buffer)))
+                    {
+                        selectedSceneNodeData[elementName] = std::string(buffer);
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+            }
+        }    
+    }
 
     ImGui::End();
+}
 
-    m_performanceInfoControl.Render();
+void Application::LoadScene(const std::string& filename)
+{
+    std::fstream file(filename);
+    Json sceneData = Json::parse(file);
+    file.close();
 
-    // End the Dear ImGui frame
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    std::shared_ptr<PawnNode> root = m_pRenderer->GetSceneGraphRoot();
+
+    for (Json::iterator it = sceneData["sceneNodeList"].begin(); it != sceneData["sceneNodeList"].end(); it++)
+    {
+        root->AddChild(m_sceneNodeFactory.CreateSceneNode((*it)));
+    }
+
+    root->PostInit();
+}
+
+static Json SaveSceneNode(std::shared_ptr<SceneNode> node)
+{
+    Json data = node->ToJSON();
+
+    for (std::vector<std::shared_ptr<SceneNode>>::iterator it = node->GetChildren().begin(); it !=  node->GetChildren().end(); it++)
+    {
+        data["children"].push_back(SaveSceneNode((*it)));
+    }
+
+    return data;
+}   
+
+void Application::SaveScene(const std::string& filename)
+{
+    Json sceneData;
+    sceneData["sceneNodeList"] = Json::array();
+    
+    std::shared_ptr<SceneNode> root = m_pRenderer->GetSceneGraphRoot();
+    Json sceneGraphRootData = SaveSceneNode(root);
+
+    for (Json::iterator it = sceneGraphRootData["children"].begin(); it != sceneGraphRootData["children"].end(); it++)
+    {
+        sceneData["sceneNodeList"].push_back((*it));
+    }
+
+    std::ofstream file(filename);
+    file << sceneData.dump(4);
+    file.close();
 }

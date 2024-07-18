@@ -1,27 +1,24 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "3rdParty/glm/glm.hpp"
-#include "3rdParty/glm/gtc/matrix_transform.hpp"
-#include "3rdParty/glm/gtc/type_ptr.hpp"
 
-//////////////////////////////////////////////////////
-//  class Material
-//////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// class Material
+//-----------------------------------------------------------------------------
 
 class Material
 {
 public:
     Material();
-    ~Material();
 
-    glm::vec4   Ambient;
-    glm::vec4   Diffuse;
-    glm::vec4   Specular;
-    glm::vec4   Emissive;
-    float       SpecularPower;
+    glm::vec4   ambient;
+    glm::vec4   diffuse;
+    glm::vec4   specular;
+    glm::vec4   emissive;
+    float       specularPower;
 
     bool        bUseTexture;
 };

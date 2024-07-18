@@ -1,79 +1,29 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <cassert>
+#include <stddef.h>
+#include <stdint.h>
+#include <string>
+#include <unordered_map>
 
-#include "3rdParty/SDL2/SDL.h"
+#define GLFW_INCLUDE_NONE
+#include "3rdParty/GLFW/glfw3.h"
 
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "3rdParty/imgui/imgui.h"
-#include "3rdParty/imgui/imgui_impl_sdl2.h"
-#include "3rdParty/imgui/imgui_impl_opengl3.h"
+#include "3rdParty/glm/glm.hpp"
 
-#include "Scene.h"
+#include "3rdParty/nlohmann/json.hpp"
+using Json = nlohmann::json;
 
-//-----------------------------------------------------------------------------
-// class PerformanceInfoControl
-//-----------------------------------------------------------------------------
+#include "Renderer.h"
+#include "Camera.h"
 
-class PerformanceInfoControl
-{
-public:
-    PerformanceInfoControl()
-    {
-        m_elapsedTimeInSeconds = 0;
+#include "SceneNodes.h"
+#include "SceneNodeFactory.h"
 
-        m_frameCount = 0;
-        m_fps = 0;
-
-        m_numShaderSwaps = 0;
-        m_numShaderUniformLookups = 0;
-    }
-
-    ~PerformanceInfoControl() 
-    {
-    }
-
-    void Update(const float deltaTime) 
-    {
-        m_elapsedTimeInSeconds += deltaTime;
-        m_frameCount++;
-
-        if (m_elapsedTimeInSeconds >= 1.0f)
-        {
-            m_elapsedTimeInSeconds = 0.0f;
-
-            m_fps = m_frameCount;
-            m_frameCount = 0;
-        
-            m_numShaderSwaps = g_numShaderSwaps / m_fps;
-            m_numShaderUniformLookups = g_numUniformLocationLookups / m_fps;
-            g_numShaderSwaps = 0;
-            g_numUniformLocationLookups = 0;
-        }
-    }
-
-    void Render() 
-    {
-        ImGui::Begin("Performance Info");
-        ImGui::Text("Application average %.3f ms/frame (%i FPS)", 1000.0f / (float)m_fps, m_fps);
-        ImGui::Text("Num shader swaps: %d", m_numShaderSwaps);
-        ImGui::Text("Num shader uniform lookups: %d", m_numShaderUniformLookups);
-        ImGui::End();
-    }
-
-private:
-    float   m_elapsedTimeInSeconds;
-
-    int     m_frameCount;
-    int     m_fps;
-
-    int m_numShaderSwaps;
-    int m_numShaderUniformLookups;
-};
+#include "Mesh.h"
+#include "Texture.h"
 
 //-----------------------------------------------------------------------------
 // class Application
@@ -81,56 +31,67 @@ private:
 
 class Application
 {
-public:
+ public:
     Application();
     ~Application();
 
-    bool Init();
-    void RunLoop();    
+    bool Init(int width, int height);
+    void RunLoop();
 
-private:
-    void ProcessMessages();
-    bool OnMsgProc(const SDL_Event& event);
-    bool OnImGUIMsgProc(const SDL_Event& event);
+    const glm::ivec2& GetWindowSize() const { return m_windowSize; }
 
-    bool OnKeyDown(int key);
-    bool OnKeyUp(int key);
-    bool OnMouseMove(const glm::ivec2& pos);
-    bool OnMouseButtonDown(int button);
-    bool OnMouseButtonUp(int button);
+    Renderer* GetRenderer() { return m_pRenderer; }
 
-    void Update(const float deltaTime);
-    void UpdateMovementController(const float deltaTime);
+    const glm::ivec2& GetMousePosition() const { return m_currentMousePos; }
+    void ShowMouse();
+    void HideMouse();
 
-    void Render();
-    void ImGUIRender();
+    std::shared_ptr<Mesh> GetMesh(const std::string& asset);
+    std::shared_ptr<Texture> GetTexture(const std::string& asset);
 
-private:
-    bool            m_bRunning;
+    void OnClose();
+    void OnResize(int width, int height);
 
-    SDL_Window*     m_pWindow;
-    SDL_GLContext   m_pGLContext;
+    void OnKeyDown(int key);
+    void OnKeyUp(int key);
 
-    uint64_t        m_currentTime;
-    uint64_t        m_lastTime;
+    void OnMouseMove(int x, int y);
+    void OnMouseButtonDown(int button);
+    void OnMouseButtonUp(int button);
 
-    float           m_deltaTime;
+ private:
+    void ShowSceneNodeTree();
+    void ShowSceneNodeTreeNode(std::shared_ptr<SceneNode> node);
+    void ShowSceneNodeEditor();
 
-    static const int MAX_KEYS = 512;
-    bool            m_bKeys[MAX_KEYS];
+    void LoadScene(const std::string& filename);
+    void SaveScene(const std::string& filename);
 
-    glm::vec2       m_currentMousePos;
-    glm::vec2       m_lastMousePos;
+ private:
+    bool    m_bRunning;
+    bool    m_bWindowedMode;
+    bool    m_bMinimized;
+    
+    glm::ivec2      m_windowPos;
+    glm::ivec2      m_windowSize;
+    GLFWwindow*     m_pWindow;
 
-    Scene*          m_pScene;
+    glm::ivec2      m_currentMousePos;
 
-    bool            m_bDebugCameraEnabled = false;
-    bool            m_bCameraMoving;
-    float           m_Yaw;
-    float           m_Pitch;
+    float       m_deltaTime;
 
-    PerformanceInfoControl m_performanceInfoControl;
-    // Brush m_brush;
+    Renderer*           m_pRenderer;
+    CameraController    m_cameraController;
+    SceneNodeFactory    m_sceneNodeFactory;
+
+    std::unordered_map<std::string, std::shared_ptr<Mesh>>      m_meshAssets;
+    std::unordered_map<std::string, std::shared_ptr<Texture>>   m_textureAssets;
+
+    bool    m_bAddChildSelectedNodeRequested;
+    bool    m_bDeleteSelectedNodeRequested;
+    std::shared_ptr<SceneNode>                  m_selectedSceneNode;
+    std::unordered_map<std::string, Json>       m_sceneNodeEditorSceneNodeDefs;
+    std::unordered_map<std::string, uint8_t>    m_sceneNodeEditorTypemap;
 };
 
 extern Application* g_pApp;

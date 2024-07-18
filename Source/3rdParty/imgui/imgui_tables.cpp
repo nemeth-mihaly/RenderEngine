@@ -1,4 +1,4 @@
-// dear imgui, v1.90.8
+// dear imgui, v1.90.9
 // (tables and columns code)
 
 /*
@@ -195,9 +195,9 @@ Index of this file:
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 
-#include "imgui.h"
+#include "3rdParty/ImGui/imgui.h"
 #ifndef IMGUI_DISABLE
-#include "imgui_internal.h"
+#include "3rdParty/ImGui/imgui_internal.h"
 
 // System includes
 #include <stdint.h>     // intptr_t

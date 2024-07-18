@@ -174,6 +174,174 @@ Engine/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/build
 .PHONY : Engine/fast
 
+Source/3rdParty/ImGui/imgui.obj: Source/3rdParty/ImGui/imgui.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui.cpp.obj
+
+Source/3rdParty/ImGui/imgui.i: Source/3rdParty/ImGui/imgui.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui.cpp.i
+
+Source/3rdParty/ImGui/imgui.s: Source/3rdParty/ImGui/imgui.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui.cpp.s
+
+Source/3rdParty/ImGui/imgui_demo.obj: Source/3rdParty/ImGui/imgui_demo.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_demo.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_demo.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_demo.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_demo.cpp.obj
+
+Source/3rdParty/ImGui/imgui_demo.i: Source/3rdParty/ImGui/imgui_demo.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_demo.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_demo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_demo.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_demo.cpp.i
+
+Source/3rdParty/ImGui/imgui_demo.s: Source/3rdParty/ImGui/imgui_demo.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_demo.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_demo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_demo.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_demo.cpp.s
+
+Source/3rdParty/ImGui/imgui_draw.obj: Source/3rdParty/ImGui/imgui_draw.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_draw.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_draw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_draw.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_draw.cpp.obj
+
+Source/3rdParty/ImGui/imgui_draw.i: Source/3rdParty/ImGui/imgui_draw.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_draw.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_draw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_draw.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_draw.cpp.i
+
+Source/3rdParty/ImGui/imgui_draw.s: Source/3rdParty/ImGui/imgui_draw.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_draw.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_draw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_draw.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_draw.cpp.s
+
+Source/3rdParty/ImGui/imgui_impl_glfw.obj: Source/3rdParty/ImGui/imgui_impl_glfw.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_impl_glfw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_glfw.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.cpp.obj
+
+Source/3rdParty/ImGui/imgui_impl_glfw.i: Source/3rdParty/ImGui/imgui_impl_glfw.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_impl_glfw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_glfw.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.cpp.i
+
+Source/3rdParty/ImGui/imgui_impl_glfw.s: Source/3rdParty/ImGui/imgui_impl_glfw.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_impl_glfw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_glfw.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_impl_glfw.cpp.s
+
+Source/3rdParty/ImGui/imgui_impl_opengl3.obj: Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.obj
+
+Source/3rdParty/ImGui/imgui_impl_opengl3.i: Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.i
+
+Source/3rdParty/ImGui/imgui_impl_opengl3.s: Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_impl_opengl3.cpp.s
+
+Source/3rdParty/ImGui/imgui_tables.obj: Source/3rdParty/ImGui/imgui_tables.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_tables.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_tables.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_tables.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_tables.cpp.obj
+
+Source/3rdParty/ImGui/imgui_tables.i: Source/3rdParty/ImGui/imgui_tables.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_tables.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_tables.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_tables.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_tables.cpp.i
+
+Source/3rdParty/ImGui/imgui_tables.s: Source/3rdParty/ImGui/imgui_tables.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_tables.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_tables.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_tables.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_tables.cpp.s
+
+Source/3rdParty/ImGui/imgui_widgets.obj: Source/3rdParty/ImGui/imgui_widgets.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.obj
+
+# target to build an object file
+Source/3rdParty/ImGui/imgui_widgets.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_widgets.cpp.obj
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.cpp.obj
+
+Source/3rdParty/ImGui/imgui_widgets.i: Source/3rdParty/ImGui/imgui_widgets.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.i
+
+# target to preprocess a source file
+Source/3rdParty/ImGui/imgui_widgets.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_widgets.cpp.i
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.cpp.i
+
+Source/3rdParty/ImGui/imgui_widgets.s: Source/3rdParty/ImGui/imgui_widgets.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.s
+
+# target to generate assembly for a file
+Source/3rdParty/ImGui/imgui_widgets.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/ImGui/imgui_widgets.cpp.s
+.PHONY : Source/3rdParty/ImGui/imgui_widgets.cpp.s
+
 Source/3rdParty/glad/glad.obj: Source/3rdParty/glad/glad.c.obj
 .PHONY : Source/3rdParty/glad/glad.obj
 
@@ -221,174 +389,6 @@ Source/3rdParty/glm/detail/glm.s: Source/3rdParty/glm/detail/glm.cpp.s
 Source/3rdParty/glm/detail/glm.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/glm/detail/glm.cpp.s
 .PHONY : Source/3rdParty/glm/detail/glm.cpp.s
-
-Source/3rdParty/imgui/imgui.obj: Source/3rdParty/imgui/imgui.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui.cpp.obj
-
-Source/3rdParty/imgui/imgui.i: Source/3rdParty/imgui/imgui.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui.cpp.i
-
-Source/3rdParty/imgui/imgui.s: Source/3rdParty/imgui/imgui.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui.cpp.s
-
-Source/3rdParty/imgui/imgui_demo.obj: Source/3rdParty/imgui/imgui_demo.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_demo.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_demo.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_demo.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_demo.cpp.obj
-
-Source/3rdParty/imgui/imgui_demo.i: Source/3rdParty/imgui/imgui_demo.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_demo.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_demo.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_demo.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_demo.cpp.i
-
-Source/3rdParty/imgui/imgui_demo.s: Source/3rdParty/imgui/imgui_demo.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_demo.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_demo.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_demo.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_demo.cpp.s
-
-Source/3rdParty/imgui/imgui_draw.obj: Source/3rdParty/imgui/imgui_draw.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_draw.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_draw.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_draw.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_draw.cpp.obj
-
-Source/3rdParty/imgui/imgui_draw.i: Source/3rdParty/imgui/imgui_draw.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_draw.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_draw.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_draw.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_draw.cpp.i
-
-Source/3rdParty/imgui/imgui_draw.s: Source/3rdParty/imgui/imgui_draw.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_draw.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_draw.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_draw.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_draw.cpp.s
-
-Source/3rdParty/imgui/imgui_impl_opengl3.obj: Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.cpp.obj
-
-Source/3rdParty/imgui/imgui_impl_opengl3.i: Source/3rdParty/imgui/imgui_impl_opengl3.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_impl_opengl3.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_opengl3.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.cpp.i
-
-Source/3rdParty/imgui/imgui_impl_opengl3.s: Source/3rdParty/imgui/imgui_impl_opengl3.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_impl_opengl3.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_opengl3.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_impl_opengl3.cpp.s
-
-Source/3rdParty/imgui/imgui_impl_sdl2.obj: Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.cpp.obj
-
-Source/3rdParty/imgui/imgui_impl_sdl2.i: Source/3rdParty/imgui/imgui_impl_sdl2.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_impl_sdl2.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_sdl2.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.cpp.i
-
-Source/3rdParty/imgui/imgui_impl_sdl2.s: Source/3rdParty/imgui/imgui_impl_sdl2.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_impl_sdl2.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_impl_sdl2.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_impl_sdl2.cpp.s
-
-Source/3rdParty/imgui/imgui_tables.obj: Source/3rdParty/imgui/imgui_tables.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_tables.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_tables.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_tables.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_tables.cpp.obj
-
-Source/3rdParty/imgui/imgui_tables.i: Source/3rdParty/imgui/imgui_tables.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_tables.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_tables.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_tables.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_tables.cpp.i
-
-Source/3rdParty/imgui/imgui_tables.s: Source/3rdParty/imgui/imgui_tables.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_tables.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_tables.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_tables.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_tables.cpp.s
-
-Source/3rdParty/imgui/imgui_widgets.obj: Source/3rdParty/imgui/imgui_widgets.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_widgets.obj
-
-# target to build an object file
-Source/3rdParty/imgui/imgui_widgets.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_widgets.cpp.obj
-.PHONY : Source/3rdParty/imgui/imgui_widgets.cpp.obj
-
-Source/3rdParty/imgui/imgui_widgets.i: Source/3rdParty/imgui/imgui_widgets.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_widgets.i
-
-# target to preprocess a source file
-Source/3rdParty/imgui/imgui_widgets.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_widgets.cpp.i
-.PHONY : Source/3rdParty/imgui/imgui_widgets.cpp.i
-
-Source/3rdParty/imgui/imgui_widgets.s: Source/3rdParty/imgui/imgui_widgets.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_widgets.s
-
-# target to generate assembly for a file
-Source/3rdParty/imgui/imgui_widgets.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/3rdParty/imgui/imgui_widgets.cpp.s
-.PHONY : Source/3rdParty/imgui/imgui_widgets.cpp.s
 
 Source/3rdParty/stb/stb_image.obj: Source/3rdParty/stb/stb_image.c.obj
 .PHONY : Source/3rdParty/stb/stb_image.obj
@@ -486,29 +486,29 @@ Source/Buffers.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Buffers.cpp.s
 .PHONY : Source/Buffers.cpp.s
 
-Source/Lights.obj: Source/Lights.cpp.obj
-.PHONY : Source/Lights.obj
+Source/Camera.obj: Source/Camera.cpp.obj
+.PHONY : Source/Camera.obj
 
 # target to build an object file
-Source/Lights.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Lights.cpp.obj
-.PHONY : Source/Lights.cpp.obj
+Source/Camera.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Camera.cpp.obj
+.PHONY : Source/Camera.cpp.obj
 
-Source/Lights.i: Source/Lights.cpp.i
-.PHONY : Source/Lights.i
+Source/Camera.i: Source/Camera.cpp.i
+.PHONY : Source/Camera.i
 
 # target to preprocess a source file
-Source/Lights.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Lights.cpp.i
-.PHONY : Source/Lights.cpp.i
+Source/Camera.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Camera.cpp.i
+.PHONY : Source/Camera.cpp.i
 
-Source/Lights.s: Source/Lights.cpp.s
-.PHONY : Source/Lights.s
+Source/Camera.s: Source/Camera.cpp.s
+.PHONY : Source/Camera.s
 
 # target to generate assembly for a file
-Source/Lights.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Lights.cpp.s
-.PHONY : Source/Lights.cpp.s
+Source/Camera.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Camera.cpp.s
+.PHONY : Source/Camera.cpp.s
 
 Source/Material.obj: Source/Material.cpp.obj
 .PHONY : Source/Material.obj
@@ -558,6 +558,30 @@ Source/Mesh.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Mesh.cpp.s
 .PHONY : Source/Mesh.cpp.s
 
+Source/Renderer.obj: Source/Renderer.cpp.obj
+.PHONY : Source/Renderer.obj
+
+# target to build an object file
+Source/Renderer.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Renderer.cpp.obj
+.PHONY : Source/Renderer.cpp.obj
+
+Source/Renderer.i: Source/Renderer.cpp.i
+.PHONY : Source/Renderer.i
+
+# target to preprocess a source file
+Source/Renderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Renderer.cpp.i
+.PHONY : Source/Renderer.cpp.i
+
+Source/Renderer.s: Source/Renderer.cpp.s
+.PHONY : Source/Renderer.s
+
+# target to generate assembly for a file
+Source/Renderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Renderer.cpp.s
+.PHONY : Source/Renderer.cpp.s
+
 Source/Scene.obj: Source/Scene.cpp.obj
 .PHONY : Source/Scene.obj
 
@@ -581,6 +605,30 @@ Source/Scene.s: Source/Scene.cpp.s
 Source/Scene.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/Scene.cpp.s
 .PHONY : Source/Scene.cpp.s
+
+Source/SceneNodeFactoy.obj: Source/SceneNodeFactoy.cpp.obj
+.PHONY : Source/SceneNodeFactoy.obj
+
+# target to build an object file
+Source/SceneNodeFactoy.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/SceneNodeFactoy.cpp.obj
+.PHONY : Source/SceneNodeFactoy.cpp.obj
+
+Source/SceneNodeFactoy.i: Source/SceneNodeFactoy.cpp.i
+.PHONY : Source/SceneNodeFactoy.i
+
+# target to preprocess a source file
+Source/SceneNodeFactoy.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/SceneNodeFactoy.cpp.i
+.PHONY : Source/SceneNodeFactoy.cpp.i
+
+Source/SceneNodeFactoy.s: Source/SceneNodeFactoy.cpp.s
+.PHONY : Source/SceneNodeFactoy.s
+
+# target to generate assembly for a file
+Source/SceneNodeFactoy.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/Source/SceneNodeFactoy.cpp.s
+.PHONY : Source/SceneNodeFactoy.cpp.s
 
 Source/SceneNodes.obj: Source/SceneNodes.cpp.obj
 .PHONY : Source/SceneNodes.obj
@@ -715,33 +763,33 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... Engine"
+	@echo "... Source/3rdParty/ImGui/imgui.obj"
+	@echo "... Source/3rdParty/ImGui/imgui.i"
+	@echo "... Source/3rdParty/ImGui/imgui.s"
+	@echo "... Source/3rdParty/ImGui/imgui_demo.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_demo.i"
+	@echo "... Source/3rdParty/ImGui/imgui_demo.s"
+	@echo "... Source/3rdParty/ImGui/imgui_draw.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_draw.i"
+	@echo "... Source/3rdParty/ImGui/imgui_draw.s"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_glfw.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_glfw.i"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_glfw.s"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_opengl3.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_opengl3.i"
+	@echo "... Source/3rdParty/ImGui/imgui_impl_opengl3.s"
+	@echo "... Source/3rdParty/ImGui/imgui_tables.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_tables.i"
+	@echo "... Source/3rdParty/ImGui/imgui_tables.s"
+	@echo "... Source/3rdParty/ImGui/imgui_widgets.obj"
+	@echo "... Source/3rdParty/ImGui/imgui_widgets.i"
+	@echo "... Source/3rdParty/ImGui/imgui_widgets.s"
 	@echo "... Source/3rdParty/glad/glad.obj"
 	@echo "... Source/3rdParty/glad/glad.i"
 	@echo "... Source/3rdParty/glad/glad.s"
 	@echo "... Source/3rdParty/glm/detail/glm.obj"
 	@echo "... Source/3rdParty/glm/detail/glm.i"
 	@echo "... Source/3rdParty/glm/detail/glm.s"
-	@echo "... Source/3rdParty/imgui/imgui.obj"
-	@echo "... Source/3rdParty/imgui/imgui.i"
-	@echo "... Source/3rdParty/imgui/imgui.s"
-	@echo "... Source/3rdParty/imgui/imgui_demo.obj"
-	@echo "... Source/3rdParty/imgui/imgui_demo.i"
-	@echo "... Source/3rdParty/imgui/imgui_demo.s"
-	@echo "... Source/3rdParty/imgui/imgui_draw.obj"
-	@echo "... Source/3rdParty/imgui/imgui_draw.i"
-	@echo "... Source/3rdParty/imgui/imgui_draw.s"
-	@echo "... Source/3rdParty/imgui/imgui_impl_opengl3.obj"
-	@echo "... Source/3rdParty/imgui/imgui_impl_opengl3.i"
-	@echo "... Source/3rdParty/imgui/imgui_impl_opengl3.s"
-	@echo "... Source/3rdParty/imgui/imgui_impl_sdl2.obj"
-	@echo "... Source/3rdParty/imgui/imgui_impl_sdl2.i"
-	@echo "... Source/3rdParty/imgui/imgui_impl_sdl2.s"
-	@echo "... Source/3rdParty/imgui/imgui_tables.obj"
-	@echo "... Source/3rdParty/imgui/imgui_tables.i"
-	@echo "... Source/3rdParty/imgui/imgui_tables.s"
-	@echo "... Source/3rdParty/imgui/imgui_widgets.obj"
-	@echo "... Source/3rdParty/imgui/imgui_widgets.i"
-	@echo "... Source/3rdParty/imgui/imgui_widgets.s"
 	@echo "... Source/3rdParty/stb/stb_image.obj"
 	@echo "... Source/3rdParty/stb/stb_image.i"
 	@echo "... Source/3rdParty/stb/stb_image.s"
@@ -754,18 +802,24 @@ help:
 	@echo "... Source/Buffers.obj"
 	@echo "... Source/Buffers.i"
 	@echo "... Source/Buffers.s"
-	@echo "... Source/Lights.obj"
-	@echo "... Source/Lights.i"
-	@echo "... Source/Lights.s"
+	@echo "... Source/Camera.obj"
+	@echo "... Source/Camera.i"
+	@echo "... Source/Camera.s"
 	@echo "... Source/Material.obj"
 	@echo "... Source/Material.i"
 	@echo "... Source/Material.s"
 	@echo "... Source/Mesh.obj"
 	@echo "... Source/Mesh.i"
 	@echo "... Source/Mesh.s"
+	@echo "... Source/Renderer.obj"
+	@echo "... Source/Renderer.i"
+	@echo "... Source/Renderer.s"
 	@echo "... Source/Scene.obj"
 	@echo "... Source/Scene.i"
 	@echo "... Source/Scene.s"
+	@echo "... Source/SceneNodeFactoy.obj"
+	@echo "... Source/SceneNodeFactoy.i"
+	@echo "... Source/SceneNodeFactoy.s"
 	@echo "... Source/SceneNodes.obj"
 	@echo "... Source/SceneNodes.i"
 	@echo "... Source/SceneNodes.s"

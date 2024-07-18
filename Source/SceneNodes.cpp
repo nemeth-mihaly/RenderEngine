@@ -1,8 +1,550 @@
 #include "SceneNodes.h"
 
-#include "Application.h"
-#include "Scene.h"
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
 
+#include "Application.h"
+
+//-----------------------------------------------------------------------------
+// SceneNode Implementation
+//-----------------------------------------------------------------------------
+
+SceneNode::SceneNode()
+{
+    m_pParent = nullptr;
+
+    m_name = "SceneNode";
+
+    m_transform = glm::mat4(1);
+
+    m_position = glm::vec3(0, 0, 0);
+    m_rotation = glm::quat(1, 0, 0, 0);
+    m_size = glm::vec3(1, 1, 1);
+}
+
+SceneNode::~SceneNode()
+{
+    // assert(m_children.empty());
+}
+
+void SceneNode::Init(const Json& data)
+{
+    if (data.contains("name"))
+    {
+        m_name = data["name"].get<std::string>();
+    }
+
+    if (data.contains("Position"))
+    {
+        float x = 0;
+        float y = 0;
+        float z = 0;
+
+        if (data["Position"].contains("x") 
+        && data["Position"].contains("y") 
+        && data["Position"].contains("z")) 
+        {
+            x = data["Position"]["x"].get<float>();
+            y = data["Position"]["y"].get<float>();
+            z = data["Position"]["z"].get<float>();
+        }  
+
+        m_position = glm::vec3(x, y, z);
+    }
+
+    if (data.contains("PitchYawRoll"))
+    {
+        float pitch = 0;
+        float yaw = 0;
+        float roll = 0;
+
+        if (data["PitchYawRoll"].contains("x") 
+        && data["PitchYawRoll"].contains("y") 
+        && data["PitchYawRoll"].contains("z")) 
+        {
+            pitch = data["PitchYawRoll"]["x"].get<float>();
+            yaw = data["PitchYawRoll"]["y"].get<float>();
+            roll = data["PitchYawRoll"]["z"].get<float>();
+        }  
+
+        pitch = glm::clamp(pitch, -179.9f, 179.9f);
+        yaw = glm::clamp(yaw, -89.9f, 89.9f);
+        roll = glm::clamp(roll, -179.9f, 179.9f);
+
+        glm::vec3 rotation(pitch, yaw, roll);
+        m_rotation = glm::quat(glm::radians(rotation));
+    }
+
+    if (data.contains("Size"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Size"].contains("x") 
+        && data["Size"].contains("y") 
+        && data["Size"].contains("z")) 
+        {
+            x = data["Size"]["x"].get<float>();
+            y = data["Size"]["y"].get<float>();
+            z = data["Size"]["z"].get<float>();
+        }  
+
+        m_size = glm::vec3(x, y, z);
+    }
+}
+
+void SceneNode::PostInit()
+{
+    for (std::vector<std::shared_ptr<SceneNode>>::iterator it = m_children.begin(); it != m_children.end(); it++)
+    {
+        (*it)->PostInit();
+    }
+}
+
+void SceneNode::Update(const float deltaTime)
+{
+    if (m_pParent)
+    {
+        m_transform = m_pParent->m_transform * glm::translate(glm::mat4(1), m_position) * glm::toMat4(m_rotation) * glm::scale(glm::mat4(1), m_size);
+    }
+    else
+    {
+        m_transform = glm::translate(glm::mat4(1), m_position) * glm::toMat4(m_rotation) * glm::scale(glm::mat4(1), m_size);
+    }
+
+    for (std::vector<std::shared_ptr<SceneNode>>::iterator it = m_children.begin(); it != m_children.end(); it++)
+    {
+        (*it)->Update(deltaTime);
+    }
+}
+
+void SceneNode::Render()
+{
+
+}
+
+void SceneNode::RenderChildren()
+{
+    for (std::vector<std::shared_ptr<SceneNode>>::iterator it = m_children.begin(); it != m_children.end(); it++)
+    {
+        (*it)->Render();
+        (*it)->RenderChildren();
+    }
+}
+
+void SceneNode::AddChild(std::shared_ptr<SceneNode> node)
+{
+    if (strcmp(LightNode::g_type, node->GetType()) == 0)
+    {
+        g_pApp->GetRenderer()->AddLight(node);
+    }
+
+    node->m_pParent = this;
+    m_children.push_back(node);
+}
+
+void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node)
+{
+    if (strcmp(LightNode::g_type, node->GetType()) == 0)
+    {
+        g_pApp->GetRenderer()->RemoveLight(node);
+    }
+
+    for (std::vector<std::shared_ptr<SceneNode>>::iterator it = m_children.begin(); it != m_children.end(); it++)
+    {
+        if ((*it) != node)
+        {
+            continue;
+        }
+
+        m_children.erase(it);
+
+        break;
+    }
+}
+
+Json SceneNode::ToJSON()
+{
+    Json data;
+
+    if (!m_name.empty())
+    {
+        data["name"] = m_name;
+    }
+
+    data["type"] = GetType();
+
+    data["Position"]["x"] = m_position.x;
+    data["Position"]["y"] = m_position.y;
+    data["Position"]["z"] = m_position.z;
+
+    glm::vec3 rotation = glm::degrees(glm::eulerAngles(m_rotation));
+    data["PitchYawRoll"]["x"] = rotation.x;
+    data["PitchYawRoll"]["y"] = rotation.y;
+    data["PitchYawRoll"]["z"] = rotation.z;
+
+    data["Size"]["x"] = m_size.x;
+    data["Size"]["y"] = m_size.y;
+    data["Size"]["z"] = m_size.z;
+
+    data["children"] = Json::array();
+
+    return data;
+}
+
+//-----------------------------------------------------------------------------
+// PawnNode Implementation
+//-----------------------------------------------------------------------------
+
+const char* PawnNode::g_type = "PawnNode";
+
+PawnNode::PawnNode()
+{
+
+}
+
+PawnNode::~PawnNode()
+{
+
+}
+
+void PawnNode::Init(const Json& data)
+{
+    SceneNode::Init(data);
+}
+
+void PawnNode::PostInit()
+{
+    SceneNode::PostInit();
+}
+
+void PawnNode::Update(const float deltaTime)
+{
+    SceneNode::Update(deltaTime);
+}
+
+void PawnNode::Render()
+{
+
+}
+
+Json PawnNode::ToJSON()
+{
+    Json data = SceneNode::ToJSON();
+
+    return data;
+}
+
+//-----------------------------------------------------------------------------
+// TestNode Implementation
+//-----------------------------------------------------------------------------
+
+const char* TestNode::g_type = "TestNode";
+
+TestNode::TestNode()
+    : SceneNode()
+{
+    m_testElement = glm::vec3(0, 0, 0);
+
+    m_numVerts = 0;
+}
+
+TestNode::~TestNode()
+{
+
+}
+
+void TestNode::Init(const Json& data)
+{
+    SceneNode::Init(data);
+}
+
+void TestNode::PostInit()
+{
+    SceneNode::PostInit();
+
+    m_numVerts = 3;
+
+    std::vector<Vertex_LitTexturedColored> verts;
+    verts.resize(m_numVerts);
+
+    verts[0].pos = glm::vec3( 0.0f, 0.5f, 0.0f); verts[0].norm = glm::vec3(0, 1, 0); verts[0].color = glm::vec3(1, 0, 0); verts[0].uv = glm::vec2(0, 0);
+    verts[1].pos = glm::vec3(-0.5f,-0.5f, 0.0f); verts[1].norm = glm::vec3(0, 1, 0); verts[1].color = glm::vec3(0, 1, 0); verts[1].uv = glm::vec2(0, 0); 
+    verts[2].pos = glm::vec3( 0.5f,-0.5f, 0.0f); verts[2].norm = glm::vec3(0, 1, 0); verts[2].color = glm::vec3(0, 0, 1); verts[2].uv = glm::vec2(0, 0); 
+
+    m_vertexArray.Init();
+    m_vertexArray.SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_vertexArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_vertexArray.SetVertexAttribute(0, 2, 3, GL_FLOAT, 24);
+    m_vertexArray.SetVertexAttribute(0, 3, 2, GL_FLOAT, 36);
+
+    long long vertBufferSize = sizeof(Vertex_LitTexturedColored) * verts.size();
+
+    m_vertexBuffer.Init(vertBufferSize, GL_STATIC_DRAW);
+    m_vertexBuffer.MapMemory(0, vertBufferSize, verts.data());
+
+    m_vertexArray.SetVertexBuffer(0, &m_vertexBuffer, sizeof(Vertex_LitTexturedColored), VertexArrayInputRate_Vertex);
+    
+    verts.clear();
+}
+
+void TestNode::Update(const float deltaTime)
+{
+    SceneNode::Update(deltaTime);
+
+    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(1, 1, 1));
+    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.8f, 0.8f, 0.8f));
+    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.6f, 0.6f, 0.6f));
+}
+
+void TestNode::Render()
+{
+    Shader* pShader = g_pApp->GetRenderer()->GetShader_LitTexturedColored();
+
+    pShader->SetUniformMatrix4f("uModel", m_transform);
+
+    pShader->SetUniform4f("uMat.ambient", m_material.ambient);
+    pShader->SetUniform4f("uMat.diffuse", m_material.diffuse);
+    pShader->SetUniform4f("uMat.specular", m_material.specular);
+    pShader->SetUniform4f("uMat.emissive", m_material.emissive);
+    pShader->SetUniform1f("uMat.specularPower", m_material.specularPower);
+    pShader->SetUniform1b("uMat.bUseTex", m_material.bUseTexture);
+
+    m_vertexArray.Bind();
+    glDrawArrays(GL_TRIANGLES, 0, m_numVerts);
+}
+
+Json TestNode::ToJSON()
+{
+    Json data = SceneNode::ToJSON();
+
+    return data;
+}
+
+//-----------------------------------------------------------------------------
+// MeshNode Implementation
+//-----------------------------------------------------------------------------
+
+const char* MeshNode::g_type = "MeshNode";
+
+MeshNode::MeshNode()
+    : SceneNode()
+{
+
+}
+
+MeshNode::~MeshNode()
+{
+
+}
+
+void MeshNode::Init(const Json& data)       
+{
+    SceneNode::Init(data);
+
+    if (data.contains("MeshAsset"))
+    {
+        m_meshAsset = data["MeshAsset"].get<std::string>();
+    }
+
+    if (data.contains("TextureAsset"))
+    {
+        m_textureAsset = data["TextureAsset"].get<std::string>();
+    }
+}
+
+void MeshNode::PostInit()                   
+{
+    SceneNode::PostInit();
+}
+
+void MeshNode::Update(const float deltaTime)
+{
+    SceneNode::Update(deltaTime);
+
+    m_material.bUseTexture = (!m_textureAsset.empty()) ? true : false;
+}
+
+void MeshNode::Render()                     
+{
+    Shader* pShader = g_pApp->GetRenderer()->GetShader_LitTexturedColored();
+
+    pShader->SetUniformMatrix4f("uModel", m_transform);
+
+    pShader->SetUniform4f("uMat.ambient", m_material.ambient);
+    pShader->SetUniform4f("uMat.diffuse", m_material.diffuse);
+    pShader->SetUniform4f("uMat.specular", m_material.specular);
+    pShader->SetUniform4f("uMat.emissive", m_material.emissive);
+    pShader->SetUniform1f("uMat.specularPower", m_material.specularPower);
+    pShader->SetUniform1b("uMat.bUseTex", m_material.bUseTexture);
+
+    if (m_material.bUseTexture)
+    {
+        pShader->SetUniform1i("uTex", 0);
+        std::shared_ptr<Texture> tex = g_pApp->GetTexture(m_textureAsset);
+        tex->BindUnit(0);
+    }
+
+    std::shared_ptr<Mesh> mesh = g_pApp->GetMesh(m_meshAsset);
+    mesh->Render();
+}
+
+Json MeshNode::ToJSON()
+{
+    Json data = SceneNode::ToJSON();
+
+    data["MeshAsset"] = m_meshAsset;
+    data["TextureAsset"] = m_textureAsset;
+
+    return data;
+}
+
+//-----------------------------------------------------------------------------
+// LightNode Implementation
+//-----------------------------------------------------------------------------
+
+const char* LightNode::g_type = "LightNode";
+    
+LightNode::LightNode()
+    : SceneNode()
+{
+
+}
+
+LightNode::~LightNode()
+{
+
+}
+
+void LightNode::Init(const Json& data)        
+{
+    SceneNode::Init(data);
+
+    if (data.contains("LightType"))
+    {
+        m_lightProperties.type = data["LightType"].get<int>();
+    }
+
+    if (data.contains("LightPosition"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["LightPosition"].contains("x") 
+        && data["LightPosition"].contains("y") 
+        && data["LightPosition"].contains("z")) 
+        {
+            x = data["LightPosition"]["x"].get<float>();
+            y = data["LightPosition"]["y"].get<float>();
+            z = data["LightPosition"]["z"].get<float>();
+        }  
+
+        m_lightProperties.position = glm::vec3(x, y, z);
+    }
+
+    if (data.contains("Direction"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Direction"].contains("x") 
+        && data["Direction"].contains("y") 
+        && data["Direction"].contains("z")) 
+        {
+            x = data["Direction"]["x"].get<float>();
+            y = data["Direction"]["y"].get<float>();
+            z = data["Direction"]["z"].get<float>();
+        }  
+
+        m_lightProperties.direction = glm::vec3(x, y, z);
+    }
+
+    if (data.contains("Range"))
+    {
+        m_lightProperties.range = data["Range"].get<float>();
+    }
+
+    if (data.contains("FallOff"))
+    {
+        m_lightProperties.fallOff = data["FallOff"].get<float>();
+    }
+
+    if (data.contains("ConstantAttenuation"))
+    {
+        m_lightProperties.constantAttenuation = data["ConstantAttenuation"].get<float>();
+    }
+
+    if (data.contains("LinearAttenuation"))
+    {
+        m_lightProperties.linearAttenuation = data["LinearAttenuation"].get<float>();
+    }
+
+    if (data.contains("QuadraticAttenuation"))
+    {
+        m_lightProperties.quadraticAttenuation = data["QuadraticAttenuation"].get<float>();
+    }
+
+    if (data.contains("Theta"))
+    {
+        m_lightProperties.theta = data["Theta"].get<float>();
+    }
+
+    if (data.contains("Phi"))
+    {
+        m_lightProperties.phi = data["Phi"].get<float>();
+    }
+}
+
+void LightNode::PostInit()                    
+{
+    SceneNode::PostInit();
+}
+
+void LightNode::Update(const float deltaTime) 
+{
+    SceneNode::Update(deltaTime);
+
+    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.2f, 0.2f, 0.2f));
+}
+
+void LightNode::Render()                      
+{
+
+}
+
+Json LightNode::ToJSON()
+{
+    Json data = SceneNode::ToJSON();
+
+    data["LightType"] = m_lightProperties.type;
+    
+    data["LightPosition"]["x"] = m_position.x;
+    data["LightPosition"]["y"] = m_position.y;
+    data["LightPosition"]["z"] = m_position.z;
+
+    data["Direction"]["x"] = m_lightProperties.direction.x;
+    data["Direction"]["y"] = m_lightProperties.direction.y;
+    data["Direction"]["z"] = m_lightProperties.direction.z;
+
+    data["Range"] = m_lightProperties.range;
+
+    data["FallOff"] = m_lightProperties.fallOff;
+
+    data["ConstantAttenuation"] = m_lightProperties.constantAttenuation;
+    data["LinearAttenuation"] = m_lightProperties.linearAttenuation;
+    data["QuadraticAttenuation"] = m_lightProperties.quadraticAttenuation;
+
+    data["Theta"] = m_lightProperties.theta;
+    data["Phi"] = m_lightProperties.phi;
+
+    return data;
+}
+
+/*
 //-----------------------------------------------------------------------------
 // SceneNode Implementation
 //-----------------------------------------------------------------------------
@@ -98,74 +640,6 @@ void SceneNode::AddChild(std::shared_ptr<SceneNode> node)
     node->m_pParent = this;
 }
 
-//-----------------------------------------------------------------------------
-// CameraNode Implementation
-//-----------------------------------------------------------------------------
-
-CameraNode::CameraNode()
-{
-    m_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
-    m_TargetPos = m_pos + m_forward;
-    m_proj = glm::perspective(glm::radians(45.0f), (1280 / static_cast<float>(720)), 0.001f, 1000.0f);
-    WorldViewProjection();
-}
-
-CameraNode::~CameraNode()
-{
-}
-
-glm::mat4 CameraNode::WorldViewProjection()
-{
-    //m_View = glm::lookAt(m_Pos, (m_Pos + m_ForwardDir), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_view = glm::lookAt(m_pos, m_TargetPos, glm::vec3(0.0f, 1.0f, 0.0f));
-    return (m_proj * m_view);
-}
-
-////////////////////////////////////////////////////
-//  MeshNode Implementation
-////////////////////////////////////////////////////
-
-MeshNode::MeshNode(const StrongMeshPtr& mesh, const StrongShaderPtr& shader, const StrongTexturePtr& texture)
-    : m_Mesh(mesh), m_Shader(shader), m_Texture(texture)
-{
-    m_meshResource = "";
-}
-
-MeshNode::~MeshNode()
-{
-}
-
-void MeshNode::Init(Scene& scene)
-{
-}
-
-void MeshNode::Render(Scene& scene)
-{
-    m_Shader->Bind();
-
-    m_Shader->SetUniformMatrix4f("u_World", m_transform);
-
-    m_Shader->SetUniform4f("u_Material.Ambient", m_material.Ambient);
-    m_Shader->SetUniform4f("u_Material.Diffuse", m_material.Diffuse);
-    m_Shader->SetUniform4f("u_Material.Specular", m_material.Specular);
-    m_Shader->SetUniform4f("u_Material.Emissive", m_material.Emissive);
-    m_Shader->SetUniform1f("u_Material.SpecularPower", m_material.SpecularPower);
-    m_Shader->SetUniform1b("u_Material.bUseTexture", m_material.bUseTexture);
-
-    if (m_material.bUseTexture)
-    {
-        const uint32_t textureUnit = 0;
-        m_Texture->BindUnit(textureUnit);
-        m_Shader->SetUniform1i("u_Texture", textureUnit);
-    }
-
-    //std::shared_ptr<Mesh> mesh = scene.GetMesh(m_meshResource);
-
-    m_Mesh->GetVertexArray()->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, m_Mesh->GetVertexCount());
-}
-
 ////////////////////////////////////////////////////
 //  CubeMapNode Implementation
 ////////////////////////////////////////////////////
@@ -176,8 +650,6 @@ CubeMapNode::CubeMapNode()
 
     std::vector<Vertex> vertices =
     {
-        /** POSITIVE_X */
-
         {{ 0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
         {{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
         {{ 0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
@@ -185,8 +657,6 @@ CubeMapNode::CubeMapNode()
         {{ 0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
         {{ 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
         {{ 0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
-
-        /** NEGATIVE_X */
 
         {{ -0.5f,  0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
@@ -196,8 +666,6 @@ CubeMapNode::CubeMapNode()
         {{ -0.5f, -0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
         {{ -0.5f, -0.5f,  0.5f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
 
-        /** POSITIVE_Y */
-
         {{  0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
         {{  0.5f, 0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
@@ -205,8 +673,6 @@ CubeMapNode::CubeMapNode()
         {{  0.5f, 0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
         {{ -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
         {{ -0.5f, 0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-
-        /** NEGATIVE_Y */
 
         {{  0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }},
@@ -216,8 +682,6 @@ CubeMapNode::CubeMapNode()
         {{ -0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }},
         {{ -0.5f, -0.5f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }},
 
-        /** POSITIVE_Z */
-
         {{ -0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
         {{  0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
@@ -225,8 +689,6 @@ CubeMapNode::CubeMapNode()
         {{  0.5f,  0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
         {{ -0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},
         {{  0.5f, -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }},
-
-        /** NEGATIVE_Z */
 
         {{ -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f }},
         {{ -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f }},
@@ -243,7 +705,7 @@ CubeMapNode::CubeMapNode()
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
-    m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
+    // m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     m_numVerts = vertices.size();
@@ -326,13 +788,13 @@ BillboardNode::BillboardNode(const StrongTexturePtr& texture)
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
-    m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
+    // m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     vertices.clear();
 
     const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
-    m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
+    // m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
     m_IndexBuffer->MapMemory(0, indexBufferSize, indices.data());
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     m_IndexCount = indices.size();
@@ -449,13 +911,13 @@ TerrainNode::TerrainNode()
     m_VertexArray->SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
     const signed long long vertexBufferSize = sizeof(Vertex) * vertices.size();
-    m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
+    // m_VertexBuffer.reset(new VertexBuffer(vertexBufferSize, GL_STATIC_DRAW));
     m_VertexBuffer->MapMemory(0, vertexBufferSize, vertices.data());
     m_VertexArray->SetVertexBuffer(0, m_VertexBuffer, sizeof(Vertex), VertexArrayInputRate_Vertex);
     vertices.clear();
 
     const signed long long indexBufferSize = sizeof(uint32_t) * indices.size();
-    m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
+    // m_IndexBuffer.reset(new IndexBuffer(indexBufferSize, GL_STATIC_DRAW));
     m_IndexBuffer->MapMemory(0, indexBufferSize, indices.data());
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     m_IndexCount = indices.size();
@@ -529,7 +991,7 @@ LampNode::~LampNode()
 
 void LampNode::Init(Scene& scene)
 {
-    m_lamp.reset(new MeshNode(scene.GetMesh("Assets/Models/Cube.obj"), g_pShader_LitTextured, scene.GetTexture("Assets/Textures/UvGrid.png")));
+    m_lamp.reset(new TestNode(scene.GetMesh("Assets/Models/Cube.obj"), g_pShader_LitTextured, scene.GetTexture("Assets/Textures/UvGrid.png")));
     m_lamp->SetScale({0.2f, 0.2f, 0.2f});
     AddChild(m_lamp);
 
@@ -555,3 +1017,5 @@ void LampNode::Update(Scene& scene, const float deltaTime)
 void LampNode::Render(Scene& scene)
 {
 }
+
+*/

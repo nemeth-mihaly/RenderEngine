@@ -1,16 +1,13 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <cassert>
+#include <stddef.h>
+#include <stdint.h>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "Material.h"
-#include "Mesh.h"
-#include "VertexArray.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "3rdParty/nlohmann/json.hpp"
+using Json = nlohmann::json;
 
 #include "3rdParty/glm/glm.hpp"
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
@@ -19,10 +16,199 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 #include "3rdParty/glm/gtx/quaternion.hpp"
 
-class Scene;
+#include "Shader.h"
 
-class SceneNode;
-typedef std::vector<std::shared_ptr<SceneNode>> SceneNodeVector;
+#include "VertexArray.h"
+#include "Buffers.h"
+
+#include "Material.h"
+
+//-----------------------------------------------------------------------------
+// class SceneNode
+//-----------------------------------------------------------------------------
+
+class SceneNode
+{
+    friend class Renderer;
+
+ public:
+    SceneNode();
+    virtual ~SceneNode();
+
+    virtual void Init(const Json& data);
+    virtual void PostInit();
+    virtual void Update(const float deltaTime);
+    virtual void Render();
+    void RenderChildren();
+
+    virtual Json ToJSON();
+
+    virtual const char* GetType() = 0;
+
+    void AddChild(std::shared_ptr<SceneNode> node);
+    void RemoveChild(std::shared_ptr<SceneNode> node);
+    SceneNode* GetParent() { return m_pParent; }
+    std::vector<std::shared_ptr<SceneNode>>& GetChildren() { return m_children; }
+
+    const std::string& GetName() const { return m_name; }
+
+ protected:
+    SceneNode* m_pParent;
+    std::vector<std::shared_ptr<SceneNode>> m_children;
+
+    std::string     m_name;
+
+    glm::mat4       m_transform;
+
+    glm::vec3       m_position;
+    glm::quat       m_rotation;
+    glm::vec3       m_size;
+
+    Material        m_material;
+};
+
+//-----------------------------------------------------------------------------
+// class PawnNode
+//-----------------------------------------------------------------------------
+
+class PawnNode : public SceneNode
+{
+ public:
+    static const char* g_type;
+
+    PawnNode();
+    virtual ~PawnNode();
+
+    virtual void Init(const Json& data);
+    virtual void PostInit();
+    virtual void Update(const float deltaTime);
+    virtual void Render();
+
+    virtual Json ToJSON() override;
+
+    virtual const char* GetType() override { return g_type; }
+};
+
+//-----------------------------------------------------------------------------
+// class TestNode
+//-----------------------------------------------------------------------------
+
+class TestNode : public SceneNode
+{
+ public:
+    static const char* g_type;
+
+    TestNode();
+    virtual ~TestNode();
+
+    virtual void Init(const Json& data)         override;
+    virtual void PostInit()                     override;
+    virtual void Update(const float deltaTime)  override;
+    virtual void Render()                       override;
+
+    virtual Json ToJSON() override;
+
+    virtual const char* GetType() override { return g_type; }
+
+ private:
+    glm::vec3       m_testElement;
+
+    std::string     m_meshAsset;
+    std::string     m_textureAsset;
+
+    int             m_numVerts;
+    VertexArray     m_vertexArray;
+    VertexBuffer    m_vertexBuffer;
+};
+
+//-----------------------------------------------------------------------------
+// class MeshNode
+//-----------------------------------------------------------------------------
+
+class MeshNode : public SceneNode
+{
+ public:
+    static const char* g_type;
+    
+    MeshNode();
+    virtual ~MeshNode();
+
+    virtual void Init(const Json& data)         override;
+    virtual void PostInit()                     override;
+    virtual void Update(const float deltaTime)  override;
+    virtual void Render()                       override;
+
+    virtual Json ToJSON() override;
+
+    virtual const char* GetType() override { return g_type; }
+
+ protected:
+    std::string     m_meshAsset;
+    std::string     m_textureAsset;
+
+    int             m_numVerts;
+    VertexArray     m_vertexArray;
+    VertexBuffer    m_vertexBuffer;
+};
+
+//-----------------------------------------------------------------------------
+// enum LightType
+//-----------------------------------------------------------------------------
+
+enum LightType
+{
+    LightType_Directional = 0,
+    LightType_Point = 1,
+    LightType_Spot = 2,
+};
+
+//-----------------------------------------------------------------------------
+// struct LightNode
+//-----------------------------------------------------------------------------
+
+struct LightProperties
+{
+    int         type;
+    glm::vec3   position;
+    float       padding1;
+    glm::vec3   direction;
+    float       range;
+    float       fallOff;
+    float       constantAttenuation;
+    float       linearAttenuation;
+    float       quadraticAttenuation;
+    float       theta;
+    float       phi;
+};
+
+//-----------------------------------------------------------------------------
+// class LightNode
+//-----------------------------------------------------------------------------
+
+class LightNode : public SceneNode
+{
+ public:
+    static const char* g_type;
+    
+    LightNode();
+    virtual ~LightNode();
+
+    virtual void Init(const Json& data)         override;
+    virtual void PostInit()                     override;
+    virtual void Update(const float deltaTime)  override;
+    virtual void Render()                       override;
+
+    virtual Json ToJSON() override;
+
+    virtual const char* GetType() override { return g_type; }
+
+    const LightProperties& GetProperties() const { return m_lightProperties; }
+
+ protected:
+    LightProperties     m_lightProperties;
+};
+
+/*
 
 //-----------------------------------------------------------------------------
 // class SceneNode
@@ -47,34 +233,6 @@ public:
 
     void AddChild(std::shared_ptr<SceneNode> node);
     const SceneNodeVector& GetChildren() const { return m_children; }
-
-    const std::string& GetName() const { return m_name; }
-
-    void SetPosition(const glm::vec3& pos) { m_pos = pos; }
-    const glm::vec3& GetPosition() const { return m_pos; }
-
-    void SetRotation(const glm::quat& rotation) { m_rotation = rotation; }
-    const glm::quat& GetRotation() const { return m_rotation; }
-
-    void SetScale(const glm::vec3& scale) { m_scale = scale; }
-    const glm::vec3& GetScale() const { return m_scale; }
-
-    void SetMaterial(const Material& material) { m_material = material; }
-    const Material& GetMaterial() const { return m_material; }
-
-protected:
-    SceneNode*          m_pParent;
-    SceneNodeVector     m_children;
-
-    std::string         m_name;
-
-    glm::mat4           m_transform;
-
-    glm::vec3           m_pos;
-    glm::quat           m_rotation;
-    glm::vec3           m_scale;
-
-    Material            m_material;
 };
 
 //-----------------------------------------------------------------------------
@@ -84,34 +242,6 @@ protected:
 struct AlphaSceneNode
 {
     std::shared_ptr<SceneNode> node;
-};
-
-//-----------------------------------------------------------------------------
-// class CameraNode
-//-----------------------------------------------------------------------------
-
-class CameraNode : public SceneNode
-{
-public:
-    CameraNode();
-    virtual ~CameraNode();
-
-    const glm::mat4& GetProjection() const { return m_proj; }
-    const glm::mat4& GetView() const { return m_view; }
-
-    glm::mat4 WorldViewProjection();
-
-    void SetForwardDir(const glm::vec3& forward) { m_forward = forward; }
-    const glm::vec3& GetForwardDir() const { return m_forward; }
-
-    glm::vec3 m_TargetPos;
-    std::shared_ptr<SceneNode> m_TargetNode;
-
-private:
-    glm::mat4   m_view;
-    glm::mat4   m_proj;
-
-    glm::vec3   m_forward;
 };
 
 //////////////////////////////////////////////////////
@@ -230,24 +360,4 @@ private:
     std::vector<float>      m_HeightPointValues;
 };
 
-//-----------------------------------------------------------------------------
-// class Lamp Node
-//-----------------------------------------------------------------------------
-
-class LampNode : public SceneNode
-{
-public:
-    LampNode();
-    virtual ~LampNode();
-
-    virtual void Init(Scene& scene);
-    virtual void Update(Scene& scene, const float deltaTime);
-    virtual void Render(Scene& scene);
-
-private:
-    std::shared_ptr<MeshNode>       m_lamp;
-
-    float m_elapsedTimeInSeconds;
-    float m_glowScale;
-    std::shared_ptr<BillboardNode>  m_glow;
-};
+*/

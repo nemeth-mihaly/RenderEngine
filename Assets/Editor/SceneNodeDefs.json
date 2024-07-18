@@ -1,0 +1,120 @@
+{
+    "sceneNodeList": [
+        {
+            "name": "PawnNode",
+            "elements": [
+                {
+                    "name": "Position",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "PitchYawRoll",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Size",
+                    "type": "Vec3"
+                }
+            ]
+        },
+        {
+            "name": "TestNode",
+            "elements": [
+                {
+                    "name": "Position",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "PitchYawRoll",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Size",
+                    "type": "Vec3"
+                }
+            ]
+        },
+        {
+            "name": "MeshNode",
+            "elements": [
+                {
+                    "name": "Position",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "PitchYawRoll",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Size",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "MeshAsset",
+                    "type": "String"
+                },
+                {
+                    "name": "TextureAsset",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "LightNode",
+            "elements": [
+                {
+                    "name": "Position",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "PitchYawRoll",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Size",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "LightType",
+                    "type": "Integer"
+                },
+                {
+                    "name": "LightPosition",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Direction",
+                    "type": "Vec3"
+                },
+                {
+                    "name": "Range",
+                    "type": "Float"
+                },
+                {
+                    "name": "FallOff",
+                    "type": "Float"
+                },
+                {
+                    "name": "ConstantAttenuation",
+                    "type": "Float"
+                },
+                {
+                    "name": "LinearAttenuation",
+                    "type": "Float"
+                },
+                {
+                    "name": "QuadraticAttenuation",
+                    "type": "Float"
+                },
+                {
+                    "name": "Theta",
+                    "type": "Float"
+                },
+                {
+                    "name": "Phi",
+                    "type": "Float"
+                }
+            ]
+        }
+    ]
+}

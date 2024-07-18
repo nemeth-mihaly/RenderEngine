@@ -10,7 +10,6 @@
 #include <unordered_map>
 
 #include "SceneNodes.h"
-#include "Lights.h"
 
 #include "Mesh.h"
 #include "Shader.h"
@@ -23,6 +22,7 @@
 #define GLM_ENABLE_EXPERIMENTAL 
 #include "3rdParty/glm/gtx/quaternion.hpp"
 
+/*
 extern StrongShaderPtr g_pShader_UnlitColored;
 extern StrongShaderPtr g_pShader_LitTextured;
 
@@ -78,9 +78,6 @@ private:
     LightProperties m_LightProperties[32];
     StrongUniformBufferPtr m_UniformBufferLighting;
 
-    /** Particles */
-
-    /*
     struct ParticleExtraVertexData
     {
         glm::vec3 Pos;
@@ -99,5 +96,5 @@ private:
     };
 
     Particle m_Particles[MAX_PARTICLES];
-    */
 };
+*/

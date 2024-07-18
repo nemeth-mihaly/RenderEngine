@@ -1,7 +1,5 @@
-#include <cstddef>
-#include <cstdint>
-
-#include "3rdParty/SDL2/SDL.h"
+#include <stddef.h>
+#include <stdint.h>
 
 #include "Application.h"
 
@@ -9,7 +7,7 @@ int main(int argc, char* argv[])
 {
     Application app;
 
-    if (app.Init())
+    if (app.Init(1280, 720))
     {
         app.RunLoop();
     }

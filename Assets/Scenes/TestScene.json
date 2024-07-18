@@ -1,0 +1,127 @@
+{
+    "sceneNodeList": [
+        {
+            "PitchYawRoll": {
+                "x": 0.0,
+                "y": -0.0,
+                "z": 0.0
+            },
+            "Position": {
+                "x": -3.5,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Size": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "children": [],
+            "name": "TestNode",
+            "type": "TestNode"
+        },
+        {
+            "PitchYawRoll": {
+                "x": 0.0,
+                "y": -0.0,
+                "z": 0.0
+            },
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Size": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "children": [
+                {
+                    "MeshAsset": "Assets/Meshes/WestfallBarrel.obj",
+                    "PitchYawRoll": {
+                        "x": 0.0,
+                        "y": -0.0,
+                        "z": 0.0
+                    },
+                    "Position": {
+                        "x": 2.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "Size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "TextureAsset": "Assets/Textures/WestfallBarrelTex.png",
+                    "children": [],
+                    "name": "MeshNode",
+                    "type": "MeshNode"
+                },
+                {
+                    "MeshAsset": "Assets/Meshes/ElwynnTreeStump.obj",
+                    "PitchYawRoll": {
+                        "x": 0.0,
+                        "y": -0.0,
+                        "z": 0.0
+                    },
+                    "Position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": -6.0
+                    },
+                    "Size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "TextureAsset": "Assets/Textures/ElwynnTreeStumpTex.png",
+                    "children": [],
+                    "name": "MeshNode",
+                    "type": "MeshNode"
+                }
+            ],
+            "name": "PawnNode",
+            "type": "PawnNode"
+        },
+        {
+            "ConstantAttenuation": 1.0,
+            "Direction": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "FallOff": 0.0,
+            "LightPosition": {
+                "x": -1.0,
+                "y": 2.5,
+                "z": -1.5
+            },
+            "LightType": 1,
+            "LinearAttenuation": 0.014000000432133675,
+            "Phi": 0.0,
+            "PitchYawRoll": {
+                "x": 0.0,
+                "y": -0.0,
+                "z": 0.0
+            },
+            "Position": {
+                "x": -1.0,
+                "y": 2.5,
+                "z": -1.5
+            },
+            "QuadraticAttenuation": 0.007000000216066837,
+            "Range": 0.0,
+            "Size": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "Theta": 0.0,
+            "children": [],
+            "name": "LightNode",
+            "type": "LightNode"
+        }
+    ]
+}

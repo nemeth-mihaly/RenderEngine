@@ -4,6 +4,7 @@
 
 #include "Application.h"
 
+/*
 StrongShaderPtr g_pShader_UnlitColored = nullptr;
 StrongShaderPtr g_pShader_LitTextured = nullptr;
 
@@ -55,8 +56,6 @@ void Scene::Init()
     lamp->SetPosition({-5.0f, 5.0f, 0.0f});
     lamp->Init((*this));
     AddSceneNode(lamp);
-
-    /** Billboard */
 
     Material alphaMaterial;
     alphaMaterial.Diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
@@ -118,17 +117,14 @@ void Scene::Init()
     m_CubeMap.reset(new CubeMapNode());
     m_CubeMap->Init((*this));
 
-    m_UniformBufferMatrices.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
-    m_UniformBufferLighting.reset(new UniformBuffer(1, 32 * sizeof(LightProperties), GL_DYNAMIC_DRAW));
+    // m_UniformBufferMatrices.reset(new UniformBuffer(0, 2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW));
+    // m_UniformBufferLighting.reset(new UniformBuffer(1, 32 * sizeof(LightProperties), GL_DYNAMIC_DRAW));
 
     g_pShader_LitTextured->SetUniformBlockBinding(0, "Matrices");
     g_pShader_UnlitColored->SetUniformBlockBinding(0, "Matrices");
 
     g_pShader_LitTextured->SetUniformBlockBinding(1, "Lighting");
 
-    /** Particles */
-
-    /*
     std::vector<Vertex> particleVertices =
     {
         {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
@@ -166,7 +162,6 @@ void Scene::Init()
         m_Particles[i].Velocity = glm::vec3(0.0f, 1.0f, 0.0f);
         m_Particles[i].Life = 10.0f;
     }
-    */
 
    m_root->Init((*this));
 }
@@ -182,7 +177,6 @@ void Scene::Update(const float deltaTime)
 
     m_root->Update((*this), deltaTime);
 
-    /*
     for (uint32_t i = 0; i < MAX_PARTICLES; i++)
     {
         Particle& particle = m_Particles[i];
@@ -199,7 +193,6 @@ void Scene::Update(const float deltaTime)
             m_ParticleStagingBuffer.push_back(extraData);
         }
     }
-    */
 
     glm::vec3 cameraTargetPos = m_camera->m_TargetNode->GetPosition();
     cameraTargetPos.y = m_Terrain->HeightAt(cameraTargetPos.x, cameraTargetPos.z) + 0.5f;
@@ -210,8 +203,6 @@ void Scene::Render()
 {
     m_UniformBufferMatrices->MapMemory(0, sizeof(glm::mat4), glm::value_ptr(m_camera->GetProjection()));
     m_UniformBufferMatrices->MapMemory(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_camera->GetView()));
-
-    /** Actor Pass */
 
     glEnable(GL_DEPTH_TEST);
     //glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
@@ -239,7 +230,6 @@ void Scene::Render()
         g_pShader_LitTextured->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
 
-    /*
     g_TerrainShader->Bind();
 
     for (uint32_t i = 0; i < m_LightNodes.size(); i++)
@@ -260,9 +250,7 @@ void Scene::Render()
         g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].LinearAttenuation"), lightProperties.LinearAttenuation);
         g_TerrainShader->SetUniform1f(("u_Lights[" + strIndex + "].QuadraticAttenuation"), lightProperties.QuadraticAttenuation);
     }
-    */
 
-    /*
     for (const std::shared_ptr<SceneNode>& sceneNode : m_SceneNodes)
     {
         const float alpha = sceneNode->GetMaterial().Diffuse.a;
@@ -279,7 +267,6 @@ void Scene::Render()
             m_alphaNodes.push_back(pAlphaNode);
         }
     }
-    */
 
     m_root->Render((*this));
     m_root->RenderChildren((*this));
@@ -324,9 +311,6 @@ void Scene::Render()
 
     glDisable(GL_BLEND);
 
-    /** Particles */
-
-    /*
     g_BillboardShader->Bind();
 
     uint32_t textureUnit = 0;
@@ -338,7 +322,6 @@ void Scene::Render()
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, m_ParticleVertexCount, m_ParticleStagingBuffer.size());
     m_ParticleStagingBuffer.clear();
-    */
 }
 
 void Scene::AddSceneNode(std::shared_ptr<SceneNode> node)
@@ -386,3 +369,4 @@ StrongTexturePtr Scene::GetTexture(const std::string& name)
 
     return texture;
 }
+*/

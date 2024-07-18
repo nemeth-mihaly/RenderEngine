@@ -1,9 +1,7 @@
 #include "Shader.h"
 
+#include <cstdio>
 #include <fstream>
-
-int g_numShaderSwaps = 0;
-int g_numUniformLocationLookups = 0;
 
 char* LoadShaderResource(const std::string& name)
 {
@@ -28,6 +26,7 @@ char* LoadShaderResource(const std::string& name)
 
 Shader::Shader()
 {
+    m_programID = 0xFFFFFFFF;
 }
 
 Shader::~Shader()
@@ -60,13 +59,12 @@ void Shader::Load(const std::string& vertResource, const std::string& fragResour
     glLinkProgram(m_programID);
 }
 
-void Shader::Bind()
+void Shader::Bind() const
 {
-    g_numShaderSwaps++;
     glUseProgram(m_programID);
 }
 
-void Shader::SetUniformBlockBinding(uint32_t binding, const std::string& uniformBlockName)
+void Shader::SetUniformBlockBinding(GLuint binding, const std::string& uniformBlockName)
 {
     const uint32_t uniformBlockIndex = glGetUniformBlockIndex(m_programID, uniformBlockName.c_str());
     glUniformBlockBinding(m_programID, uniformBlockIndex, binding);
@@ -107,8 +105,7 @@ void Shader::SetUniformMatrix4f(const std::string& name, const glm::mat4& value)
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-uint32_t Shader::GetUniformLocation(const std::string& name)
+GLint Shader::GetUniformLocation(const std::string& name)
 {
-    g_numUniformLocationLookups++;
     return glGetUniformLocation(m_programID, name.c_str());
 }
