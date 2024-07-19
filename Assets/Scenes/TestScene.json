@@ -1,26 +1,22 @@
 {
     "sceneNodeList": [
         {
-            "PitchYawRoll": {
-                "x": 0.0,
-                "y": -0.0,
-                "z": 0.0
+            "Ambient": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
             },
-            "Position": {
-                "x": -3.5,
-                "y": 1.0,
-                "z": 0.0
-            },
-            "Size": {
+            "Diffuse": {
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
             },
-            "children": [],
-            "name": "TestNode",
-            "type": "TestNode"
-        },
-        {
+            "Emissive": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Name": "MeshCollection",
             "PitchYawRoll": {
                 "x": 0.0,
                 "y": -0.0,
@@ -36,9 +32,31 @@
                 "y": 1.0,
                 "z": 1.0
             },
+            "Specular": {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "SpecularPower": 32.0,
             "children": [
                 {
+                    "Ambient": {
+                        "x": 0.10000000149011612,
+                        "y": 0.10000000149011612,
+                        "z": 0.10000000149011612
+                    },
+                    "Diffuse": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "Emissive": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "MeshAsset": "Assets/Meshes/WestfallBarrel.obj",
+                    "Name": "Barrel",
                     "PitchYawRoll": {
                         "x": 0.0,
                         "y": -0.0,
@@ -54,13 +72,34 @@
                         "y": 1.0,
                         "z": 1.0
                     },
+                    "Specular": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.5
+                    },
+                    "SpecularPower": 32.0,
                     "TextureAsset": "Assets/Textures/WestfallBarrelTex.png",
                     "children": [],
-                    "name": "MeshNode",
                     "type": "MeshNode"
                 },
                 {
+                    "Ambient": {
+                        "x": 0.10000000149011612,
+                        "y": 0.10000000149011612,
+                        "z": 0.10000000149011612
+                    },
+                    "Diffuse": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "Emissive": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "MeshAsset": "Assets/Meshes/ElwynnTreeStump.obj",
+                    "Name": "TreeStump",
                     "PitchYawRoll": {
                         "x": 0.0,
                         "y": -0.0,
@@ -76,30 +115,153 @@
                         "y": 1.0,
                         "z": 1.0
                     },
+                    "Specular": {
+                        "x": 0.18627452850341797,
+                        "y": 0.18627452850341797,
+                        "z": 0.18627452850341797
+                    },
+                    "SpecularPower": 16.0,
                     "TextureAsset": "Assets/Textures/ElwynnTreeStumpTex.png",
                     "children": [],
-                    "name": "MeshNode",
+                    "type": "MeshNode"
+                },
+                {
+                    "Ambient": {
+                        "x": 0.6911764740943909,
+                        "y": 0.6911764740943909,
+                        "z": 0.6911764740943909
+                    },
+                    "Diffuse": {
+                        "x": 0.593137264251709,
+                        "y": 0.593137264251709,
+                        "z": 0.593137264251709
+                    },
+                    "Emissive": {
+                        "x": 1.0,
+                        "y": 0.9880334734916687,
+                        "z": 0.593137264251709
+                    },
+                    "MeshAsset": "Assets/Meshes/WestfallBarrel.obj",
+                    "Name": "LightingBarrel",
+                    "PitchYawRoll": {
+                        "x": -18.00000762939453,
+                        "y": -2.1344341405438172e-07,
+                        "z": -15.499999046325684
+                    },
+                    "Position": {
+                        "x": 0.5,
+                        "y": 1.0,
+                        "z": -1.0
+                    },
+                    "Size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "Specular": {
+                        "x": 0.6078431606292725,
+                        "y": 0.6078431606292725,
+                        "z": 0.6078431606292725
+                    },
+                    "SpecularPower": 16.0,
+                    "TextureAsset": "Assets/Textures/WestfallBarrelTex.png",
+                    "children": [
+                        {
+                            "Ambient": {
+                                "x": 0.10000000149011612,
+                                "y": 0.10000000149011612,
+                                "z": 0.10000000149011612
+                            },
+                            "ConstantAttenuation": 1.0,
+                            "Diffuse": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            },
+                            "Direction": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "Emissive": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "FallOff": 0.0,
+                            "LightPosition": {
+                                "x": 0.0,
+                                "y": 0.5,
+                                "z": 0.0
+                            },
+                            "LightType": 1,
+                            "LinearAttenuation": 0.14000000059604645,
+                            "Name": "PointLight",
+                            "Phi": 0.0,
+                            "PitchYawRoll": {
+                                "x": 0.0,
+                                "y": -0.0,
+                                "z": 0.0
+                            },
+                            "Position": {
+                                "x": 0.0,
+                                "y": 0.5,
+                                "z": 0.0
+                            },
+                            "QuadraticAttenuation": 0.07000000029802322,
+                            "Range": 0.0,
+                            "Size": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            },
+                            "Specular": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.5
+                            },
+                            "SpecularPower": 32.0,
+                            "Theta": 0.0,
+                            "children": [],
+                            "type": "LightNode"
+                        }
+                    ],
                     "type": "MeshNode"
                 }
             ],
-            "name": "PawnNode",
             "type": "PawnNode"
         },
         {
-            "ConstantAttenuation": 1.0,
+            "Ambient": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
+            },
+            "ConstantAttenuation": 0.0,
+            "Diffuse": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
             "Direction": {
+                "x": -0.5,
+                "y": -1.0,
+                "z": -0.5
+            },
+            "Emissive": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0
             },
             "FallOff": 0.0,
             "LightPosition": {
-                "x": -1.0,
-                "y": 2.5,
-                "z": -1.5
+                "x": 0.0,
+                "y": 5.0,
+                "z": 0.0
             },
-            "LightType": 1,
-            "LinearAttenuation": 0.014000000432133675,
+            "LightType": 0,
+            "LinearAttenuation": 0.0,
+            "Name": "DirectionalLight (Sun)",
             "Phi": 0.0,
             "PitchYawRoll": {
                 "x": 0.0,
@@ -107,21 +269,67 @@
                 "z": 0.0
             },
             "Position": {
-                "x": -1.0,
-                "y": 2.5,
-                "z": -1.5
+                "x": 0.0,
+                "y": 5.0,
+                "z": 0.0
             },
-            "QuadraticAttenuation": 0.007000000216066837,
+            "QuadraticAttenuation": 0.0,
             "Range": 0.0,
             "Size": {
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
             },
+            "Specular": {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "SpecularPower": 32.0,
             "Theta": 0.0,
             "children": [],
-            "name": "LightNode",
             "type": "LightNode"
+        },
+        {
+            "Ambient": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
+            },
+            "Diffuse": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "Emissive": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Name": "Triangle",
+            "PitchYawRoll": {
+                "x": 0.0,
+                "y": -0.0,
+                "z": 0.0
+            },
+            "Position": {
+                "x": -3.0,
+                "y": 0.5,
+                "z": 1.5
+            },
+            "Size": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "Specular": {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "SpecularPower": 32.0,
+            "children": [],
+            "type": "TestNode"
         }
     ]
 }

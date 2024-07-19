@@ -30,9 +30,9 @@ SceneNode::~SceneNode()
 
 void SceneNode::Init(const Json& data)
 {
-    if (data.contains("name"))
+    if (data.contains("Name"))
     {
-        m_name = data["name"].get<std::string>();
+        m_name = data["Name"].get<std::string>();
     }
 
     if (data.contains("Position"))
@@ -92,6 +92,83 @@ void SceneNode::Init(const Json& data)
         }  
 
         m_size = glm::vec3(x, y, z);
+    }
+
+    if (data.contains("Ambient"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Ambient"].contains("x") 
+        && data["Ambient"].contains("y") 
+        && data["Ambient"].contains("z")) 
+        {
+            x = data["Ambient"]["x"].get<float>();
+            y = data["Ambient"]["y"].get<float>();
+            z = data["Ambient"]["z"].get<float>();
+        }  
+
+        m_material.ambient = glm::vec4(x, y, z, 1);
+    }
+
+    if (data.contains("Diffuse"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Diffuse"].contains("x") 
+        && data["Diffuse"].contains("y") 
+        && data["Diffuse"].contains("z")) 
+        {
+            x = data["Diffuse"]["x"].get<float>();
+            y = data["Diffuse"]["y"].get<float>();
+            z = data["Diffuse"]["z"].get<float>();
+        }  
+
+        m_material.diffuse = glm::vec4(x, y, z, 1);
+    }
+
+    if (data.contains("Specular"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Specular"].contains("x") 
+        && data["Specular"].contains("y") 
+        && data["Specular"].contains("z")) 
+        {
+            x = data["Specular"]["x"].get<float>();
+            y = data["Specular"]["y"].get<float>();
+            z = data["Specular"]["z"].get<float>();
+        }  
+
+        m_material.specular = glm::vec4(x, y, z, 1);
+    }
+
+    if (data.contains("Emissive"))
+    {
+        float x = 1;
+        float y = 1;
+        float z = 1;
+
+        if (data["Emissive"].contains("x") 
+        && data["Emissive"].contains("y") 
+        && data["Emissive"].contains("z")) 
+        {
+            x = data["Emissive"]["x"].get<float>();
+            y = data["Emissive"]["y"].get<float>();
+            z = data["Emissive"]["z"].get<float>();
+        }  
+
+        m_material.emissive = glm::vec4(x, y, z, 1);
+    }
+
+    if (data.contains("SpecularPower"))
+    {
+        m_material.specularPower = data["SpecularPower"];
     }
 }
 
@@ -169,9 +246,9 @@ Json SceneNode::ToJSON()
 {
     Json data;
 
-    if (!m_name.empty())
+    // if (!m_name.empty())
     {
-        data["name"] = m_name;
+        data["Name"] = m_name;
     }
 
     data["type"] = GetType();
@@ -188,6 +265,24 @@ Json SceneNode::ToJSON()
     data["Size"]["x"] = m_size.x;
     data["Size"]["y"] = m_size.y;
     data["Size"]["z"] = m_size.z;
+
+    data["Ambient"]["x"] = m_material.ambient.x;
+    data["Ambient"]["y"] = m_material.ambient.y;
+    data["Ambient"]["z"] = m_material.ambient.z;
+
+    data["Diffuse"]["x"] = m_material.diffuse.x;
+    data["Diffuse"]["y"] = m_material.diffuse.y;
+    data["Diffuse"]["z"] = m_material.diffuse.z;
+
+    data["Specular"]["x"] = m_material.specular.x;
+    data["Specular"]["y"] = m_material.specular.y;
+    data["Specular"]["z"] = m_material.specular.z;
+
+    data["Emissive"]["x"] = m_material.emissive.x;
+    data["Emissive"]["y"] = m_material.emissive.y;
+    data["Emissive"]["z"] = m_material.emissive.z;
+
+    data["SpecularPower"] = m_material.specularPower;
 
     data["children"] = Json::array();
 
@@ -290,13 +385,45 @@ void TestNode::PostInit()
     verts.clear();
 }
 
+void PrintMatrix(const glm::mat4& matrix) 
+{
+    std::cout << "Mat4x4\n";
+
+    for (int i = 0; i < 4; i++) 
+    {
+        for (int j = 0; j < 4; j++) 
+        {
+            std::cout << matrix[j][i] << " ";
+        }
+
+        std::cout << '\n';
+    }
+}
+
+static float timer = 0;
+
 void TestNode::Update(const float deltaTime)
 {
     SceneNode::Update(deltaTime);
 
-    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(1, 1, 1));
-    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.8f, 0.8f, 0.8f));
-    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.6f, 0.6f, 0.6f));
+    glm::vec3 position = glm::vec3(m_transform[3][0], m_transform[3][1], m_transform[3][2]);
+
+    g_pApp->GetRenderer()->AddBox(position, glm::vec3(1, 1, 1), glm::vec3(1, 0, 1));
+    // g_pApp->GetRenderer()->AddBox(position, glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1, 0, 1));
+    // g_pApp->GetRenderer()->AddBox(position, glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1, 0, 1));
+
+    // g_pApp->GetRenderer()->AddCross(position, 0.1f, glm::vec3(1, 0, 1));
+
+    /*
+    timer += deltaTime;
+
+    if (timer >= 1.0f)
+    {
+        timer = 0.0f;
+
+        PrintMatrix(m_transform);
+    }
+    */
 }
 
 void TestNode::Render()
@@ -508,7 +635,16 @@ void LightNode::Update(const float deltaTime)
 {
     SceneNode::Update(deltaTime);
 
-    g_pApp->GetRenderer()->AddBox3D(m_position, glm::vec3(0.2f, 0.2f, 0.2f));
+    glm::vec3 position = glm::vec3(m_transform[3][0], m_transform[3][1], m_transform[3][2]);
+
+    g_pApp->GetRenderer()->AddCross(position, 0.1f, glm::vec3(1, 0, 0));
+    
+    if (m_lightProperties.type == LightType_Directional || m_lightProperties.type == LightType_Spot)
+    {
+        g_pApp->GetRenderer()->AddLine(position, (position + m_lightProperties.direction), glm::vec3(1, 0, 0));
+    }
+
+    m_lightProperties.position = position;
 }
 
 void LightNode::Render()                      

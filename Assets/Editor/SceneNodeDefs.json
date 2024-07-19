@@ -4,6 +4,10 @@
             "name": "PawnNode",
             "elements": [
                 {
+                    "name": "Name",
+                    "type": "String"
+                },
+                {
                     "name": "Position",
                     "type": "Vec3"
                 },
@@ -20,6 +24,10 @@
         {
             "name": "TestNode",
             "elements": [
+                {
+                    "name": "Name",
+                    "type": "String"
+                },
                 {
                     "name": "Position",
                     "type": "Vec3"
@@ -38,6 +46,10 @@
             "name": "MeshNode",
             "elements": [
                 {
+                    "name": "Name",
+                    "type": "String"
+                },
+                {
                     "name": "Position",
                     "type": "Vec3"
                 },
@@ -48,6 +60,26 @@
                 {
                     "name": "Size",
                     "type": "Vec3"
+                },
+                {
+                    "name": "Ambient",
+                    "type": "RGB"
+                },
+                {
+                    "name": "Diffuse",
+                    "type": "RGB"
+                },
+                {
+                    "name": "Specular",
+                    "type": "RGB"
+                },
+                {
+                    "name": "Emissive",
+                    "type": "RGB"
+                },
+                {
+                    "name": "SpecularPower",
+                    "type": "Float"
                 },
                 {
                     "name": "MeshAsset",
@@ -62,6 +94,10 @@
         {
             "name": "LightNode",
             "elements": [
+                {
+                    "name": "Name",
+                    "type": "String"
+                },
                 {
                     "name": "Position",
                     "type": "Vec3"

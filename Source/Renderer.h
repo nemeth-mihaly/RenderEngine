@@ -25,49 +25,31 @@
 #include "SceneNodes.h"
 
 //-----------------------------------------------------------------------------
-// class Line3DRenderer
+// class LineRenderer
 //-----------------------------------------------------------------------------
 
-class Line3DRenderer
+class LineRenderer
 {
  public:
-    Line3DRenderer();
+    LineRenderer();
 
     void Init();
 
-    void AddLine3D(const glm::vec3& from, const glm::vec3& to);
+    void AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color);
+    void AddCross(const glm::vec3& position, float size, const glm::vec3& color);
+    void AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
 
     void Render(Shader* pShader);
 
- private:
-    int                         m_numVerts;
-    VertexArray                 m_vertexArray;
-    VertexBuffer                m_vertexBuffer;
-    VertexBuffer                m_instVertexBuffer;
-    std::vector<glm::mat4>      m_instStagingBuffer;
-};
-
-//-----------------------------------------------------------------------------
-// class Box3DRenderer
-//-----------------------------------------------------------------------------
-
-class Box3DRenderer
-{
- public:
-    Box3DRenderer();
-
-    void Init();
-
-    void AddBox3D(const glm::vec3& position, const glm::vec3& size);
-
-    void Render(Shader* pShader);
+    void ToggleDepthTest();
 
  private:
-    int                         m_numVerts;
+    bool    m_bDepthEnabled;
+
+    std::vector<Vertex_UnlitColored> m_stagingBuffer;
+
     VertexArray                 m_vertexArray;
     VertexBuffer                m_vertexBuffer;
-    VertexBuffer                m_instVertexBuffer;
-    std::vector<glm::mat4>      m_instStagingBuffer;
 };
 
 //-----------------------------------------------------------------------------
@@ -84,8 +66,11 @@ class Renderer
     void Update(const float deltaTime);
     void Render();
 
-    void AddLine3D(const glm::vec3& from, const glm::vec3& to);
-    void AddBox3D(const glm::vec3& position, const glm::vec3& size);
+    void AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color);
+    void AddCross(const glm::vec3& position, float size, const glm::vec3& color);
+    void AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
+
+    void ToggleDepthTestForDebugPass() { m_lineRenderer.ToggleDepthTest(); }
 
     Shader* GetShader_UnlitColored() { return &m_shader_UnlitColored; }
     Shader* GetShader_UnlitColoredInstanced() { return &m_shader_UnlitColoredInstanced; }
@@ -113,6 +98,5 @@ class Renderer
 
     std::vector<std::shared_ptr<LightNode>>     m_lights;
 
-    Line3DRenderer              m_line3DRenderer;
-    Box3DRenderer               m_box3DRenderer;
+    LineRenderer                m_lineRenderer;
 };

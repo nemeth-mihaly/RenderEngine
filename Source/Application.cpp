@@ -20,6 +20,7 @@ enum SceneNodeEditorType
     SceneNodeEditorType_Float,
     SceneNodeEditorType_Vec3,
     SceneNodeEditorType_String,
+    SceneNodeEditorType_RGB,
 };
 
 //-----------------------------------------------------------------------------
@@ -169,6 +170,7 @@ bool Application::Init(int width, int height)
     m_sceneNodeEditorTypemap.insert(std::make_pair("Float", SceneNodeEditorType_Float));
     m_sceneNodeEditorTypemap.insert(std::make_pair("Vec3", SceneNodeEditorType_Vec3));
     m_sceneNodeEditorTypemap.insert(std::make_pair("String", SceneNodeEditorType_String));
+    m_sceneNodeEditorTypemap.insert(std::make_pair("RGB", SceneNodeEditorType_RGB));
 
     // ..
     LoadScene("Assets/Scenes/TestScene.json");
@@ -291,6 +293,13 @@ void Application::OnKeyDown(int key)
 
             break;
             
+        case GLFW_KEY_G:
+        {
+            m_pRenderer->ToggleDepthTestForDebugPass();
+
+            break;
+        }
+
         case GLFW_KEY_F11:
         {
             if (!m_bWindowedMode)
@@ -505,7 +514,7 @@ void Application::ShowSceneNodeEditor()
                     int v = 0;
                     v = selectedSceneNodeData[elementName].get<int>();
 
-                    if (ImGui::DragInt(elementName.c_str(), &v))
+                    if (ImGui::DragInt(elementName.c_str(), &v, 0.5f))
                     {
                         selectedSceneNodeData[elementName] = v;
                         m_selectedSceneNode->Init(selectedSceneNodeData);
@@ -521,7 +530,7 @@ void Application::ShowSceneNodeEditor()
                     float v = 0;
                     v = selectedSceneNodeData[elementName].get<float>();
 
-                    if (ImGui::DragFloat(elementName.c_str(), &v))
+                    if (ImGui::DragFloat(elementName.c_str(), &v, 0.5f))
                     {
                         selectedSceneNodeData[elementName] = v;
                         m_selectedSceneNode->Init(selectedSceneNodeData);
@@ -562,6 +571,27 @@ void Application::ShowSceneNodeEditor()
                     if (ImGui::InputText(elementName.c_str(), buffer, sizeof(buffer)))
                     {
                         selectedSceneNodeData[elementName] = std::string(buffer);
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+
+                case SceneNodeEditorType_RGB:
+                {
+                    // std::string elementName = (*it).at("name");
+
+                    glm::vec3 v(0, 0, 0);
+                    v.x = selectedSceneNodeData[elementName]["x"].get<float>();
+                    v.y = selectedSceneNodeData[elementName]["y"].get<float>();
+                    v.z = selectedSceneNodeData[elementName]["z"].get<float>();  
+
+                    if (ImGui::ColorEdit3(elementName.c_str(), glm::value_ptr(v)))
+                    {
+                        selectedSceneNodeData[elementName]["x"] = v.x;
+                        selectedSceneNodeData[elementName]["y"] = v.y;
+                        selectedSceneNodeData[elementName]["z"] = v.z;
+
                         m_selectedSceneNode->Init(selectedSceneNodeData);
                     }
 

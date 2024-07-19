@@ -6,113 +6,134 @@
 #include "Application.h"
 
 //-----------------------------------------------------------------------------
-// Line3DRenderer Implementation
+// LineRenderer Implementation
 //-----------------------------------------------------------------------------
 
-Line3DRenderer::Line3DRenderer()
+LineRenderer::LineRenderer()
 {
-
+    m_bDepthEnabled = true;
 }
 
-void Line3DRenderer::Init()
+void LineRenderer::Init()
 {
-
-}
-
-void Line3DRenderer::AddLine3D(const glm::vec3& from, const glm::vec3& to)
-{
-
-}
-
-void Line3DRenderer::Render(Shader* pShader)
-{
-
-}
-
-//-----------------------------------------------------------------------------
-// Box3DRenderer Implementation
-//-----------------------------------------------------------------------------
-
-Box3DRenderer::Box3DRenderer()
-{
-    m_numVerts = 0;
-}
-
-void Box3DRenderer::Init()
-{
-    m_numVerts = 24;
-
-    std::vector<Vertex_UnlitColored> verts;
-    verts.resize(m_numVerts);
-
-    verts[0].pos = glm::vec3(-0.5f, 0.5f,-0.5f); verts[0].color = glm::vec3(1, 0, 1);
-    verts[1].pos = glm::vec3( 0.5f, 0.5f,-0.5f); verts[1].color = glm::vec3(1, 0, 1);
-    verts[2].pos = glm::vec3(-0.5f, 0.5f,-0.5f); verts[2].color = glm::vec3(1, 0, 1);
-    verts[3].pos = glm::vec3(-0.5f,-0.5f,-0.5f); verts[3].color = glm::vec3(1, 0, 1);
-    verts[4].pos = glm::vec3(-0.5f,-0.5f,-0.5f); verts[4].color = glm::vec3(1, 0, 1);
-    verts[5].pos = glm::vec3( 0.5f,-0.5f,-0.5f); verts[5].color = glm::vec3(1, 0, 1);
-    verts[6].pos = glm::vec3( 0.5f, 0.5f,-0.5f); verts[6].color = glm::vec3(1, 0, 1);
-    verts[7].pos = glm::vec3( 0.5f,-0.5f,-0.5f); verts[7].color = glm::vec3(1, 0, 1);
-
-    verts[8].pos = glm::vec3(-0.5f, 0.5f, 0.5f); verts[8].color = glm::vec3(1, 0, 1);
-    verts[9].pos = glm::vec3( 0.5f, 0.5f, 0.5f); verts[9].color = glm::vec3(1, 0, 1);
-    verts[10].pos = glm::vec3(-0.5f, 0.5f, 0.5f); verts[10].color = glm::vec3(1, 0, 1);
-    verts[11].pos = glm::vec3(-0.5f,-0.5f, 0.5f); verts[11].color = glm::vec3(1, 0, 1);
-    verts[12].pos = glm::vec3(-0.5f,-0.5f, 0.5f); verts[12].color = glm::vec3(1, 0, 1);
-    verts[13].pos = glm::vec3( 0.5f,-0.5f, 0.5f); verts[13].color = glm::vec3(1, 0, 1);
-    verts[14].pos = glm::vec3( 0.5f, 0.5f, 0.5f); verts[14].color = glm::vec3(1, 0, 1);
-    verts[15].pos = glm::vec3( 0.5f,-0.5f, 0.5f); verts[15].color = glm::vec3(1, 0, 1);
-
-    verts[16].pos = glm::vec3(-0.5f, 0.5f,-0.5f); verts[16].color = glm::vec3(1, 0, 1);
-    verts[17].pos = glm::vec3(-0.5f, 0.5f, 0.5f); verts[17].color = glm::vec3(1, 0, 1);
-    verts[18].pos = glm::vec3( 0.5f, 0.5f,-0.5f); verts[18].color = glm::vec3(1, 0, 1);
-    verts[19].pos = glm::vec3( 0.5f, 0.5f, 0.5f); verts[19].color = glm::vec3(1, 0, 1);
-    verts[20].pos = glm::vec3(-0.5f,-0.5f,-0.5f); verts[20].color = glm::vec3(1, 0, 1);
-    verts[21].pos = glm::vec3(-0.5f,-0.5f, 0.5f); verts[21].color = glm::vec3(1, 0, 1);
-    verts[22].pos = glm::vec3( 0.5f,-0.5f,-0.5f); verts[22].color = glm::vec3(1, 0, 1);
-    verts[23].pos = glm::vec3( 0.5f,-0.5f, 0.5f); verts[23].color = glm::vec3(1, 0, 1);
-
     m_vertexArray.Init();
     m_vertexArray.SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
     m_vertexArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
 
-    long long vertBufferSize = sizeof(Vertex_UnlitColored) * verts.size();
+    long long vertBufferSize = sizeof(Vertex_UnlitColored) * 2024;
 
-    m_vertexBuffer.Init(vertBufferSize, GL_STATIC_DRAW);
-    m_vertexBuffer.MapMemory(0, vertBufferSize, verts.data());
-
+    m_vertexBuffer.Init(vertBufferSize, GL_DYNAMIC_DRAW);
     m_vertexArray.SetVertexBuffer(0, &m_vertexBuffer, sizeof(Vertex_UnlitColored), VertexArrayInputRate_Vertex);
-    
-    m_vertexArray.SetVertexAttribute(1, 2, 4, GL_FLOAT, 0);
-    m_vertexArray.SetVertexAttribute(1, 3, 4, GL_FLOAT, 16);
-    m_vertexArray.SetVertexAttribute(1, 4, 4, GL_FLOAT, 32);
-    m_vertexArray.SetVertexAttribute(1, 5, 4, GL_FLOAT, 48);
-
-    m_instVertexBuffer.Init(sizeof(glm::mat4) * 64, GL_DYNAMIC_DRAW);
-    m_vertexArray.SetVertexBuffer(1, &m_instVertexBuffer, sizeof(glm::mat4), VertexArrayInputRate_Instance);
-
-    verts.clear();
 }
 
-void Box3DRenderer::AddBox3D(const glm::vec3& position, const glm::vec3& size)
+struct Line 
 {
-    glm::mat4 transform = glm::translate(glm::mat4(1), position) * glm::scale(glm::mat4(1), size);
+    glm::vec3   fromPosition;
+    glm::vec3   toPosition;
 
-    m_instStagingBuffer.push_back(transform);
+    Line(const glm::vec3& fromPosition_, const glm::vec3& toPosition_)
+    {
+        fromPosition = fromPosition_;
+        toPosition = toPosition_;
+    }
+};
+
+void LineRenderer::AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color)
+{
+    Vertex_UnlitColored v1;
+    v1.pos = fromPosition;
+    v1.color = color;
+
+    Vertex_UnlitColored v2;
+    v2.pos = toPosition;
+    v2.color = color;
+
+    m_stagingBuffer.push_back(v1);
+    m_stagingBuffer.push_back(v2);
 }
 
-void Box3DRenderer::Render(Shader* pShader)
+void LineRenderer::AddCross(const glm::vec3& position, float size, const glm::vec3& color)
 {
+    std::vector<Line> lines;
+
+    lines.push_back(Line(glm::vec3(-1, 0, 0), glm::vec3(1, 0, 0)));
+    lines.push_back(Line(glm::vec3( 0,-1, 0), glm::vec3(0, 1, 0)));
+    lines.push_back(Line(glm::vec3( 0, 0,-1), glm::vec3(0, 0, 1)));
+
+    for (Line& line : lines)
+    {
+        line.fromPosition *= (size * 0.5f);
+        line.fromPosition += position;
+
+        line.toPosition *= (size * 0.5f);
+        line.toPosition += position;
+
+        AddLine(line.fromPosition, line.toPosition, color);
+    }
+}
+
+void LineRenderer::AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color)
+{
+    std::vector<Line> lines;
+    lines.reserve(12);
+
+    lines.push_back(Line(glm::vec3(-1, 1,-1), glm::vec3( 1, 1,-1)));
+    lines.push_back(Line(glm::vec3(-1, 1,-1), glm::vec3(-1,-1,-1)));
+    lines.push_back(Line(glm::vec3(-1,-1,-1), glm::vec3( 1,-1,-1)));
+    lines.push_back(Line(glm::vec3( 1, 1,-1), glm::vec3( 1,-1,-1)));
+
+    lines.push_back(Line(glm::vec3(-1, 1, 1), glm::vec3( 1, 1, 1)));
+    lines.push_back(Line(glm::vec3(-1, 1, 1), glm::vec3(-1,-1, 1)));
+    lines.push_back(Line(glm::vec3(-1,-1, 1), glm::vec3( 1,-1, 1)));
+    lines.push_back(Line(glm::vec3( 1, 1, 1), glm::vec3( 1,-1, 1)));
+
+    lines.push_back(Line(glm::vec3(-1, 1,-1), glm::vec3(-1, 1, 1)));
+    lines.push_back(Line(glm::vec3( 1, 1,-1), glm::vec3( 1, 1, 1)));
+
+    lines.push_back(Line(glm::vec3(-1,-1,-1), glm::vec3(-1,-1, 1)));
+    lines.push_back(Line(glm::vec3( 1,-1,-1), glm::vec3( 1,-1, 1)));
+
+    for (Line& line : lines)
+    {
+        line.fromPosition *= (size * 0.5f);
+        line.fromPosition += position;
+
+        line.toPosition *= (size * 0.5f);
+        line.toPosition += position;
+
+        AddLine(line.fromPosition, line.toPosition, color);
+    }
+}
+
+void LineRenderer::Render(Shader* pShader)
+{
+    if (!m_bDepthEnabled)
+    {
+        glDisable(GL_DEPTH_TEST);
+    }
+
     pShader->Bind();
     pShader->SetUniformMatrix4f("uView", g_pApp->GetRenderer()->GetCamera()->GetView());
     pShader->SetUniformMatrix4f("uProjection", g_pApp->GetRenderer()->GetCamera()->GetProjection());
+    
+    pShader->SetUniformMatrix4f("uModel", glm::mat4(1));
 
-    m_instVertexBuffer.MapMemory(0, sizeof(glm::mat4) * m_instStagingBuffer.size(), m_instStagingBuffer.data());
+    m_vertexBuffer.MapMemory(0, sizeof(Vertex_UnlitColored) * m_stagingBuffer.size(), m_stagingBuffer.data());
     m_vertexArray.Bind();
 
-    glDrawArraysInstanced(GL_LINES, 0, m_numVerts, m_instStagingBuffer.size());
+    glDrawArrays(GL_LINES, 0, m_stagingBuffer.size());
 
-    m_instStagingBuffer.clear();
+    m_stagingBuffer.clear();
+
+    if (!m_bDepthEnabled)
+    {
+        glEnable(GL_DEPTH_TEST);
+    }
+}
+
+void LineRenderer::ToggleDepthTest()
+{
+    m_bDepthEnabled = !m_bDepthEnabled;
 }
 
 //-----------------------------------------------------------------------------
@@ -149,8 +170,7 @@ void Renderer::Init()
     m_camera = std::make_shared<Camera>();
     m_camera->Init();
 
-    m_line3DRenderer.Init();
-    m_box3DRenderer.Init();
+    m_lineRenderer.Init();
 }
 
 void Renderer::Update(const float deltaTime)
@@ -195,24 +215,27 @@ void Renderer::Render()
     m_sceneGraphRoot->Render();
     m_sceneGraphRoot->RenderChildren();
 
-    m_line3DRenderer.Render(&m_shader_UnlitColoredInstanced);
-    m_box3DRenderer.Render(&m_shader_UnlitColoredInstanced);
+    m_lineRenderer.Render(&m_shader_UnlitColored);
 }
 
-void Renderer::AddLine3D(const glm::vec3& from, const glm::vec3& to)
+void Renderer::AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color)
 {
-    m_line3DRenderer.AddLine3D(from, to);
+    m_lineRenderer.AddLine(fromPosition, toPosition, color);
 }
 
-void Renderer::AddBox3D(const glm::vec3& position, const glm::vec3& size)
+void Renderer::AddCross(const glm::vec3& position, float size, const glm::vec3& color)
 {
-    m_box3DRenderer.AddBox3D(position, size);
+    m_lineRenderer.AddCross(position, size, color);
+}
+
+void Renderer::AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color)
+{
+    m_lineRenderer.AddBox(position, size, color);
 }
 
 void Renderer::AddLight(std::shared_ptr<SceneNode> node)
 {
     std::shared_ptr<LightNode> light = std::dynamic_pointer_cast<LightNode>(node);
-
     m_lights.push_back(light);
 }
 

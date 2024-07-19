@@ -186,7 +186,7 @@ void main()
         texColor = texture(uTex, fragIn.uv);
     }
 
-    vec4 a = uMat.ambient;
+    vec4 a = uMat.ambient * vec4(0.2);
     vec4 d = uMat.diffuse * ltColor.diffuse;
     vec4 s = uMat.specular * ltColor.specular;
     vec4 e = uMat.emissive;
