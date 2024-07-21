@@ -84,6 +84,8 @@ class Renderer
     void AddLight(std::shared_ptr<SceneNode> node);
     void RemoveLight(std::shared_ptr<SceneNode> node);
 
+    void AddTransparentSceneNode(std::shared_ptr<SceneNode> node);
+
     void OnResize(int width, int height);
 
  private:
@@ -96,7 +98,8 @@ class Renderer
     std::shared_ptr<PawnNode>   m_sceneGraphRoot;
     std::shared_ptr<Camera>     m_camera;
 
-    std::vector<std::shared_ptr<LightNode>>     m_lights;
+    std::vector<std::shared_ptr<SceneNode>> m_transparentSceneNodes; 
+    std::vector<std::shared_ptr<LightNode>> m_lights;
 
     LineRenderer                m_lineRenderer;
 };

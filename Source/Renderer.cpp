@@ -215,6 +215,33 @@ void Renderer::Render()
     m_sceneGraphRoot->Render();
     m_sceneGraphRoot->RenderChildren();
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    for (int i = 0; i < m_transparentSceneNodes.size(); i++)
+    {
+        for (int j = i + 1; j < m_transparentSceneNodes.size(); j++)
+        {
+            if (glm::length2(m_camera->GetPosition() - m_transparentSceneNodes[i]->GetPosition()) 
+                > glm::length2(m_camera->GetPosition() - m_transparentSceneNodes[j]->GetPosition()))
+            {
+                std::shared_ptr<SceneNode> temp = m_transparentSceneNodes[i];
+                m_transparentSceneNodes[i] = m_transparentSceneNodes[j];
+                m_transparentSceneNodes[j] = temp;
+            }
+        }
+    }
+
+    for (int i = m_transparentSceneNodes.size() - 1; i >= 0; i--)
+    {
+        m_transparentSceneNodes[i]->Render();
+    }
+
+    m_transparentSceneNodes.clear();
+    assert(m_transparentSceneNodes.empty());
+
+    glDisable(GL_BLEND);
+
     m_lineRenderer.Render(&m_shader_UnlitColored);
 }
 
@@ -254,6 +281,11 @@ void Renderer::RemoveLight(std::shared_ptr<SceneNode> node)
 
         break;
     }
+}
+
+void Renderer::AddTransparentSceneNode(std::shared_ptr<SceneNode> node)
+{
+    m_transparentSceneNodes.push_back(node);
 }
 
 void Renderer::OnResize(int width, int height)

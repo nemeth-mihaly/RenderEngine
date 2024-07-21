@@ -96,74 +96,74 @@ void SceneNode::Init(const Json& data)
 
     if (data.contains("Ambient"))
     {
-        float x = 1;
-        float y = 1;
-        float z = 1;
+        glm::vec4 vec(1, 1, 1, 1);
 
         if (data["Ambient"].contains("x") 
         && data["Ambient"].contains("y") 
-        && data["Ambient"].contains("z")) 
+        && data["Ambient"].contains("z")
+        && data["Ambient"].contains("w")) 
         {
-            x = data["Ambient"]["x"].get<float>();
-            y = data["Ambient"]["y"].get<float>();
-            z = data["Ambient"]["z"].get<float>();
+            vec.x = data["Ambient"]["x"].get<float>();
+            vec.y = data["Ambient"]["y"].get<float>();
+            vec.z = data["Ambient"]["z"].get<float>();
+            vec.w = data["Ambient"]["w"].get<float>();
         }  
 
-        m_material.ambient = glm::vec4(x, y, z, 1);
+        m_material.ambient = vec;
     }
 
     if (data.contains("Diffuse"))
     {
-        float x = 1;
-        float y = 1;
-        float z = 1;
+        glm::vec4 vec(1, 1, 1, 1);
 
         if (data["Diffuse"].contains("x") 
         && data["Diffuse"].contains("y") 
-        && data["Diffuse"].contains("z")) 
+        && data["Diffuse"].contains("z")
+        && data["Diffuse"].contains("w")) 
         {
-            x = data["Diffuse"]["x"].get<float>();
-            y = data["Diffuse"]["y"].get<float>();
-            z = data["Diffuse"]["z"].get<float>();
+            vec.x = data["Diffuse"]["x"].get<float>();
+            vec.y = data["Diffuse"]["y"].get<float>();
+            vec.z = data["Diffuse"]["z"].get<float>();
+            vec.w = data["Diffuse"]["w"].get<float>();
         }  
 
-        m_material.diffuse = glm::vec4(x, y, z, 1);
+        m_material.diffuse = vec;
     }
 
     if (data.contains("Specular"))
     {
-        float x = 1;
-        float y = 1;
-        float z = 1;
+        glm::vec4 vec(1, 1, 1, 1);
 
         if (data["Specular"].contains("x") 
         && data["Specular"].contains("y") 
-        && data["Specular"].contains("z")) 
+        && data["Specular"].contains("z")
+        && data["Specular"].contains("w")) 
         {
-            x = data["Specular"]["x"].get<float>();
-            y = data["Specular"]["y"].get<float>();
-            z = data["Specular"]["z"].get<float>();
+            vec.x = data["Specular"]["x"].get<float>();
+            vec.y = data["Specular"]["y"].get<float>();
+            vec.z = data["Specular"]["z"].get<float>();
+            vec.w = data["Specular"]["w"].get<float>();
         }  
 
-        m_material.specular = glm::vec4(x, y, z, 1);
+        m_material.specular = vec;
     }
 
     if (data.contains("Emissive"))
     {
-        float x = 1;
-        float y = 1;
-        float z = 1;
+        glm::vec4 vec(1, 1, 1, 1);
 
         if (data["Emissive"].contains("x") 
         && data["Emissive"].contains("y") 
-        && data["Emissive"].contains("z")) 
+        && data["Emissive"].contains("z")
+        && data["Emissive"].contains("w")) 
         {
-            x = data["Emissive"]["x"].get<float>();
-            y = data["Emissive"]["y"].get<float>();
-            z = data["Emissive"]["z"].get<float>();
+            vec.x = data["Emissive"]["x"].get<float>();
+            vec.y = data["Emissive"]["y"].get<float>();
+            vec.z = data["Emissive"]["z"].get<float>();
+            vec.w = data["Emissive"]["w"].get<float>();
         }  
 
-        m_material.emissive = glm::vec4(x, y, z, 1);
+        m_material.emissive = vec;
     }
 
     if (data.contains("SpecularPower"))
@@ -206,7 +206,17 @@ void SceneNode::RenderChildren()
 {
     for (std::vector<std::shared_ptr<SceneNode>>::iterator it = m_children.begin(); it != m_children.end(); it++)
     {
-        (*it)->Render();
+        float alphaValue = (*it)->m_material.diffuse.a;
+
+        if (alphaValue == 1.0f)
+        {
+            (*it)->Render();
+        }
+        else if (alphaValue == 0.0f)
+        {
+            g_pApp->GetRenderer()->AddTransparentSceneNode((*it));
+        }
+
         (*it)->RenderChildren();
     }
 }
@@ -269,24 +279,38 @@ Json SceneNode::ToJSON()
     data["Ambient"]["x"] = m_material.ambient.x;
     data["Ambient"]["y"] = m_material.ambient.y;
     data["Ambient"]["z"] = m_material.ambient.z;
+    data["Ambient"]["w"] = m_material.ambient.w;
 
     data["Diffuse"]["x"] = m_material.diffuse.x;
     data["Diffuse"]["y"] = m_material.diffuse.y;
     data["Diffuse"]["z"] = m_material.diffuse.z;
+    data["Diffuse"]["w"] = m_material.diffuse.w;
 
     data["Specular"]["x"] = m_material.specular.x;
     data["Specular"]["y"] = m_material.specular.y;
     data["Specular"]["z"] = m_material.specular.z;
+    data["Specular"]["w"] = m_material.specular.w;
 
     data["Emissive"]["x"] = m_material.emissive.x;
     data["Emissive"]["y"] = m_material.emissive.y;
     data["Emissive"]["z"] = m_material.emissive.z;
+    data["Emissive"]["w"] = m_material.emissive.w;
 
     data["SpecularPower"] = m_material.specularPower;
 
     data["children"] = Json::array();
 
     return data;
+}
+
+glm::vec3 SceneNode::GetPosition()
+{
+    glm::vec3 vec;
+    vec.x = m_transform[3][0];
+    vec.y = m_transform[3][1];
+    vec.z = m_transform[3][2];
+
+    return vec;
 }
 
 //-----------------------------------------------------------------------------
@@ -406,24 +430,16 @@ void TestNode::Update(const float deltaTime)
 {
     SceneNode::Update(deltaTime);
 
-    glm::vec3 position = glm::vec3(m_transform[3][0], m_transform[3][1], m_transform[3][2]);
+    g_pApp->GetRenderer()->AddBox(GetPosition(), glm::vec3(1, 1, 1), glm::vec3(1, 0, 1));
 
-    g_pApp->GetRenderer()->AddBox(position, glm::vec3(1, 1, 1), glm::vec3(1, 0, 1));
-    // g_pApp->GetRenderer()->AddBox(position, glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1, 0, 1));
-    // g_pApp->GetRenderer()->AddBox(position, glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1, 0, 1));
-
-    // g_pApp->GetRenderer()->AddCross(position, 0.1f, glm::vec3(1, 0, 1));
-
-    /*
     timer += deltaTime;
 
     if (timer >= 1.0f)
     {
         timer = 0.0f;
 
-        PrintMatrix(m_transform);
+        // PrintMatrix(m_transform);
     }
-    */
 }
 
 void TestNode::Render()

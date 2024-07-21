@@ -63,19 +63,19 @@
                 },
                 {
                     "name": "Ambient",
-                    "type": "RGB"
+                    "type": "RGBA"
                 },
                 {
                     "name": "Diffuse",
-                    "type": "RGB"
+                    "type": "RGBA"
                 },
                 {
                     "name": "Specular",
-                    "type": "RGB"
+                    "type": "RGBA"
                 },
                 {
                     "name": "Emissive",
-                    "type": "RGB"
+                    "type": "RGBA"
                 },
                 {
                     "name": "SpecularPower",

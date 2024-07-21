@@ -52,6 +52,8 @@ class SceneNode
 
     const std::string& GetName() const { return m_name; }
 
+    glm::vec3 GetPosition();
+
  protected:
     SceneNode* m_pParent;
     std::vector<std::shared_ptr<SceneNode>> m_children;

@@ -21,6 +21,7 @@ enum SceneNodeEditorType
     SceneNodeEditorType_Vec3,
     SceneNodeEditorType_String,
     SceneNodeEditorType_RGB,
+    SceneNodeEditorType_RGBA,
 };
 
 //-----------------------------------------------------------------------------
@@ -171,6 +172,7 @@ bool Application::Init(int width, int height)
     m_sceneNodeEditorTypemap.insert(std::make_pair("Vec3", SceneNodeEditorType_Vec3));
     m_sceneNodeEditorTypemap.insert(std::make_pair("String", SceneNodeEditorType_String));
     m_sceneNodeEditorTypemap.insert(std::make_pair("RGB", SceneNodeEditorType_RGB));
+    m_sceneNodeEditorTypemap.insert(std::make_pair("RGBA", SceneNodeEditorType_RGBA));
 
     // ..
     LoadScene("Assets/Scenes/TestScene.json");
@@ -509,8 +511,6 @@ void Application::ShowSceneNodeEditor()
             {
                 case SceneNodeEditorType_Integer:
                 {
-                    // std::string elementName = (*it).at("name");
-
                     int v = 0;
                     v = selectedSceneNodeData[elementName].get<int>();
 
@@ -525,8 +525,6 @@ void Application::ShowSceneNodeEditor()
 
                 case SceneNodeEditorType_Float:
                 {
-                    // std::string elementName = (*it).at("name");
-
                     float v = 0;
                     v = selectedSceneNodeData[elementName].get<float>();
 
@@ -541,8 +539,6 @@ void Application::ShowSceneNodeEditor()
 
                 case SceneNodeEditorType_Vec3:
                 {
-                    // std::string elementName = (*it).at("name");
-
                     glm::vec3 v(0, 0, 0);
                     v.x = selectedSceneNodeData[elementName]["x"].get<float>();
                     v.y = selectedSceneNodeData[elementName]["y"].get<float>();
@@ -562,8 +558,6 @@ void Application::ShowSceneNodeEditor()
 
                 case SceneNodeEditorType_String:
                 {
-                    // std::string elementName = (*it).at("name");
-
                     char buffer[256];
                     memset(buffer, 0, sizeof(buffer));
                     strncpy_s(buffer, selectedSceneNodeData[elementName].get<std::string>().data(), sizeof(buffer));
@@ -579,8 +573,6 @@ void Application::ShowSceneNodeEditor()
 
                 case SceneNodeEditorType_RGB:
                 {
-                    // std::string elementName = (*it).at("name");
-
                     glm::vec3 v(0, 0, 0);
                     v.x = selectedSceneNodeData[elementName]["x"].get<float>();
                     v.y = selectedSceneNodeData[elementName]["y"].get<float>();
@@ -591,6 +583,27 @@ void Application::ShowSceneNodeEditor()
                         selectedSceneNodeData[elementName]["x"] = v.x;
                         selectedSceneNodeData[elementName]["y"] = v.y;
                         selectedSceneNodeData[elementName]["z"] = v.z;
+
+                        m_selectedSceneNode->Init(selectedSceneNodeData);
+                    }
+
+                    break;
+                }
+
+                case SceneNodeEditorType_RGBA:
+                {
+                    glm::vec4 v(0, 0, 0, 0);
+                    v.x = selectedSceneNodeData[elementName]["x"].get<float>();
+                    v.y = selectedSceneNodeData[elementName]["y"].get<float>();
+                    v.z = selectedSceneNodeData[elementName]["z"].get<float>();  
+                    v.w = selectedSceneNodeData[elementName]["w"].get<float>();  
+
+                    if (ImGui::ColorEdit4(elementName.c_str(), glm::value_ptr(v)))
+                    {
+                        selectedSceneNodeData[elementName]["x"] = v.x;
+                        selectedSceneNodeData[elementName]["y"] = v.y;
+                        selectedSceneNodeData[elementName]["z"] = v.z;
+                        selectedSceneNodeData[elementName]["w"] = v.w;
 
                         m_selectedSceneNode->Init(selectedSceneNodeData);
                     }
