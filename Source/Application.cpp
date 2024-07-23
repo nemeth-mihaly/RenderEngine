@@ -85,6 +85,8 @@ Application::Application()
 
     m_pRenderer = nullptr;
 
+    m_pCameraController = nullptr;
+
     m_bAddChildSelectedNodeRequested = false;
     m_bDeleteSelectedNodeRequested = false;
     m_selectedSceneNode = nullptr;
@@ -144,7 +146,19 @@ bool Application::Init(int width, int height)
     m_pRenderer = new Renderer();
     m_pRenderer->Init();
 
-    m_cameraController.Init(m_pRenderer->GetCamera());
+    m_camera = std::make_shared<Camera>();
+    m_camera->Init();
+    m_camera->m_bDebugMode = true;
+
+    m_pRenderer->SetCamera(m_camera);
+
+    m_camera2 = std::make_shared<Camera>();
+    m_camera2->Init();
+
+    m_cameraController.Init(m_camera);
+    m_pCameraController = &m_cameraController;
+
+    m_cameraController2.Init(m_camera2);
 
     m_sceneNodeFactory.Init();
 
@@ -197,10 +211,13 @@ void Application::RunLoop()
             m_deltaTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            m_cameraController.Update(m_deltaTime);
+            // That's shouldn't be here.
+            m_pCameraController->Update(m_deltaTime);
             m_pRenderer->Update(m_deltaTime);
 
             // Render
+            m_camera->Render();
+            m_camera2->Render();
             m_pRenderer->Render();
 
             ImGui_ImplOpenGL3_NewFrame();
@@ -302,6 +319,24 @@ void Application::OnKeyDown(int key)
             break;
         }
 
+        case GLFW_KEY_F9:
+        {
+            m_pRenderer->SetCamera(m_camera);
+            m_pCameraController->ResetInputStates();
+            m_pCameraController = &m_cameraController;
+
+            break;
+        }
+
+        case GLFW_KEY_F10:
+        {
+            m_pRenderer->SetCamera(m_camera2);
+            m_pCameraController->ResetInputStates();
+            m_pCameraController = &m_cameraController2;
+
+            break;
+        }
+
         case GLFW_KEY_F11:
         {
             if (!m_bWindowedMode)
@@ -330,19 +365,19 @@ void Application::OnKeyDown(int key)
             break;
     }
 
-    m_cameraController.OnKeyDown(key);
+    m_pCameraController->OnKeyDown(key);
 }
 
 void Application::OnKeyUp(int key)
 {
-    m_cameraController.OnKeyUp(key);
+    m_pCameraController->OnKeyUp(key);
 }
 
 void Application::OnMouseMove(int x, int y)
 {
     m_currentMousePos = glm::ivec2(x, y);
 
-    m_cameraController.OnMouseMove(x, y);
+    m_pCameraController->OnMouseMove(x, y);
 }
 
 void Application::OnMouseButtonDown(int button)
@@ -353,12 +388,12 @@ void Application::OnMouseButtonDown(int button)
             break;
     }
 
-    m_cameraController.OnMouseButtonDown(button);
+    m_pCameraController->OnMouseButtonDown(button);
 }
 
 void Application::OnMouseButtonUp(int button)
 {
-    m_cameraController.OnMouseButtonUp(button);    
+    m_pCameraController->OnMouseButtonUp(button);    
 }
 
 void Application::ShowSceneNodeTree()

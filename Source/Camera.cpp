@@ -14,6 +14,9 @@
 
 Camera::Camera()
 {
+    m_bActive = false;
+    m_bDebugMode = false;
+
     m_view = glm::mat4();
     m_projection = glm::mat4();
 
@@ -41,6 +44,17 @@ void Camera::Init()
 void Camera::UpdateViewTransform()
 {
     m_view = glm::lookAt(m_position, (m_position + m_targetPosition), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Camera::Render()
+{
+    if (m_bDebugMode)
+    {
+        if (!m_bActive)
+        {
+            g_pApp->GetRenderer()->AddCross(GetPosition(), 0.3f, glm::vec3(1, 1, 1));
+        }
+    }
 }
 
 void Camera::OnResize(int width, int height)
@@ -156,6 +170,15 @@ void CameraController::Update(const float deltaTime)
         
         m_camera->SetTargetPosition(glm::normalize(targetPosition));
     }
+
+    m_camera->UpdateViewTransform();
+}
+
+void CameraController::ResetInputStates()
+{
+    memset(m_bKeys, static_cast<int>(false), sizeof(m_bKeys));
+
+    m_bIsRightMouseButtonDown = false;
 }
 
 void CameraController::OnKeyDown(int key)

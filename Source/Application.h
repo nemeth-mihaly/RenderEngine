@@ -81,8 +81,14 @@ class Application
     float       m_deltaTime;
 
     Renderer*           m_pRenderer;
-    CameraController    m_cameraController;
     SceneNodeFactory    m_sceneNodeFactory;
+
+    std::shared_ptr<Camera>     m_camera;
+    std::shared_ptr<Camera>     m_camera2;
+
+    CameraController*   m_pCameraController;
+    CameraController    m_cameraController;
+    CameraController    m_cameraController2;
 
     std::unordered_map<std::string, std::shared_ptr<Mesh>>      m_meshAssets;
     std::unordered_map<std::string, std::shared_ptr<Texture>>   m_textureAssets;

@@ -18,11 +18,15 @@
 class Camera
 {
  public:
+    bool        m_bActive;
+    bool        m_bDebugMode; // Enables rendering of the frustum and the position as a cross.
+
     Camera();
     ~Camera();
 
     void Init();
     void UpdateViewTransform(); // Should be called before the rendering process.
+    void Render();
 
     void SetPosition(const glm::vec3& v) { m_position = v; }
     const glm::vec3& GetPosition() const { return m_position; }
@@ -55,6 +59,8 @@ class CameraController
 
     void Init(std::shared_ptr<Camera> camera);
     void Update(const float deltaTime);
+
+    void ResetInputStates();
 
     void OnKeyDown(int key);
     void OnKeyUp(int key);

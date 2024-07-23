@@ -79,6 +79,8 @@ class Renderer
     Shader* GetShader_LitTexturedColored() { return &m_shader_LitTexturedColored; }
 
     std::shared_ptr<PawnNode> GetSceneGraphRoot() { return m_sceneGraphRoot; }
+
+    void SetCamera(std::shared_ptr<Camera> camera);
     std::shared_ptr<Camera> GetCamera() { return m_camera; }
 
     void AddLight(std::shared_ptr<SceneNode> node);

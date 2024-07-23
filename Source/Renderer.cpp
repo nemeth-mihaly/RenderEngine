@@ -167,17 +167,12 @@ void Renderer::Init()
 
     m_sceneGraphRoot = std::make_shared<PawnNode>();
 
-    m_camera = std::make_shared<Camera>();
-    m_camera->Init();
-
     m_lineRenderer.Init();
 }
 
 void Renderer::Update(const float deltaTime)
 {
     m_sceneGraphRoot->Update(deltaTime);
-
-    m_camera->UpdateViewTransform();
 }
 
 void Renderer::Render()
@@ -258,6 +253,17 @@ void Renderer::AddCross(const glm::vec3& position, float size, const glm::vec3& 
 void Renderer::AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color)
 {
     m_lineRenderer.AddBox(position, size, color);
+}
+
+void Renderer::SetCamera(std::shared_ptr<Camera> camera)
+{
+    if (m_camera)
+    {
+        m_camera->m_bActive = false;
+    }
+    
+    m_camera = camera;
+    m_camera->m_bActive = true;
 }
 
 void Renderer::AddLight(std::shared_ptr<SceneNode> node)
