@@ -46,14 +46,39 @@ void Camera::UpdateViewTransform()
     m_view = glm::lookAt(m_position, (m_position + m_targetPosition), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
+static glm::vec3 ScreenToWorld(const glm::vec2& v)
+{
+    glm::vec2 v_ndcs;
+    v_ndcs.x = ((2.0f / g_pApp->GetWindowSize().x) * v.x) - 1.0f;
+    v_ndcs.y = 1.0f - ((2.0f / g_pApp->GetWindowSize().y) * v.y);
+
+    glm::vec4 v_clipSpace(v_ndcs.x, v_ndcs.y,-1.0f, 1.0f);
+    
+    glm::vec4 v_eyeSpace = glm::inverse(g_pApp->GetRenderer()->GetCamera()->GetProjection()) * v_clipSpace;
+    v_eyeSpace = glm::vec4(v_eyeSpace.x, v_eyeSpace.y,-1.0f, 0.0f);
+
+    glm::vec4 v_worSpace = glm::inverse(g_pApp->GetRenderer()->GetCamera()->GetView()) * v_eyeSpace;
+    v_worSpace = glm::normalize(v_worSpace);
+
+    return glm::vec3(v_worSpace);
+}
+
+static glm::vec3 rayDir(0, 0, 0);
+
 void Camera::Render()
 {
     if (m_bDebugMode)
     {
-        if (!m_bActive)
+        if (m_bActive)
         {
-            g_pApp->GetRenderer()->AddCross(GetPosition(), 0.3f, glm::vec3(1, 1, 1));
+            glm::vec2 p = g_pApp->GetMousePosition();
+            rayDir = ScreenToWorld(p); 
+
+            return;
         }
+
+        g_pApp->GetRenderer()->AddCross(GetPosition(), 0.3f, glm::vec3(1, 1, 1));
+        g_pApp->GetRenderer()->AddLine(GetPosition(), GetPosition() + (rayDir * 1000.0f), glm::vec3(1, 1, 1));
     }
 }
 

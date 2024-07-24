@@ -211,7 +211,6 @@ void Application::RunLoop()
             m_deltaTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            // That's shouldn't be here.
             m_pCameraController->Update(m_deltaTime);
             m_pRenderer->Update(m_deltaTime);
 
