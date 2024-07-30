@@ -11,19 +11,26 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "3rdParty/glm/glm.hpp"
-
 #include "3rdParty/nlohmann/json.hpp"
 using Json = nlohmann::json;
 
-#include "Renderer.h"
-#include "Camera.h"
+#include "Geometry.h"
 
+#include "Renderer.h"
+
+#include "Camera.h"
+#include "World.h"
 #include "SceneNodes.h"
 #include "SceneNodeFactory.h"
 
 #include "Mesh.h"
 #include "Texture.h"
+
+struct RayHit
+{
+    Ray     ray;
+    float   t;
+};
 
 //-----------------------------------------------------------------------------
 // class Application
@@ -81,6 +88,7 @@ class Application
     float       m_deltaTime;
 
     Renderer*           m_pRenderer;
+    std::shared_ptr<World> m_world;
     SceneNodeFactory    m_sceneNodeFactory;
 
     std::shared_ptr<Camera>     m_camera;
@@ -90,11 +98,17 @@ class Application
     CameraController    m_cameraController;
     CameraController    m_cameraController2;
 
+    std::vector<RayHit>    m_raycasts;
+    glm::vec3               m_mouseWorldPos;
+
     std::unordered_map<std::string, std::shared_ptr<Mesh>>      m_meshAssets;
     std::unordered_map<std::string, std::shared_ptr<Texture>>   m_textureAssets;
 
+    bool    m_bLeftMouseButtonDown = false;
+
     bool    m_bAddChildSelectedNodeRequested;
     bool    m_bDeleteSelectedNodeRequested;
+    bool    m_bGrabSelectedSceneNode;
     std::shared_ptr<SceneNode>                  m_selectedSceneNode;
     std::unordered_map<std::string, Json>       m_sceneNodeEditorSceneNodeDefs;
     std::unordered_map<std::string, uint8_t>    m_sceneNodeEditorTypemap;

@@ -89,6 +89,7 @@ Application::Application()
 
     m_bAddChildSelectedNodeRequested = false;
     m_bDeleteSelectedNodeRequested = false;
+    m_bGrabSelectedSceneNode = false;
     m_selectedSceneNode = nullptr;
 }
 
@@ -145,6 +146,11 @@ bool Application::Init(int width, int height)
 
     m_pRenderer = new Renderer();
     m_pRenderer->Init();
+
+    m_world = std::make_shared<World>();
+    m_world->Init();
+
+    m_pRenderer->SetWorld(m_world);
 
     m_camera = std::make_shared<Camera>();
     m_camera->Init();
@@ -214,6 +220,38 @@ void Application::RunLoop()
             m_pCameraController->Update(m_deltaTime);
             m_pRenderer->Update(m_deltaTime);
 
+            for (RayHit hit : m_raycasts)
+            {
+                m_pRenderer->AddLine(hit.ray.origin, hit.ray.origin + hit.ray.direction * hit.t, glm::vec3(1, 1, 1));
+
+                glm::vec3 p = hit.ray.origin + hit.ray.direction * hit.t;
+                m_pRenderer->AddBox(p, glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1, 0, 0));
+                // m_pRenderer->AddBox(glm::vec3(glm::round(p.x), p.y, glm::round(p.z)), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1, 1, 1));
+            }
+
+            if (m_bGrabSelectedSceneNode && m_selectedSceneNode)
+            {
+                m_selectedSceneNode->SetPosition(m_mouseWorldPos);
+            }
+
+            glm::vec3 brushPos = m_mouseWorldPos;
+            brushPos.y += 0.05f;
+
+            m_pRenderer->AddCross(brushPos, 0.2f, glm::vec3(1, 1, 1));
+            m_pRenderer->AddCircle(brushPos, glm::vec3(0, 1, 0), 1.0f, glm::vec3(1, 1, 1));
+
+            if (m_bLeftMouseButtonDown)
+            {
+                std::vector<Vertex_UnlitTexturedColored*> verts = m_world->GetVertsSelectedByBrush(m_mouseWorldPos, 1.0f);
+                
+                for (auto& vert : verts)
+                {
+                    vert->pos.y += 2.5f * m_deltaTime;
+                }
+
+                m_world->m_bStagingVertBufferChanged = true;
+            }
+
             // Render
             m_camera->Render();
             m_camera2->Render();
@@ -224,6 +262,26 @@ void Application::RunLoop()
             ImGui::NewFrame();
 
             ImGui::ShowDemoWindow();
+
+            if (ImGui::Begin("Debug Drawing"))
+            {
+                #define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
+
+                int numVerts = m_pRenderer->GetLineRenderer()->GetNumVerts();
+                int maxVerts = m_pRenderer->GetLineRenderer()->GetMaxVerts();
+
+                float progress = (float)numVerts / (float)maxVerts;
+                float fraction = IM_CLAMP(progress, 0.0f, 1.0f);
+
+                char buf[32];
+                sprintf(buf, "%i/%i", numVerts, maxVerts);
+                
+                ImGui::ProgressBar(fraction, ImVec2(0.0f, 0.0f), buf);
+
+                #undef IM_CLAMP
+            }
+
+            ImGui::End();
 
             ShowSceneNodeTree();
             ShowSceneNodeEditor();
@@ -313,7 +371,28 @@ void Application::OnKeyDown(int key)
             
         case GLFW_KEY_G:
         {
+            m_bGrabSelectedSceneNode = !m_bGrabSelectedSceneNode;
+
+            break;
+        }
+
+        case GLFW_KEY_H:
+        {
+            m_world->SaveHeightmap();
+
+            break;
+        }
+
+        case GLFW_KEY_F7:
+        {
             m_pRenderer->ToggleDepthTestForDebugPass();
+
+            break;
+        }
+
+        case GLFW_KEY_F8:
+        {
+            m_raycasts.clear();
 
             break;
         }
@@ -376,6 +455,22 @@ void Application::OnMouseMove(int x, int y)
 {
     m_currentMousePos = glm::ivec2(x, y);
 
+    auto camera = m_pRenderer->GetCamera();
+
+    Ray ray;
+    ray.origin = camera->GetPosition();
+    ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
+
+    float t = 0.0f;
+    if (m_world->Raycast(ray, t))
+    {
+        RayHit hit;
+        hit.ray = ray;
+        hit.t = t;
+
+        m_mouseWorldPos = ray.origin + ray.direction * hit.t; 
+    }
+
     m_pCameraController->OnMouseMove(x, y);
 }
 
@@ -383,6 +478,29 @@ void Application::OnMouseButtonDown(int button)
 {
     switch (button)
     {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            m_bLeftMouseButtonDown = true;
+
+            // auto camera = m_pRenderer->GetCamera();
+            
+            // Ray ray;
+            // ray.origin = camera->GetPosition();
+            // ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
+
+            // float t;
+            // if (m_world->Raycast(ray, t))
+            // {
+            //     RayHit hit;
+            //     hit.ray = ray;
+            //     hit.t   = t;
+
+            //     m_raycasts.push_back(hit);
+            // }
+
+            break;
+        }
+
         default:
             break;
     }
@@ -392,6 +510,19 @@ void Application::OnMouseButtonDown(int button)
 
 void Application::OnMouseButtonUp(int button)
 {
+    switch (button)
+    {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            m_bLeftMouseButtonDown = false;
+
+            break;
+        }
+
+        default:
+            break;
+    }
+
     m_pCameraController->OnMouseButtonUp(button);    
 }
 

@@ -28,6 +28,8 @@ class Camera
     void UpdateViewTransform(); // Should be called before the rendering process.
     void Render();
 
+    glm::vec3 ScreenPointToWorldDirection(const glm::vec2& point);
+
     void SetPosition(const glm::vec3& v) { m_position = v; }
     const glm::vec3& GetPosition() const { return m_position; }
 

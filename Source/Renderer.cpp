@@ -5,6 +5,26 @@
 
 #include "Application.h"
 
+bool Intersects(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& sphereCenter, float sphereRadius)
+{
+    glm::vec3 L = sphereCenter - rayOrigin;
+    float tc = glm::dot(L, rayDir);
+
+    if (tc < 0.0f)
+    {
+        return false;
+    }
+
+    float d2 = glm::dot(L, L) - tc * tc;
+    
+    if (d2 > sphereRadius * sphereRadius)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 //-----------------------------------------------------------------------------
 // LineRenderer Implementation
 //-----------------------------------------------------------------------------
@@ -20,7 +40,7 @@ void LineRenderer::Init()
     m_vertexArray.SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
     m_vertexArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
 
-    long long vertBufferSize = sizeof(Vertex_UnlitColored) * 2024;
+    long long vertBufferSize = sizeof(Vertex_UnlitColored) * GetMaxVerts();
 
     m_vertexBuffer.Init(vertBufferSize, GL_DYNAMIC_DRAW);
     m_vertexArray.SetVertexBuffer(0, &m_vertexBuffer, sizeof(Vertex_UnlitColored), VertexArrayInputRate_Vertex);
@@ -105,6 +125,92 @@ void LineRenderer::AddBox(const glm::vec3& position, const glm::vec3& size, cons
     }
 }
 
+void LineRenderer::AddCircle(const glm::vec3& position, const glm::vec3& normal, float radius, const glm::vec3& color)
+{
+    int numSegments = 32;
+
+    std::vector<glm::vec3> verts;
+    verts.reserve(numSegments);
+
+    for (int i = 0; i < numSegments; i++)
+    {
+        float theta = ((2.0f * glm::pi<float>()) / static_cast<float>(numSegments)) * static_cast<float>(i);
+
+        glm::vec3 vertex;
+        vertex.x = cosf(theta);
+        vertex.y = 0.0f;
+        vertex.z = sinf(theta);
+
+        vertex *= radius;
+        vertex += position;
+
+        verts.push_back(vertex);
+    }    
+
+    for (int i = 0; i < numSegments; i++) 
+    {
+        int pv1 = i;
+        int pv2 = (i + 1) % numSegments;
+
+        glm::vec3 v1 = verts[pv1];
+        glm::vec3 v2 = verts[pv2];
+        AddLine(v1, v2, color);
+    }   
+
+    verts.clear();
+}
+
+void LineRenderer::AddSphere(const glm::vec3& position, float radius, const glm::vec3& color)
+{
+    glm::ivec2 numSegments(12, 12);
+
+    std::vector<glm::vec3> verts;
+    verts.reserve(numSegments.x * (numSegments.y + 1));
+
+    for (int y = 0; y <= numSegments.y; y++)
+    {
+        float phi = (glm::pi<float>() / float_t(numSegments.y)) * y;
+        phi -= 0.5f * glm::pi<float>();
+
+        for (int x = 0; x < numSegments.x; x++)
+        {
+            float theta = ((2.0f * glm::pi<float>()) / static_cast<float>(numSegments.x)) * static_cast<float>(x);
+
+            glm::vec3 vertex;
+            vertex.x = cosf(phi) * cosf(theta);
+            vertex.y = sinf(phi);
+            vertex.z = cosf(phi) * sinf(theta);
+
+            vertex *= radius;
+            vertex += position;
+
+            verts.push_back(vertex);
+        }
+    }
+
+    for (int y = 0; y <= numSegments.y; y++) 
+    {
+        for (int x = 0; x < numSegments.x; x++)
+        {
+            int pv1 = x + y * numSegments.x;
+            int pv2 = ((x + 1) % numSegments.x) + y * numSegments.x;
+
+            glm::vec3 v1 = verts[pv1];
+            glm::vec3 v2 = verts[pv2];
+            AddLine(v1, v2, color);
+
+            if (!(y < numSegments.y))
+            {
+                continue;
+            }
+
+            int pv3 = x + (y + 1) * numSegments.x;
+            glm::vec3 v3 = verts[pv3];
+            AddLine(v1, v3, color);
+        }
+    }
+}
+
 void LineRenderer::Render(Shader* pShader)
 {
     if (!m_bDepthEnabled)
@@ -123,6 +229,7 @@ void LineRenderer::Render(Shader* pShader)
 
     glDrawArrays(GL_LINES, 0, m_stagingBuffer.size());
 
+    m_numVertsLastFrame = m_stagingBuffer.size();
     m_stagingBuffer.clear();
 
     if (!m_bDepthEnabled)
@@ -164,6 +271,7 @@ void Renderer::Init()
     m_shader_UnlitTexturedColored.Load("Assets/Shaders/UnlitTexturedColored1.vert", "Assets/Shaders/UnlitTexturedColored1.frag");
     m_shader_UnlitTexturedColored2.Load("Assets/Shaders/UnlitTexturedColored2.vert", "Assets/Shaders/UnlitTexturedColored2.frag");
     m_shader_LitTexturedColored.Load("Assets/Shaders/LitTexturedColored1.vert", "Assets/Shaders/LitTexturedColored1.frag");
+    m_shader_UnlitColoredTexturedTerrain.Load("Assets/Shaders/UnlitTexturedColoredTerrain.vert", "Assets/Shaders/UnlitTexturedColoredTerrain.frag");
 
     m_sceneGraphRoot = std::make_shared<PawnNode>();
 
@@ -179,6 +287,8 @@ void Renderer::Render()
 {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_world->Render();
 
     m_shader_LitTexturedColored.Bind();
     m_shader_LitTexturedColored.SetUniformMatrix4f("uView", m_camera->GetView());
@@ -237,6 +347,36 @@ void Renderer::Render()
 
     glDisable(GL_BLEND);
 
+    /*
+    glm::vec3 position;
+    if (FindIntersectionPoint(position))
+    {
+        // std::cout << "p (" << position.x << ' ' << position.z << ")\n";
+        AddCross(position, 0.4f, glm::vec3(1, 0, 0));
+        
+        float radius = 1.0f;
+        m_lineRenderer.AddCircle(position, glm::vec3(0, 1, 0), radius, glm::vec3(1, 1, 1));
+
+        std::vector<Vertex_UnlitColored*> verts;
+
+        glm::ivec3 min;
+        min.x = glm::max(0, (int)glm::ceil(position.x - radius));
+        min.z = glm::max(0, (int)glm::ceil(position.z - radius));
+
+        glm::ivec3 max;
+        max.x = glm::min((m_extents.x - 1), (int)glm::floor(position.x + radius));
+        max.z = glm::min((m_extents.z - 1), (int)glm::floor(position.z + radius));
+
+        for (int z = min.z; z <= max.z; z++)
+        {
+            for (int x = min.x; x <= max.x; x++)
+            {
+                //  verts.push_back(&m_verts[x + z * m_extents.z]);
+            }       
+        }
+    }
+    */
+
     m_lineRenderer.Render(&m_shader_UnlitColored);
 }
 
@@ -253,6 +393,16 @@ void Renderer::AddCross(const glm::vec3& position, float size, const glm::vec3& 
 void Renderer::AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color)
 {
     m_lineRenderer.AddBox(position, size, color);
+}
+
+void Renderer::AddCircle(const glm::vec3& position, const glm::vec3& normal, float radius, const glm::vec3& color)
+{
+    m_lineRenderer.AddCircle(position, normal, radius, color);
+}
+
+void Renderer::AddSphere(const glm::vec3& position, float radius, const glm::vec3& color)
+{
+    m_lineRenderer.AddSphere(position, radius, color);
 }
 
 void Renderer::SetCamera(std::shared_ptr<Camera> camera)

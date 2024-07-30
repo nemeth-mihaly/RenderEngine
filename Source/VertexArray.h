@@ -78,7 +78,7 @@ class VertexArray
     void Bind() const;
 
     void SetVertexBuffer(GLuint binding, VertexBuffer* pVertexBuffer, GLsizei stride, GLuint inputRate);
-    // void SetIndexBuffer(StrongIndexBufferPtr& indexBuffer);
+    void SetIndexBuffer(IndexBuffer* pIndexBuffer);
 
     void SetVertexAttribute(GLuint binding, GLuint location, GLint size, GLenum type, GLuint offset);
 

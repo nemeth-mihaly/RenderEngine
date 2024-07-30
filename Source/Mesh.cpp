@@ -24,6 +24,9 @@ void Mesh::Load(const std::string& filename)
     std::vector<glm::vec3>  vn;
     std::vector<glm::vec2>  vt;
 
+    glm::vec3 lower( FLT_MAX);
+    glm::vec3 upper(-FLT_MIN);
+
     while (1)
     {
         char data[BUFSIZ];
@@ -36,6 +39,13 @@ void Mesh::Load(const std::string& filename)
             glm::vec3 pos;
             fscanf(fp, "%f %f %f\n", &pos.x, &pos.y, &pos.z);
             v.push_back(pos);
+
+            if (pos.x < lower.x) { lower.x = pos.x; }
+            if (pos.y < lower.y) { lower.y = pos.y; }
+            if (pos.z < lower.z) { lower.z = pos.z; }
+            if (pos.x > upper.x) { upper.x = pos.x; }
+            if (pos.y > upper.y) { upper.y = pos.y; }
+            if (pos.z > upper.z) { upper.z = pos.z; }
         }
         else
         if (strcmp(data, "vn") == 0)
@@ -105,6 +115,10 @@ void Mesh::Load(const std::string& filename)
     m_vertexArray.SetVertexBuffer(0, &m_vertexBuffer, sizeof(Vertex_LitTexturedColored), VertexArrayInputRate_Vertex);
     
     verts.clear();
+
+    glm::vec3 half((upper - lower) / 2.0f);
+    m_boundingBoxCenter = lower + half;
+    m_boundingBoxExtents = half;
 }
 
 void Mesh::Render()

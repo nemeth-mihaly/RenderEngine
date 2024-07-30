@@ -8,12 +8,7 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "3rdParty/glm/glm.hpp"
-#include "3rdParty/glm/gtc/matrix_transform.hpp"
-#include "3rdParty/glm/gtc/type_ptr.hpp"
-#include "3rdParty/glm/gtc/quaternion.hpp"
-#define GLM_ENABLE_EXPERIMENTAL 
-#include "3rdParty/glm/gtx/quaternion.hpp"
+#include "Geometry.h"
 
 #include "Shader.h"
 
@@ -21,8 +16,10 @@
 #include "Buffers.h"
 
 #include "Camera.h"
-
+#include "World.h"
 #include "SceneNodes.h"
+
+extern bool Intersects(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& sphereCenter, float sphereRadius);
 
 //-----------------------------------------------------------------------------
 // class LineRenderer
@@ -38,14 +35,20 @@ class LineRenderer
     void AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color);
     void AddCross(const glm::vec3& position, float size, const glm::vec3& color);
     void AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
+    void AddCircle(const glm::vec3& position, const glm::vec3& normal, float radius, const glm::vec3& color);
+    void AddSphere(const glm::vec3& position, float radius, const glm::vec3& color);
 
     void Render(Shader* pShader);
 
     void ToggleDepthTest();
 
+    int GetNumVerts() { return m_numVertsLastFrame; }
+    int GetMaxVerts() { return 8192; }
+
  private:
     bool    m_bDepthEnabled;
 
+    int m_numVertsLastFrame;
     std::vector<Vertex_UnlitColored> m_stagingBuffer;
 
     VertexArray                 m_vertexArray;
@@ -66,9 +69,13 @@ class Renderer
     void Update(const float deltaTime);
     void Render();
 
+    LineRenderer* GetLineRenderer() { return &m_lineRenderer; }
+
     void AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color);
     void AddCross(const glm::vec3& position, float size, const glm::vec3& color);
     void AddBox(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
+    void AddCircle(const glm::vec3& position, const glm::vec3& normal, float radius, const glm::vec3& color);
+    void AddSphere(const glm::vec3& position, float radius, const glm::vec3& color);
 
     void ToggleDepthTestForDebugPass() { m_lineRenderer.ToggleDepthTest(); }
 
@@ -77,6 +84,10 @@ class Renderer
     Shader* GetShader_UnlitTexturedColored() { return &m_shader_UnlitTexturedColored; }
     Shader* GetShader_UnlitTexturedColored2() { return &m_shader_UnlitTexturedColored2; }
     Shader* GetShader_LitTexturedColored() { return &m_shader_LitTexturedColored; }
+    Shader* GetShader_UnlitTexturedColoredTerrain() { return &m_shader_UnlitColoredTexturedTerrain; }
+
+    void SetWorld(std::shared_ptr<World> world) { m_world = world; }
+    std::shared_ptr<World> GetWorld() { return m_world; }
 
     std::shared_ptr<PawnNode> GetSceneGraphRoot() { return m_sceneGraphRoot; }
 
@@ -96,7 +107,9 @@ class Renderer
     Shader                      m_shader_UnlitTexturedColored;
     Shader                      m_shader_UnlitTexturedColored2;
     Shader                      m_shader_LitTexturedColored;
+    Shader                      m_shader_UnlitColoredTexturedTerrain;
 
+    std::shared_ptr<World>      m_world;
     std::shared_ptr<PawnNode>   m_sceneGraphRoot;
     std::shared_ptr<Camera>     m_camera;
 

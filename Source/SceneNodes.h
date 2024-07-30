@@ -9,12 +9,7 @@
 #include "3rdParty/nlohmann/json.hpp"
 using Json = nlohmann::json;
 
-#include "3rdParty/glm/glm.hpp"
-#include "3rdParty/glm/gtc/matrix_transform.hpp"
-#include "3rdParty/glm/gtc/type_ptr.hpp"
-#include "3rdParty/glm/gtc/quaternion.hpp"
-#define GLM_ENABLE_EXPERIMENTAL 
-#include "3rdParty/glm/gtx/quaternion.hpp"
+#include "Geometry.h"
 
 #include "Shader.h"
 
@@ -52,7 +47,11 @@ class SceneNode
 
     const std::string& GetName() const { return m_name; }
 
+    void SetPosition(const glm::vec3& pos);
     glm::vec3 GetPosition();
+
+    float GetBoundingSphereRadius() { return m_boundingSphereRadius; }
+    // glm::vec3 GetBoundingSphereCenter();
 
  protected:
     SceneNode* m_pParent;
@@ -67,6 +66,8 @@ class SceneNode
     glm::vec3       m_size;
 
     Material        m_material;
+
+    float m_boundingSphereRadius;
 };
 
 //-----------------------------------------------------------------------------
@@ -331,35 +332,6 @@ private:
     StrongIndexBufferPtr    m_IndexBuffer;
 
     StrongTexturePtr        m_Texture;
-};
-
-//////////////////////////////////////////////////////
-//  class TerrainNode
-//////////////////////////////////////////////////////
-
-class TerrainNode : public SceneNode
-{
-public:
-    TerrainNode();
-    virtual ~TerrainNode();
-
-    virtual void Render(Scene& scene) override;
-
-    float HeightAt(float x, float z);
-
-private:
-    Shader m_shader;
-
-    uint32_t                m_IndexCount;
-
-    StrongVertexArrayPtr    m_VertexArray;
-    StrongVertexBufferPtr   m_VertexBuffer;
-    StrongIndexBufferPtr    m_IndexBuffer;
-
-    int                     m_HeightMapWidth;
-    int                     m_HeightMapHeight;
-
-    std::vector<float>      m_HeightPointValues;
 };
 
 */

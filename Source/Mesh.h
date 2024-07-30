@@ -22,7 +22,13 @@ public:
 
     void Render();
 
+    glm::vec3 GetBoundingBoxCenter() { return m_boundingBoxCenter; }     
+    glm::vec3 GetBoundingBoxExtents() { return m_boundingBoxExtents; }
+
 private:
+    glm::vec3       m_boundingBoxCenter;
+    glm::vec3       m_boundingBoxExtents;
+
     int             m_numVerts;
     VertexArray     m_vertexArray;
     VertexBuffer    m_vertexBuffer;

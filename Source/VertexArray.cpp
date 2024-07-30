@@ -44,10 +44,10 @@ void VertexArray::SetVertexBuffer(GLuint binding, VertexBuffer* pVertexBuffer, G
     }
 }
 
-// void VertexArray::SetIndexBuffer(StrongIndexBufferPtr& indexBuffer)
-// {
-//     glVertexArrayElementBuffer(m_arrayID, indexBuffer->m_bufferID);
-// }
+void VertexArray::SetIndexBuffer(IndexBuffer* pIndexBuffer)
+{
+   glVertexArrayElementBuffer(m_arrayID, pIndexBuffer->m_bufferID);
+}
 
 void VertexArray::SetVertexAttribute(GLuint binding, GLuint location, GLint size, GLenum type, GLuint offset)
 {

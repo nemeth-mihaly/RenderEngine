@@ -21,6 +21,8 @@ SceneNode::SceneNode()
     m_position = glm::vec3(0, 0, 0);
     m_rotation = glm::quat(1, 0, 0, 0);
     m_size = glm::vec3(1, 1, 1);
+
+    m_boundingSphereRadius = 0.0f;
 }
 
 SceneNode::~SceneNode()
@@ -303,6 +305,13 @@ Json SceneNode::ToJSON()
     return data;
 }
 
+void SceneNode::SetPosition(const glm::vec3& pos)
+{
+    m_transform[3][0] = pos.x;
+    m_transform[3][1] = pos.y;
+    m_transform[3][2] = pos.z;
+}
+
 glm::vec3 SceneNode::GetPosition()
 {
     glm::vec3 vec;
@@ -532,6 +541,20 @@ void MeshNode::Render()
 
     std::shared_ptr<Mesh> mesh = g_pApp->GetMesh(m_meshAsset);
     mesh->Render();
+
+    glm::vec3 extents = mesh->GetBoundingBoxExtents();
+    extents.x = glm::abs(extents.x);
+    extents.y = glm::abs(extents.y);
+    extents.z = glm::abs(extents.z);
+
+    m_boundingSphereRadius = 0.0f;
+    m_boundingSphereRadius = (m_boundingSphereRadius > extents.x) ? m_boundingSphereRadius : extents.x;
+    m_boundingSphereRadius = (m_boundingSphereRadius > extents.y) ? m_boundingSphereRadius : extents.y;
+    m_boundingSphereRadius = (m_boundingSphereRadius > extents.z) ? m_boundingSphereRadius : extents.z;
+
+    glm::vec3 boundingSpherePosition = mesh->GetBoundingBoxCenter() + GetPosition();
+
+    g_pApp->GetRenderer()->AddSphere(boundingSpherePosition, m_boundingSphereRadius, glm::vec3(1, 0, 1));
 }
 
 Json MeshNode::ToJSON()
