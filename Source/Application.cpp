@@ -142,7 +142,7 @@ bool Application::Init(int width, int height)
     glfwMakeContextCurrent(m_pWindow);
     gladLoadGL();
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
     m_pRenderer = new Renderer();
     m_pRenderer->Init();
@@ -369,6 +369,13 @@ void Application::OnKeyDown(int key)
 
             break;
             
+        case GLFW_KEY_R:
+        {
+            m_pRenderer->GetShader_UnlitTexturedColoredTerrain()->Load("Assets/Shaders/UnlitTexturedColoredTerrain.vert", "Assets/Shaders/UnlitTexturedColoredTerrain.frag");
+
+            break;
+        }
+
         case GLFW_KEY_G:
         {
             m_bGrabSelectedSceneNode = !m_bGrabSelectedSceneNode;

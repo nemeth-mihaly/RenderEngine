@@ -32,7 +32,7 @@ void World::Init()
     stbi_set_flip_vertically_on_load(0);
 
     int numHeightmapChannels;
-    uint8_t* pHeightmapData = stbi_load("Assets/Textures/_Out_Heightmap32x32.png", &m_extents.x, &m_extents.z, &numHeightmapChannels, 0);
+    uint8_t* pHeightmapData = stbi_load("Assets/Textures/Heightmap32x32.png", &m_extents.x, &m_extents.z, &numHeightmapChannels, 0);
 
     m_verts.reserve(m_extents.x * m_extents.z);
 
@@ -171,6 +171,7 @@ void World::Render()
 
     if (!m_bFlushStagingVertBufferAfterInit)
     {
+        /*
         for (int z = 0; z < m_extents.z; z++) 
         {
             for (int x = 0; x < m_extents.x; x++)
@@ -198,6 +199,7 @@ void World::Render()
                 }
             }
         }
+        */
     }
 }
 

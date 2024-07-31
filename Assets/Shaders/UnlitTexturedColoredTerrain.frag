@@ -33,4 +33,30 @@ void main()
     vec4 tilesetColor3 = texture(uTilesetTex3, uv) * blendmapColor.g;
 
     fragColor = (tilesetColor1 + tilesetColor2 + tilesetColor3); + vec4(colorValue, colorValue, colorValue, 1.0);
+
+    int bWireframeEnabled = 0;
+    if (bWireframeEnabled == 1)
+    {
+        vec3 wireframeColor = vec3(1, 1, 1);
+
+        vec2 grid = abs(fract(fragIn.pos.xz - 0.5) - 0.5) / fwidth(fragIn.pos.xz);
+        grid = step(1.2, grid);
+
+        float wireframeAlphamap = 1.0 - min(min(grid.x, grid.y), 1.0);
+
+        fragColor.rgb = mix(fragColor.rgb, wireframeColor, wireframeAlphamap);
+    }
+
+    int bContourEnabled = 0;
+    if (bContourEnabled == 1)
+    {
+        vec3 contourColor = vec3(1, 1, 1);
+
+        float contour = abs(fract(fragIn.pos.y - 0.5) - 0.5) / (fwidth(fragIn.pos.y) + 0.01);
+        contour = step(1.2, contour);
+
+        float contourAlphamap = 1.0 - min(contour, 1.0);
+
+        fragColor.rgb = mix(fragColor.rgb, contourColor, contourAlphamap);
+    }
 }
