@@ -66,6 +66,9 @@ class Application
     void OnMouseButtonDown(int button);
     void OnMouseButtonUp(int button);
 
+    glm::vec3& GetBrushPos() { return m_brushPos; }
+    float GetBrushRadius() { return m_brushRadius; }
+
  private:
     void ShowSceneNodeTree();
     void ShowSceneNodeTreeNode(std::shared_ptr<SceneNode> node);
@@ -84,6 +87,9 @@ class Application
     GLFWwindow*     m_pWindow;
 
     glm::ivec2      m_currentMousePos;
+
+    glm::vec3       m_brushPos;
+    float           m_brushRadius;
 
     float       m_deltaTime;
 

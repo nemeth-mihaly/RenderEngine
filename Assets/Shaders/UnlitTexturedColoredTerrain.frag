@@ -9,6 +9,9 @@ in DATA
     vec2    uv;
 } fragIn;
 
+uniform vec3 uBrushPos;
+uniform float uBrushRadius;
+
 uniform sampler2D uBlendmapTex; // 0
 
 uniform sampler2D uTilesetTex1; // 1
@@ -34,7 +37,7 @@ void main()
 
     fragColor = (tilesetColor1 + tilesetColor2 + tilesetColor3); + vec4(colorValue, colorValue, colorValue, 1.0);
 
-    int bWireframeEnabled = 0;
+    int bWireframeEnabled = 1;
     if (bWireframeEnabled == 1)
     {
         vec3 wireframeColor = vec3(1, 1, 1);
@@ -52,11 +55,19 @@ void main()
     {
         vec3 contourColor = vec3(1, 1, 1);
 
-        float contour = abs(fract(fragIn.pos.y - 0.5) - 0.5) / (fwidth(fragIn.pos.y) + 0.01);
+        float contour = abs(fract(fragIn.pos.y - 0.5) - 0.5) / fwidth(fragIn.pos.y);
         contour = step(1.2, contour);
 
         float contourAlphamap = 1.0 - min(contour, 1.0);
 
         fragColor.rgb = mix(fragColor.rgb, contourColor, contourAlphamap);
     }
+
+    vec3 brushColor = vec3(1, 1, 1);
+    
+    float brush = length(fragIn.pos.xz - uBrushPos.xz);
+    float brushAlphamap = step(uBrushRadius - 0.01, brush) - step(uBrushRadius + 0.01, brush);
+    brushAlphamap = max(brushAlphamap, step(brush, 0.1));
+
+    fragColor.rgb = mix(fragColor.rgb, brushColor, brushAlphamap);
 }

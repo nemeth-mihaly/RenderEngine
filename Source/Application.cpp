@@ -142,7 +142,7 @@ bool Application::Init(int width, int height)
     glfwMakeContextCurrent(m_pWindow);
     gladLoadGL();
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     m_pRenderer = new Renderer();
     m_pRenderer->Init();
@@ -234,15 +234,17 @@ void Application::RunLoop()
                 m_selectedSceneNode->SetPosition(m_mouseWorldPos);
             }
 
-            glm::vec3 brushPos = m_mouseWorldPos;
-            brushPos.y += 0.05f;
+            m_brushPos = m_mouseWorldPos;
+            m_brushPos.y += 0.05f;
 
-            m_pRenderer->AddCross(brushPos, 0.2f, glm::vec3(1, 1, 1));
-            m_pRenderer->AddCircle(brushPos, glm::vec3(0, 1, 0), 1.0f, glm::vec3(1, 1, 1));
+            m_brushRadius = 1.0f;
+
+            m_pRenderer->AddCross(m_brushPos, 0.2f, glm::vec3(1, 1, 1));
+            // m_pRenderer->AddCircle(m_brushPos, glm::vec3(0, 1, 0), m_brushRadius, glm::vec3(1, 1, 1));
 
             if (m_bLeftMouseButtonDown)
             {
-                std::vector<Vertex_UnlitTexturedColored*> verts = m_world->GetVertsSelectedByBrush(m_mouseWorldPos, 1.0f);
+                std::vector<Vertex_UnlitTexturedColored*> verts = m_world->GetVertsSelectedByBrush(m_brushPos, 1.0f);
                 
                 for (auto& vert : verts)
                 {
@@ -489,21 +491,23 @@ void Application::OnMouseButtonDown(int button)
         {
             m_bLeftMouseButtonDown = true;
 
-            // auto camera = m_pRenderer->GetCamera();
+            /*
+            auto camera = m_pRenderer->GetCamera();
             
-            // Ray ray;
-            // ray.origin = camera->GetPosition();
-            // ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
+            Ray ray;
+            ray.origin = camera->GetPosition();
+            ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
 
-            // float t;
-            // if (m_world->Raycast(ray, t))
-            // {
-            //     RayHit hit;
-            //     hit.ray = ray;
-            //     hit.t   = t;
+            float t;
+            if (m_world->Raycast(ray, t))
+            {
+                RayHit hit;
+                hit.ray = ray;
+                hit.t   = t;
 
-            //     m_raycasts.push_back(hit);
-            // }
+                m_raycasts.push_back(hit);
+            }
+            */
 
             break;
         }

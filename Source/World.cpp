@@ -8,6 +8,11 @@
 
 #include "Application.h"
 
+static void Barycentric()
+{
+
+}
+
 //-----------------------------------------------------------------------------
 // World Implementation
 //-----------------------------------------------------------------------------
@@ -99,7 +104,9 @@ void World::Init()
     m_vertArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
     m_vertArray.SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
 
-    m_vertBuffer.Init(sizeof(Vertex_UnlitTexturedColored) * m_verts.size(), GL_STATIC_DRAW);
+    GLenum vertBufferUsage = (m_bFlushStagingVertBufferAfterInit != true ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
+
+    m_vertBuffer.Init(sizeof(Vertex_UnlitTexturedColored) * m_verts.size(), vertBufferUsage);
     m_vertBuffer.MapMemory(0, sizeof(Vertex_UnlitTexturedColored) * m_verts.size(), m_verts.data());
     
     m_vertArray.SetVertexBuffer(0, &m_vertBuffer, sizeof(Vertex_UnlitTexturedColored), VertexArrayInputRate_Vertex);
@@ -140,12 +147,20 @@ void World::Update(float deltaTime)
 
 void World::Render()
 {
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->Bind();
 
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniformMatrix4f("uView", g_pApp->GetRenderer()->GetCamera()->GetView());
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniformMatrix4f("uProjection", g_pApp->GetRenderer()->GetCamera()->GetProjection());
 
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniformMatrix4f("uModel", glm::mat4(1));
+
+    glm::vec3 brushPos = g_pApp->GetBrushPos();
+    float brushRadius = g_pApp->GetBrushRadius();
+
+    g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform3f("uBrushPos", brushPos);
+    g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1f("uBrushRadius", brushRadius);
 
     g_pApp->GetTexture("Assets/Textures/Blendmap32x32.png")->BindUnit(0);
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1i("uBlendmapTex", 0);
@@ -164,14 +179,14 @@ void World::Render()
     if ((!m_bFlushStagingVertBufferAfterInit) && m_bStagingVertBufferChanged)
     {
         m_bStagingVertBufferChanged = false;
-        m_vertBuffer.MapMemory(0, sizeof(Vertex_UnlitColored) * m_verts.size(), m_verts.data());
+        m_vertBuffer.MapMemory(0, sizeof(Vertex_UnlitTexturedColored) * m_verts.size(), m_verts.data());
     }
 
     glDrawElements(GL_TRIANGLES, m_numInds, GL_UNSIGNED_INT, nullptr);
 
     if (!m_bFlushStagingVertBufferAfterInit)
     {
-        /*
+        /*       
         for (int z = 0; z < m_extents.z; z++) 
         {
             for (int x = 0; x < m_extents.x; x++)
@@ -201,22 +216,52 @@ void World::Render()
         }
         */
     }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+static float Barrycentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& pos) 
+{
+    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+
+    float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.z - p3.z)) / det;
+    float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.z - p3.z)) / det;
+    float l3 = 1.0f - l1 - l2;
+
+    return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
 bool World::HeightAt(const glm::vec3& pos, float& _out_height)
 {
-    if (!(0.0f < pos.x && pos.x < (float)(m_extents.x - 1.0f))
-    || !(0.0f < pos.z && pos.z < (float)(m_extents.z - 1.0f)))
+    glm::ivec3 grid(0, 0, 0);
+    grid.x = static_cast<int>(glm::floor(pos.x));
+    grid.z = static_cast<int>(glm::floor(pos.z));
+
+    if (!(0 <= grid.x && grid.x < m_extents.x - 1)
+    || !(0 <= grid.z && grid.z < m_extents.z - 1))
     {
         return false;
     }
 
-    int x = glm::round(pos.x);
-    int z = glm::round(pos.z);
+    glm::vec3 p, q, r;
 
-    glm::vec3 p = m_verts[x + z * m_extents.z].pos;
+    if ((pos.x - static_cast<float>(grid.x)) <= (static_cast<float>(grid.z + 1) - pos.z)) // Upper triangle
+    {
+        p = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 0)].pos;
+        q = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
+        r = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
 
-    _out_height = p.y;
+        _out_height = Barrycentric(p, q, r, pos);
+    }
+    else // Lower triangle
+    {
+        p = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
+        q = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
+        r = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 1)].pos;
+
+        _out_height = Barrycentric(p, q, r, pos);
+    }
+
     return true;
 }
 
@@ -224,7 +269,7 @@ bool World::Raycast(const Ray& ray, float& _out_t)
 {
     float t = 0.01f;
 
-    while (t < 300.0f)
+    while (t < 800.0f)
     {
         glm::vec3 p = ray.origin + ray.direction * t;
 
@@ -250,7 +295,7 @@ std::vector<Vertex_UnlitTexturedColored*> World::GetVertsSelectedByBrush(const g
 
     for (Vertex_UnlitTexturedColored& vert : m_verts)
     {
-        if ((glm::length2(vert.pos.x - pos.x) + glm::length2(vert.pos.z - pos.z)) < (radius * radius))
+        if (glm::length2(glm::vec2(vert.pos.x - pos.x, vert.pos.z - pos.z)) < (radius * radius))
         {
             verts.push_back(&vert);
         }
@@ -269,7 +314,7 @@ void World::SaveHeightmap()
     {
         for (int x = 0; x < m_extents.x; x++)
         {
-            uint32_t vertpos = x + z * m_extents.z;
+            uint32_t vertpos = x + m_extents.x * z;
             Vertex_UnlitTexturedColored& vert = m_verts[vertpos];
 
             uint32_t mgc = 16'777'216;
@@ -284,7 +329,7 @@ void World::SaveHeightmap()
             uint8_t colorG = (colorRGB >> 8) & 0xff;
             uint8_t colorB = colorRGB & 0xff;
 
-            long long heightMapDataOffset = (x + z * m_extents.z) * 4;
+            long long heightMapDataOffset = (x + m_extents.x * z) * 4;
             pHeightmapData[heightMapDataOffset + 0] = colorR;
             pHeightmapData[heightMapDataOffset + 1] = colorR;
             pHeightmapData[heightMapDataOffset + 2] = colorR;
