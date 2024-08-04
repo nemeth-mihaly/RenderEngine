@@ -191,5 +191,5 @@ void main()
     vec4 s = uMat.specular * ltColor.specular;
     vec4 e = uMat.emissive;
 
-    fragColor = vec4(a + d + s + e) * texColor * vec4(fragIn.color, 1);;
+    fragColor = vec4(a + d + s + e) * texColor * vec4(fragIn.color, 1);
 }

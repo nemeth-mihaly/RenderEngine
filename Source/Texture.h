@@ -22,8 +22,11 @@ public:
     ~Texture();
 
     void Load(const std::string& filename);
+    void Load(const std::string& filename, uint8_t*& _out_pData);
 
     void BindUnit(uint32_t unit = 0);
+
+    uint32_t GetTextureID() { return m_textureID; }
 
 private:
     uint32_t    m_textureID;

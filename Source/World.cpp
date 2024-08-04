@@ -29,7 +29,10 @@ World::World()
 
 World::~World()
 {
-
+    if (m_pBlendTexData)
+    {
+        delete[] m_pBlendTexData;
+    }
 }
 
 void World::Init()
@@ -123,6 +126,13 @@ void World::Init()
 
     m_numInds = inds.size();
     inds.clear();
+
+    m_pBlendTex = new Texture(GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+
+    // m_pBlendTexData = new uint8_t[m_extents.x * m_extents.z];
+    m_pBlendTex->Load("Assets/Textures/Blendmap32x32.png", m_pBlendTexData);
+
+    assert(m_pBlendTexData != nullptr);
 }
 
 /* 
@@ -162,7 +172,8 @@ void World::Render()
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform3f("uBrushPos", brushPos);
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1f("uBrushRadius", brushRadius);
 
-    g_pApp->GetTexture("Assets/Textures/Blendmap32x32.png")->BindUnit(0);
+    // g_pApp->GetTexture("Assets/Textures/Blendmap32x32.png")->BindUnit(0);
+    m_pBlendTex->BindUnit(0);
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1i("uBlendmapTex", 0);
 
     g_pApp->GetTexture("Assets/Textures/mullgorebasedirt.png")->BindUnit(1);
@@ -220,15 +231,34 @@ void World::Render()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-static float Barrycentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& pos) 
+// /*
+static void Barycentric(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& p, float& u, float& v, float& w) 
 {
-    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    glm::vec3 v0 = b - a;
+    glm::vec3 v1 = c - a;
+    glm::vec3 v2 = p - a;
 
-    float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.z - p3.z)) / det;
-    float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.z - p3.z)) / det;
-    float l3 = 1.0f - l1 - l2;
+    float d00 = glm::dot(v0, v0);
+    float d01 = glm::dot(v0, v1);
+    float d11 = glm::dot(v1, v1);
+    float d20 = glm::dot(v2, v0);
+    float d21 = glm::dot(v2, v1);
 
-    return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+    float denom = d00 * d11 - d01 * d01;
+
+    v = (d11 * d20 - d01 * d21) / denom;
+    w = (d00 * d21 - d01 * d20) / denom;
+    u = 1.0f - v - w;
+
+}
+// */
+
+static float CalculateHeightUsingBarycentric(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& p)
+{
+    float u, v, w;
+    Barycentric(a, b, c, p, u, v, w);
+
+    return (u * a.y) + (v * b.y) + (w * c.y);
 }
 
 bool World::HeightAt(const glm::vec3& pos, float& _out_height)
@@ -243,23 +273,23 @@ bool World::HeightAt(const glm::vec3& pos, float& _out_height)
         return false;
     }
 
-    glm::vec3 p, q, r;
+    glm::vec3 a, b, c;
 
     if ((pos.x - static_cast<float>(grid.x)) <= (static_cast<float>(grid.z + 1) - pos.z)) // Upper triangle
     {
-        p = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 0)].pos;
-        q = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
-        r = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
+        a = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 0)].pos;
+        b = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
+        c = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
 
-        _out_height = Barrycentric(p, q, r, pos);
+        _out_height = CalculateHeightUsingBarycentric(a, b, c, pos);
     }
     else // Lower triangle
     {
-        p = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
-        q = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
-        r = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 1)].pos;
+        a = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 0)].pos;
+        b = m_verts[(grid.x + 0) + m_extents.x * (grid.z + 1)].pos;
+        c = m_verts[(grid.x + 1) + m_extents.x * (grid.z + 1)].pos;
 
-        _out_height = Barrycentric(p, q, r, pos);
+        _out_height = CalculateHeightUsingBarycentric(a, b, c, pos);
     }
 
     return true;

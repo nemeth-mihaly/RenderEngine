@@ -507,9 +507,25 @@ void MeshNode::Init(const Json& data)
     }
 }
 
+glm::vec3 aabbPos; // = mesh->GetBoundingBoxCenter() + GetPosition();
+glm::vec3 aabbExtents; // = mesh->GetBoundingBoxExtents();
+
+glm::vec3 updatedAabbPos;
+glm::vec3 updatedAabbExtents;
+
 void MeshNode::PostInit()                   
 {
     SceneNode::PostInit();
+
+    // std::shared_ptr<Mesh> mesh = g_pApp->GetMesh(m_meshAsset);
+    
+    // aabbPos = mesh->GetBoundingBoxCenter();
+    
+    // aabbExtents = mesh->GetBoundingBoxExtents();
+    // aabbExtents *= 2.0f;
+
+    // updatedAabbPos = aabbPos;
+    // updatedAabbExtents = aabbExtents;
 }
 
 void MeshNode::Update(const float deltaTime)
@@ -542,19 +558,50 @@ void MeshNode::Render()
     std::shared_ptr<Mesh> mesh = g_pApp->GetMesh(m_meshAsset);
     mesh->Render();
 
-    glm::vec3 extents = mesh->GetBoundingBoxExtents();
-    extents.x = glm::abs(extents.x);
-    extents.y = glm::abs(extents.y);
-    extents.z = glm::abs(extents.z);
+    // aabbPos = mesh->GetBoundingBoxCenter(); // + GetPosition();
+    // aabbExtents = mesh->GetBoundingBoxExtents();
 
-    m_boundingSphereRadius = 0.0f;
-    m_boundingSphereRadius = (m_boundingSphereRadius > extents.x) ? m_boundingSphereRadius : extents.x;
-    m_boundingSphereRadius = (m_boundingSphereRadius > extents.y) ? m_boundingSphereRadius : extents.y;
-    m_boundingSphereRadius = (m_boundingSphereRadius > extents.z) ? m_boundingSphereRadius : extents.z;
+    /*
+    if (m_bChanged)
+    {
+        glm::mat3 m(glm::toMat3(m_rotation));
+        glm::vec3 t(aabbPos);
 
-    glm::vec3 boundingSpherePosition = mesh->GetBoundingBoxCenter() + GetPosition();
+        for (int i = 0; i < 3; i++) 
+        {
+            updatedAabbPos[i] = t[i];
+            updatedAabbExtents[i] = 0.0f;
 
-    g_pApp->GetRenderer()->AddSphere(boundingSpherePosition, m_boundingSphereRadius, glm::vec3(1, 0, 1));
+            for (int j = 0; j < 3; j++) 
+            {
+                updatedAabbPos[i] += m[i][j] * aabbPos[j];
+                updatedAabbExtents[i] += glm::abs(m[i][j]) * aabbExtents[j];
+            }
+        }
+    
+        // aabbPos = updatedAabbPos;
+        // aabbExtents = updatedAabbExtents;
+
+        m_bChanged = false;
+    }
+    */
+
+    // glm::vec3 extents = mesh->GetBoundingBoxExtents();
+    // extents.x = glm::abs(extents.x);
+    // extents.y = glm::abs(extents.y);
+    // extents.z = glm::abs(extents.z);
+
+    // m_boundingSphereRadius = 0.0f;
+    // m_boundingSphereRadius = (m_boundingSphereRadius > extents.x) ? m_boundingSphereRadius : extents.x;
+    // m_boundingSphereRadius = (m_boundingSphereRadius > extents.y) ? m_boundingSphereRadius : extents.y;
+    // m_boundingSphereRadius = (m_boundingSphereRadius > extents.z) ? m_boundingSphereRadius : extents.z;
+
+    // glm::vec3 boundingSpherePosition = mesh->GetBoundingBoxCenter() + GetPosition();
+
+    // g_pApp->GetRenderer()->AddSphere(boundingSpherePosition, m_boundingSphereRadius, glm::vec3(1, 0, 1));
+
+    // g_pApp->GetRenderer()->AddBox(GetPosition() + aabbPos, aabbExtents, glm::vec3(1, 1, 1));
+    // g_pApp->GetRenderer()->AddBox(GetPosition() + updatedAabbPos, updatedAabbExtents, glm::vec3(1, 1, 1));
 }
 
 Json MeshNode::ToJSON()

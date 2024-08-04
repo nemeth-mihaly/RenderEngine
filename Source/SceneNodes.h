@@ -53,6 +53,8 @@ class SceneNode
     float GetBoundingSphereRadius() { return m_boundingSphereRadius; }
     // glm::vec3 GetBoundingSphereCenter();
 
+    bool m_bChanged = false;
+
  protected:
     SceneNode* m_pParent;
     std::vector<std::shared_ptr<SceneNode>> m_children;

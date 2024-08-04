@@ -272,10 +272,37 @@ void Renderer::Init()
     m_shader_UnlitTexturedColored2.Load("Assets/Shaders/UnlitTexturedColored2.vert", "Assets/Shaders/UnlitTexturedColored2.frag");
     m_shader_LitTexturedColored.Load("Assets/Shaders/LitTexturedColored1.vert", "Assets/Shaders/LitTexturedColored1.frag");
     m_shader_UnlitColoredTexturedTerrain.Load("Assets/Shaders/UnlitTexturedColoredTerrain.vert", "Assets/Shaders/UnlitTexturedColoredTerrain.frag");
+    m_shader_Framebuffer.Load("Assets/Shaders/_test_Framebuffer.vert", "Assets/Shaders/_test_Framebuffer.frag");
+
+    m_framebuffer.Init();
 
     m_sceneGraphRoot = std::make_shared<PawnNode>();
 
     m_lineRenderer.Init();
+
+    std::vector<Vertex_UnlitTexturedColored> verts;
+    verts.resize(6);
+
+    verts[0].pos = glm::vec3(-1, 1, 0); verts[0].color = glm::vec3(1, 1, 1); verts[0].uv = glm::vec2(0, 1);
+    verts[1].pos = glm::vec3( 1, 1, 0); verts[1].color = glm::vec3(1, 1, 1); verts[1].uv = glm::vec2(1, 1);
+    verts[2].pos = glm::vec3(-1,-1, 0); verts[2].color = glm::vec3(1, 1, 1); verts[2].uv = glm::vec2(0, 0);
+
+    verts[3].pos = glm::vec3(-1,-1, 0); verts[3].color = glm::vec3(1, 1, 1); verts[3].uv = glm::vec2(0, 0);
+    verts[4].pos = glm::vec3( 1,-1, 0); verts[4].color = glm::vec3(1, 1, 1); verts[4].uv = glm::vec2(1, 0);
+    verts[5].pos = glm::vec3( 1, 1, 0); verts[5].color = glm::vec3(1, 1, 1); verts[5].uv = glm::vec2(1, 1);
+
+    m_fboVertArray.Init();
+    m_fboVertArray.SetVertexAttribute(0, 0, 3, GL_FLOAT, 0);
+    m_fboVertArray.SetVertexAttribute(0, 1, 3, GL_FLOAT, 12);
+    m_fboVertArray.SetVertexAttribute(0, 2, 2, GL_FLOAT, 24);
+
+    GLsizeiptr fboVertBufferSize = sizeof(Vertex_UnlitTexturedColored) * verts.size();
+    m_fboVertBuffer.Init(fboVertBufferSize, GL_STATIC_DRAW);
+    m_fboVertBuffer.MapMemory(0, fboVertBufferSize, verts.data());
+
+    m_fboVertArray.SetVertexBuffer(0, &m_fboVertBuffer, sizeof(Vertex_UnlitTexturedColored), VertexArrayInputRate_Vertex);
+
+    m_fboNumVerts = verts.size();
 }
 
 void Renderer::Update(const float deltaTime)
@@ -285,6 +312,10 @@ void Renderer::Update(const float deltaTime)
 
 void Renderer::Render()
 {
+    m_framebuffer.Bind();
+
+    glEnable(GL_DEPTH_TEST);
+
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -378,6 +409,21 @@ void Renderer::Render()
     */
 
     m_lineRenderer.Render(&m_shader_UnlitColored);
+
+    m_framebuffer.Unbind();
+
+    glDisable(GL_DEPTH_TEST);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    m_shader_Framebuffer.Bind();
+    m_framebuffer.BindTexture();
+
+    m_fboVertArray.Bind();
+    glDrawArrays(GL_TRIANGLES, 0, m_fboNumVerts);
+
+    m_framebuffer.UnbindTexture();
 }
 
 void Renderer::AddLine(const glm::vec3& fromPosition, const glm::vec3& toPosition, const glm::vec3& color)

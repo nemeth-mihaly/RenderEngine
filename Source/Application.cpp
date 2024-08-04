@@ -237,21 +237,26 @@ void Application::RunLoop()
             m_brushPos = m_mouseWorldPos;
             m_brushPos.y += 0.05f;
 
-            m_brushRadius = 1.0f;
+            m_brushRadius = 2.0f;
 
-            m_pRenderer->AddCross(m_brushPos, 0.2f, glm::vec3(1, 1, 1));
+            // m_pRenderer->AddCross(m_brushPos, 0.2f, glm::vec3(1, 1, 1));
             // m_pRenderer->AddCircle(m_brushPos, glm::vec3(0, 1, 0), m_brushRadius, glm::vec3(1, 1, 1));
 
             if (m_bLeftMouseButtonDown)
             {
-                std::vector<Vertex_UnlitTexturedColored*> verts = m_world->GetVertsSelectedByBrush(m_brushPos, 1.0f);
+                // std::vector<Vertex_UnlitTexturedColored*> verts = m_world->GetVertsSelectedByBrush(m_brushPos, m_brushRadius);
                 
-                for (auto& vert : verts)
-                {
-                    vert->pos.y += 2.5f * m_deltaTime;
-                }
+                // float change = 2.0f;
+                // change *= m_deltaTime;
 
-                m_world->m_bStagingVertBufferChanged = true;
+                // for (auto& vert : verts)
+                // {
+                //     vert->pos.y += change;
+                // }
+
+                // m_world->m_bStagingVertBufferChanged = true;
+
+                
             }
 
             // Render
@@ -470,6 +475,7 @@ void Application::OnMouseMove(int x, int y)
     ray.origin = camera->GetPosition();
     ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
 
+    // /*
     float t = 0.0f;
     if (m_world->Raycast(ray, t))
     {
@@ -479,6 +485,7 @@ void Application::OnMouseMove(int x, int y)
 
         m_mouseWorldPos = ray.origin + ray.direction * hit.t; 
     }
+    // */
 
     m_pCameraController->OnMouseMove(x, y);
 }
@@ -694,6 +701,8 @@ void Application::ShowSceneNodeEditor()
                     {
                         selectedSceneNodeData[elementName] = v;
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;
@@ -708,6 +717,8 @@ void Application::ShowSceneNodeEditor()
                     {
                         selectedSceneNodeData[elementName] = v;
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;
@@ -727,6 +738,8 @@ void Application::ShowSceneNodeEditor()
                         selectedSceneNodeData[elementName]["z"] = v.z;
 
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;
@@ -742,6 +755,8 @@ void Application::ShowSceneNodeEditor()
                     {
                         selectedSceneNodeData[elementName] = std::string(buffer);
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;
@@ -761,6 +776,8 @@ void Application::ShowSceneNodeEditor()
                         selectedSceneNodeData[elementName]["z"] = v.z;
 
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;
@@ -782,6 +799,8 @@ void Application::ShowSceneNodeEditor()
                         selectedSceneNodeData[elementName]["w"] = v.w;
 
                         m_selectedSceneNode->Init(selectedSceneNodeData);
+
+                        m_selectedSceneNode->m_bChanged = true;
                     }
 
                     break;

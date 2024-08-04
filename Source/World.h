@@ -8,6 +8,7 @@
 
 #include "VertexArray.h"
 #include "Buffers.h"
+#include "Texture.h"
 
 //-----------------------------------------------------------------------------
 // class World
@@ -27,7 +28,7 @@ class World
     bool Raycast(const Ray& ray, float& _out_t);
 
     std::vector<Vertex_UnlitTexturedColored*> GetVertsSelectedByBrush(const glm::vec3& pos, float radius);
-
+    
     void SaveHeightmap();
 
     bool            m_bStagingVertBufferChanged;
@@ -43,4 +44,7 @@ class World
     VertexArray         m_vertArray;
     VertexBuffer        m_vertBuffer;
     IndexBuffer         m_indBuffer;
+
+    Texture*    m_pBlendTex;
+    uint8_t*    m_pBlendTexData;
 };

@@ -14,6 +14,7 @@
 
 #include "VertexArray.h"
 #include "Buffers.h"
+#include "Framebuffer.h"
 
 #include "Camera.h"
 #include "World.h"
@@ -108,6 +109,9 @@ class Renderer
     Shader                      m_shader_UnlitTexturedColored2;
     Shader                      m_shader_LitTexturedColored;
     Shader                      m_shader_UnlitColoredTexturedTerrain;
+    Shader                      m_shader_Framebuffer;
+
+    Framebuffer                 m_framebuffer;
 
     std::shared_ptr<World>      m_world;
     std::shared_ptr<PawnNode>   m_sceneGraphRoot;
@@ -117,4 +121,8 @@ class Renderer
     std::vector<std::shared_ptr<LightNode>> m_lights;
 
     LineRenderer                m_lineRenderer;
+
+    int             m_fboNumVerts = 0;
+    VertexArray     m_fboVertArray;
+    VertexBuffer    m_fboVertBuffer;
 };

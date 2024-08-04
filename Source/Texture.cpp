@@ -19,13 +19,13 @@ Texture::~Texture()
     glDeleteTextures(1, &m_textureID);
 }
 
-void Texture::Load(const std::string& resource)
+void Texture::Load(const std::string& filename)
 {
     stbi_set_flip_vertically_on_load(true);
 
     int width, height, channelCount;
     
-    uint8_t* pData = stbi_load(resource.c_str(), &width, &height, &channelCount, 0);
+    uint8_t* pData = stbi_load(filename.c_str(), &width, &height, &channelCount, 0);
 
     if (!pData)
     {
@@ -54,6 +54,43 @@ void Texture::Load(const std::string& resource)
     glTextureSubImage2D(m_textureID, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, pData);
 
     stbi_image_free(pData);
+}
+
+void Texture::Load(const std::string& filename, uint8_t*& _out_pData)
+{
+    stbi_set_flip_vertically_on_load(true);
+
+    int width, height, channelCount;
+    
+    _out_pData = stbi_load(filename.c_str(), &width, &height, &channelCount, 0);
+
+    // if (!pData)
+    // {
+    //     return;
+    // }
+
+    uint32_t internalFormat, format;
+
+    switch (channelCount)
+    {
+        case 3:
+            internalFormat = GL_RGB8;
+            format = GL_RGB;
+            break;
+
+        case 4:
+            internalFormat = GL_RGBA8;
+            format = GL_RGBA;
+            break;
+
+        default:
+            assert(true);
+    }
+
+    glTextureStorage2D(m_textureID, 1, internalFormat, width, height);
+    glTextureSubImage2D(m_textureID, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, _out_pData);
+
+    // stbi_image_free(pData);
 }
 
 void Texture::BindUnit(uint32_t unit)

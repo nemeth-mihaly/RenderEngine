@@ -1,3 +1,5 @@
+// https://madebyevan.com/shaders/grid/
+
 #version 460 core
 
 out vec4 fragColor;
@@ -37,13 +39,13 @@ void main()
 
     fragColor = (tilesetColor1 + tilesetColor2 + tilesetColor3); + vec4(colorValue, colorValue, colorValue, 1.0);
 
-    int bWireframeEnabled = 1;
+    int bWireframeEnabled = 0;
     if (bWireframeEnabled == 1)
     {
         vec3 wireframeColor = vec3(1, 1, 1);
 
         vec2 grid = abs(fract(fragIn.pos.xz - 0.5) - 0.5) / fwidth(fragIn.pos.xz);
-        grid = step(1.2, grid);
+        grid = step(1.1, grid);
 
         float wireframeAlphamap = 1.0 - min(min(grid.x, grid.y), 1.0);
 
@@ -56,7 +58,7 @@ void main()
         vec3 contourColor = vec3(1, 1, 1);
 
         float contour = abs(fract(fragIn.pos.y - 0.5) - 0.5) / fwidth(fragIn.pos.y);
-        contour = step(1.2, contour);
+        contour = step(1.1, contour);
 
         float contourAlphamap = 1.0 - min(contour, 1.0);
 
@@ -66,7 +68,7 @@ void main()
     vec3 brushColor = vec3(1, 1, 1);
     
     float brush = length(fragIn.pos.xz - uBrushPos.xz);
-    float brushAlphamap = step(uBrushRadius - 0.01, brush) - step(uBrushRadius + 0.01, brush);
+    float brushAlphamap = step(uBrushRadius - 0.02, brush) - step(uBrushRadius + 0.02, brush);
     brushAlphamap = max(brushAlphamap, step(brush, 0.1));
 
     fragColor.rgb = mix(fragColor.rgb, brushColor, brushAlphamap);
