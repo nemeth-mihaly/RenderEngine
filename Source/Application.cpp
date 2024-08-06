@@ -11,6 +11,53 @@
 Application* g_pApp = nullptr;
 
 //-----------------------------------------------------------------------------
+// EditorUI Implementation
+//-----------------------------------------------------------------------------
+
+EditorUI::EditorUI()
+{
+
+}
+
+EditorUI::~EditorUI()
+{
+
+}
+
+void EditorUI::Init()
+{
+    // m_func = std::bind(&EditorUI::OnBrushRadiusChanged, this, std::placeholders::_1);
+
+     g_pApp->GetEventManager()->TriggerEvent(std::make_shared<BrushRadiusChangedEvent>(m_brushRadius));
+}
+
+void EditorUI::Update(float deltaTime)
+{
+
+}
+
+void EditorUI::Render()
+{
+    ImGui::ShowDemoWindow();
+
+    ImGui::Begin("Brush Settings");
+
+    // static float radius = 1.0f;
+    if (ImGui::DragFloat("Radius", &m_brushRadius, 0.5f, 1.0f, 2000.0f))
+    {
+        g_pApp->GetEventManager()->TriggerEvent(std::make_shared<BrushRadiusChangedEvent>(m_brushRadius));
+    }
+
+    static float strength = 1.0f;
+    if (ImGui::DragFloat("Strength", &strength, 0.5f, 1.0f, 2000.0f))
+    {
+
+    }
+
+    ImGui::End();
+}
+
+//-----------------------------------------------------------------------------
 // enum SceneNodeEditorType
 //-----------------------------------------------------------------------------
 
@@ -83,7 +130,11 @@ Application::Application()
 
     m_deltaTime = 0.0f;
 
+    m_pEventManager = nullptr;
+
     m_pRenderer = nullptr;
+
+    m_bShowEditorUI = true;
 
     m_pCameraController = nullptr;
 
@@ -104,6 +155,11 @@ Application::~Application()
     if (m_pRenderer)
     {
         delete m_pRenderer;
+    }
+
+    if (m_pEventManager)
+    {
+        delete m_pEventManager;
     }
 
     if (m_pWindow)
@@ -144,6 +200,8 @@ bool Application::Init(int width, int height)
 
     glfwSwapInterval(0);
 
+    m_pEventManager = new EventManager();
+
     m_pRenderer = new Renderer();
     m_pRenderer->Init();
 
@@ -175,6 +233,8 @@ bool Application::Init(int width, int height)
 
     ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
+
+    m_editorUI.Init();
 
     // Setup SceneNode Editor
     std::fstream file("Assets/Editor/SceneNodeDefs.json");
@@ -220,6 +280,8 @@ void Application::RunLoop()
             m_pCameraController->Update(m_deltaTime);
             m_pRenderer->Update(m_deltaTime);
 
+            m_brushTimer += m_deltaTime;
+
             for (RayHit hit : m_raycasts)
             {
                 m_pRenderer->AddLine(hit.ray.origin, hit.ray.origin + hit.ray.direction * hit.t, glm::vec3(1, 1, 1));
@@ -237,7 +299,7 @@ void Application::RunLoop()
             m_brushPos = m_mouseWorldPos;
             m_brushPos.y += 0.05f;
 
-            m_brushRadius = 2.0f;
+            // m_brushRadius = 2.0f;
 
             // m_pRenderer->AddCross(m_brushPos, 0.2f, glm::vec3(1, 1, 1));
             // m_pRenderer->AddCircle(m_brushPos, glm::vec3(0, 1, 0), m_brushRadius, glm::vec3(1, 1, 1));
@@ -268,7 +330,12 @@ void Application::RunLoop()
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            ImGui::ShowDemoWindow();
+            if (m_bShowEditorUI)
+            {
+                m_editorUI.Render();
+            }
+
+            // ImGui::ShowDemoWindow();
 
             if (ImGui::Begin("Debug Drawing"))
             {
@@ -386,28 +453,30 @@ void Application::OnKeyDown(int key)
         case GLFW_KEY_G:
         {
             m_bGrabSelectedSceneNode = !m_bGrabSelectedSceneNode;
-
             break;
         }
 
         case GLFW_KEY_H:
         {
             m_world->SaveHeightmap();
+            break;
+        }
 
+        case GLFW_KEY_Z:
+        {
+            m_bShowEditorUI = !m_bShowEditorUI;
             break;
         }
 
         case GLFW_KEY_F7:
         {
             m_pRenderer->ToggleDepthTestForDebugPass();
-
             break;
         }
 
         case GLFW_KEY_F8:
         {
             m_raycasts.clear();
-
             break;
         }
 
@@ -476,14 +545,21 @@ void Application::OnMouseMove(int x, int y)
     ray.direction = camera->ScreenPointToWorldDirection(GetMousePosition());
 
     // /*
-    float t = 0.0f;
-    if (m_world->Raycast(ray, t))
+    if (m_brushTimer >= 0.01666666666666666666666666666667)
     {
-        RayHit hit;
-        hit.ray = ray;
-        hit.t = t;
+        // float v = m_brushTimer / 0.01666666666666666666666666666667;
+        m_brushTimer = 0.0f;
 
-        m_mouseWorldPos = ray.origin + ray.direction * hit.t; 
+        float t = 0.0f;
+        if (m_world->Raycast(ray, t))
+        {
+            RayHit hit;
+            hit.ray = ray;
+            hit.t = t;
+
+            m_mouseWorldPos = ray.origin + ray.direction * hit.t; 
+            // m_mouseWorldPos *= glm::vec3(v, 0.0f, v);
+        }
     }
     // */
 
@@ -856,4 +932,11 @@ void Application::SaveScene(const std::string& filename)
     std::ofstream file(filename);
     file << sceneData.dump(4);
     file.close();
+}
+
+void Application::OnBrushRadiusChanged(float radius)
+{
+    std::cout << "New radius: " << radius << '\n';
+
+    m_brushRadius = radius;
 }

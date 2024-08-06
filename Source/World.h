@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <memory>
+#include <functional>
 #include <vector>
 
 #include "Geometry.h"
@@ -9,6 +11,8 @@
 #include "VertexArray.h"
 #include "Buffers.h"
 #include "Texture.h"
+
+#include "Events/EditorEvents.h"
 
 //-----------------------------------------------------------------------------
 // class World
@@ -31,6 +35,8 @@ class World
     
     void SaveHeightmap();
 
+    void OnBrushRadiusChanged(const IEventPtr& event);
+
     bool            m_bStagingVertBufferChanged;
 
  private:
@@ -47,4 +53,6 @@ class World
 
     Texture*    m_pBlendTex;
     uint8_t*    m_pBlendTexData;
+
+    float m_brushRadius;
 };

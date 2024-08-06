@@ -37,6 +37,8 @@ World::~World()
 
 void World::Init()
 {
+    g_pApp->GetEventManager()->AddListener(std::bind(&World::OnBrushRadiusChanged, this, std::placeholders::_1), EventType_BrushRadiusChanged);
+
     stbi_set_flip_vertically_on_load(0);
 
     int numHeightmapChannels;
@@ -167,10 +169,10 @@ void World::Render()
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniformMatrix4f("uModel", glm::mat4(1));
 
     glm::vec3 brushPos = g_pApp->GetBrushPos();
-    float brushRadius = g_pApp->GetBrushRadius();
+    // float brushRadius = g_pApp->GetBrushRadius();
 
     g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform3f("uBrushPos", brushPos);
-    g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1f("uBrushRadius", brushRadius);
+    g_pApp->GetRenderer()->GetShader_UnlitTexturedColoredTerrain()->SetUniform1f("uBrushRadius", m_brushRadius);
 
     // g_pApp->GetTexture("Assets/Textures/Blendmap32x32.png")->BindUnit(0);
     m_pBlendTex->BindUnit(0);
@@ -371,6 +373,14 @@ void World::SaveHeightmap()
 
     delete[] pHeightmapData;
 }
+
+void World::OnBrushRadiusChanged(const IEventPtr& event)
+{
+    auto e = std::static_pointer_cast<BrushRadiusChangedEvent>(event);
+
+    m_brushRadius = e->radius;
+    printf("Brush radius changed (%f).\n", e->radius);
+}   
 
 /*
     for (int z = 0; z < m_extents.z; z++)

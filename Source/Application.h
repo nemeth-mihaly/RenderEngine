@@ -14,9 +14,10 @@
 #include "3rdParty/nlohmann/json.hpp"
 using Json = nlohmann::json;
 
-#include "Geometry.h"
+#include "Events/EventManager.h"
 
 #include "Renderer.h"
+#include "Geometry.h"
 
 #include "Camera.h"
 #include "World.h"
@@ -33,6 +34,25 @@ struct RayHit
 };
 
 //-----------------------------------------------------------------------------
+// class EditorUI
+//-----------------------------------------------------------------------------
+
+class EditorUI
+{
+ public:
+    EditorUI();
+    ~EditorUI();
+
+    void Init();
+
+    void Update(float deltaTime);
+    void Render();
+
+ private:
+    float m_brushRadius = 1.0f;
+};
+
+//-----------------------------------------------------------------------------
 // class Application
 //-----------------------------------------------------------------------------
 
@@ -46,6 +66,8 @@ class Application
     void RunLoop();
 
     const glm::ivec2& GetWindowSize() const { return m_windowSize; }
+
+    EventManager* GetEventManager() { return m_pEventManager; }
 
     Renderer* GetRenderer() { return m_pRenderer; }
 
@@ -67,7 +89,11 @@ class Application
     void OnMouseButtonUp(int button);
 
     glm::vec3& GetBrushPos() { return m_brushPos; }
+
+    void SetBrushRadius(float brushRadius) { m_brushRadius = brushRadius; }
     float GetBrushRadius() { return m_brushRadius; }
+
+    void OnBrushRadiusChanged(float radius);
 
  private:
     void ShowSceneNodeTree();
@@ -88,10 +114,16 @@ class Application
 
     glm::ivec2      m_currentMousePos;
 
+    bool            m_bShowEditorUI;
+    EditorUI        m_editorUI;
+
+    float           m_brushTimer = 0.0f;
     glm::vec3       m_brushPos;
-    float           m_brushRadius;
+    float           m_brushRadius = 1.0f;
 
     float       m_deltaTime;
+
+    EventManager*   m_pEventManager;
 
     Renderer*           m_pRenderer;
     std::shared_ptr<World> m_world;

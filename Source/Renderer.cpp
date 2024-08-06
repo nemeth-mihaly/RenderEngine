@@ -378,36 +378,6 @@ void Renderer::Render()
 
     glDisable(GL_BLEND);
 
-    /*
-    glm::vec3 position;
-    if (FindIntersectionPoint(position))
-    {
-        // std::cout << "p (" << position.x << ' ' << position.z << ")\n";
-        AddCross(position, 0.4f, glm::vec3(1, 0, 0));
-        
-        float radius = 1.0f;
-        m_lineRenderer.AddCircle(position, glm::vec3(0, 1, 0), radius, glm::vec3(1, 1, 1));
-
-        std::vector<Vertex_UnlitColored*> verts;
-
-        glm::ivec3 min;
-        min.x = glm::max(0, (int)glm::ceil(position.x - radius));
-        min.z = glm::max(0, (int)glm::ceil(position.z - radius));
-
-        glm::ivec3 max;
-        max.x = glm::min((m_extents.x - 1), (int)glm::floor(position.x + radius));
-        max.z = glm::min((m_extents.z - 1), (int)glm::floor(position.z + radius));
-
-        for (int z = min.z; z <= max.z; z++)
-        {
-            for (int x = min.x; x <= max.x; x++)
-            {
-                //  verts.push_back(&m_verts[x + z * m_extents.z]);
-            }       
-        }
-    }
-    */
-
     m_lineRenderer.Render(&m_shader_UnlitColored);
 
     m_framebuffer.Unbind();
