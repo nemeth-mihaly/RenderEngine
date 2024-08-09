@@ -18,6 +18,21 @@ using Json = nlohmann::json;
 
 #include "Material.h"
 
+typedef uint32_t SceneObjectID;
+static const SceneObjectID INVALID_SCENE_OBJECT_ID = 0;
+
+//-----------------------------------------------------------------------------
+// class ISceneObject
+//-----------------------------------------------------------------------------
+
+class ISceneObject
+{
+ public:
+    virtual ~ISceneObject() = default;
+
+    virtual const SceneObjectID& GetID() const = 0;
+};
+
 //-----------------------------------------------------------------------------
 // class SceneNode
 //-----------------------------------------------------------------------------

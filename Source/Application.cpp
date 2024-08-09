@@ -11,53 +11,6 @@
 Application* g_pApp = nullptr;
 
 //-----------------------------------------------------------------------------
-// EditorUI Implementation
-//-----------------------------------------------------------------------------
-
-EditorUI::EditorUI()
-{
-
-}
-
-EditorUI::~EditorUI()
-{
-
-}
-
-void EditorUI::Init()
-{
-    // m_func = std::bind(&EditorUI::OnBrushRadiusChanged, this, std::placeholders::_1);
-
-     g_pApp->GetEventManager()->TriggerEvent(std::make_shared<BrushRadiusChangedEvent>(m_brushRadius));
-}
-
-void EditorUI::Update(float deltaTime)
-{
-
-}
-
-void EditorUI::Render()
-{
-    ImGui::ShowDemoWindow();
-
-    ImGui::Begin("Brush Settings");
-
-    // static float radius = 1.0f;
-    if (ImGui::DragFloat("Radius", &m_brushRadius, 0.5f, 1.0f, 2000.0f))
-    {
-        g_pApp->GetEventManager()->TriggerEvent(std::make_shared<BrushRadiusChangedEvent>(m_brushRadius));
-    }
-
-    static float strength = 1.0f;
-    if (ImGui::DragFloat("Strength", &strength, 0.5f, 1.0f, 2000.0f))
-    {
-
-    }
-
-    ImGui::End();
-}
-
-//-----------------------------------------------------------------------------
 // enum SceneNodeEditorType
 //-----------------------------------------------------------------------------
 
@@ -148,10 +101,6 @@ Application::~Application()
 {
     SaveScene("Assets/Scenes/TestScene.json");
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
     if (m_pRenderer)
     {
         delete m_pRenderer;
@@ -225,14 +174,6 @@ bool Application::Init(int width, int height)
     m_cameraController2.Init(m_camera2);
 
     m_sceneNodeFactory.Init();
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplOpenGL3_Init();
 
     m_editorUI.Init();
 
@@ -332,7 +273,7 @@ void Application::RunLoop()
 
             if (m_bShowEditorUI)
             {
-                m_editorUI.Render();
+                m_editorUI.Draw();
             }
 
             // ImGui::ShowDemoWindow();

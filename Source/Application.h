@@ -27,29 +27,12 @@ using Json = nlohmann::json;
 #include "Mesh.h"
 #include "Texture.h"
 
+#include "UI/EditorUI.h"
+
 struct RayHit
 {
     Ray     ray;
     float   t;
-};
-
-//-----------------------------------------------------------------------------
-// class EditorUI
-//-----------------------------------------------------------------------------
-
-class EditorUI
-{
- public:
-    EditorUI();
-    ~EditorUI();
-
-    void Init();
-
-    void Update(float deltaTime);
-    void Render();
-
- private:
-    float m_brushRadius = 1.0f;
 };
 
 //-----------------------------------------------------------------------------
@@ -65,6 +48,7 @@ class Application
     bool Init(int width, int height);
     void RunLoop();
 
+    GLFWwindow& GetWindow() const { return *m_pWindow; }
     const glm::ivec2& GetWindowSize() const { return m_windowSize; }
 
     EventManager* GetEventManager() { return m_pEventManager; }
