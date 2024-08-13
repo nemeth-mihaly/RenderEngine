@@ -1,15 +1,15 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 
 #include "Application.h"
 
-int main(int argc, char* argv[])
+int main()
 {
     Application app;
-
-    if (app.Init(1920, 1080))
+    if (app.Init())
     {
-        app.RunLoop();
+        app.Run();
     }
 
     return 0;
