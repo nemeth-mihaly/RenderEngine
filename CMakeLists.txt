@@ -4,11 +4,11 @@ project(Engine VERSION 1.0.0)
 
 file(GLOB_RECURSE Sources "Source/*.c" "Source/*.cpp")
 
+add_compile_options(-Wall -Wextra -Wpedantic -ggdb)
+
 add_executable(Engine ${Sources})
 
 target_include_directories(Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source)
-
-add_compile_options(-Wall -Wextra -Wpedantic -ggdb)
 
 set(Msys2Libraries "C:/MSYS64/ucrt64/lib")
 
