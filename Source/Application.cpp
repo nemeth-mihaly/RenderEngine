@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <fstream>
+
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
@@ -12,19 +14,10 @@ Application::Application()
     m_bRunning = false;
 
     m_pWindow = nullptr;
-
-    /*
-    m_NumVerts = 0;
-    */
 }
 
 Application::~Application()
 {
-    /*
-    glDeleteBuffers(1, &m_VboId);
-    glDeleteVertexArrays(1, &m_VaoId);
-    */
-
     if (m_pWindow) { glfwDestroyWindow(m_pWindow); }
     glfwTerminate();
 }
@@ -40,41 +33,51 @@ bool Application::Initialize()
     gladLoadGL();
     if (GLVersion.major < 4 || (GLVersion.major == 4 && GLVersion.minor < 6)) { return false; }
 
-    m_actor.Init();
+    uint32_t vsId, fsId;
+    m_ShaderId = glCreateProgram();
 
-    /*
-    struct Vertex
     {
-        glm::vec3   Pos;
-        glm::vec3   Color;
-    };
+        std::ifstream file("Assets/Shaders/Shader.vert", std::ios::binary | std::ios::ate);
+        size_t size = (size_t)file.tellg();
+        file.seekg(0);
 
-    std::vector<Vertex> vertices;
-    vertices.resize(3);
+        char* pSource = new char[size + 1];
+        file.read(pSource, size);
+        pSource[size] = '\0';
+        file.close();
 
-    vertices[0].Pos = glm::vec3(-0.5f,-0.5f, 0.0f); vertices[0].Color = glm::vec3(1.0f, 0.0f, 0.0f);
-    vertices[1].Pos = glm::vec3( 0.5f,-0.5f, 0.0f); vertices[1].Color = glm::vec3(0.0f, 1.0f, 0.0f);
-    vertices[2].Pos = glm::vec3( 0.0f, 0.5f, 0.0f); vertices[2].Color = glm::vec3(0.0f, 0.0f, 1.0f);
+        vsId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vsId, 1, &pSource, nullptr);
+        glCompileShader(vsId);
 
-    glCreateVertexArrays(1, &m_VaoId);
+        delete[] pSource;
+    }
 
-    glCreateBuffers(1, &m_VboId);	
-    glNamedBufferData(m_VboId, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);;
+    {
+        std::ifstream file("Assets/Shaders/Shader.frag", std::ios::binary | std::ios::ate);
+        size_t size = (size_t)file.tellg();
+        file.seekg(0);
 
-    glVertexArrayVertexBuffer(m_VaoId, 0, m_VboId, 0, sizeof(Vertex));
+        char* pSource = new char[size + 1];
+        file.read(pSource, size);
+        pSource[size] = '\0';
+        file.close();
 
-    glEnableVertexArrayAttrib(m_VaoId, 0);
-    glEnableVertexArrayAttrib(m_VaoId, 1);
+        fsId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fsId, 1, &pSource, nullptr);
+        glCompileShader(fsId);
 
-    glVertexArrayAttribFormat(m_VaoId, 0, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribFormat(m_VaoId, 1, 3, GL_FLOAT, GL_FALSE, 12);
+        delete[] pSource;
+    }
 
-    glVertexArrayAttribBinding(m_VaoId, 0, 0);
-    glVertexArrayAttribBinding(m_VaoId, 1, 0);
+    glAttachShader(m_ShaderId, vsId);
+    glAttachShader(m_ShaderId, fsId);
+    glLinkProgram(m_ShaderId);
 
-    m_NumVerts = vertices.size();
-    vertices.clear();
-    */
+    glDeleteShader(vsId);
+    glDeleteShader(fsId);
+
+    m_actor.Init();
 
     m_bRunning = true;
     
@@ -95,12 +98,11 @@ void Application::Run()
         glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glUseProgram(m_ShaderId);
+
         m_actor.Draw();
 
-        /*
-        glBindVertexArray(m_VaoId);
-        glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
-        */
+        glUseProgram(0);
 
         glfwSwapBuffers(m_pWindow);
     }

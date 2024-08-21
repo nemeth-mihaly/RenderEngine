@@ -63,4 +63,6 @@ void Actor::Draw()
 {
     glBindVertexArray(m_VaoId);
     glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
+
+    glBindVertexArray(0);
 }

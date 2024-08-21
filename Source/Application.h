@@ -32,11 +32,7 @@ private:
 
     GLFWwindow*     m_pWindow;
 
+    uint32_t        m_ShaderId;
+
     Actor           m_actor;
-    
-    /*
-    int             m_NumVerts;
-    uint32_t        m_VaoId;
-    uint32_t        m_VboId;
-    */
 };
