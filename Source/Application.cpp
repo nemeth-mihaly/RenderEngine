@@ -38,6 +38,8 @@ Application::Application()
     m_pWindow = nullptr;
 
     memset(m_bKeys, 0x00, sizeof(m_bKeys));
+
+    m_LastActorId = 0;
 }
 
 Application::~Application()
@@ -164,7 +166,32 @@ bool Application::Initialize()
     glDeleteShader(vsId);
     glDeleteShader(fsId);
 
-    m_Actor.Init();
+    {
+        auto actor = std::make_shared<Actor>(m_LastActorId++);
+        actor->Init();
+
+        actor->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
+        m_Actors.push_back(actor);
+    }
+
+    {
+        auto actor = std::make_shared<Actor>(m_LastActorId++);
+        actor->Init();
+
+        actor->SetPosition(glm::vec3(-1.2f, 2.0f, 0.5f));
+
+        m_Actors.push_back(actor);
+    }
+
+    {
+        auto actor = std::make_shared<Actor>(m_LastActorId++);
+        actor->Init();
+
+        actor->SetPosition(glm::vec3(-0.2f,-2.5f,-3.0f));
+
+        m_Actors.push_back(actor);
+    }
 
     m_bRunning = true;
     
@@ -230,11 +257,14 @@ void Application::Run()
         glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uView"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uProj"), 1, GL_FALSE, glm::value_ptr(proj));
 
-        // Draw 'm_Actor'
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Actor.GetPosition());
-        glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        // Draw 'm_Actors'
+        for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), (*itr)->GetPosition());
+            glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
 
-        m_Actor.Draw();
+            (*itr)->Draw(); 
+        }
 
         glUseProgram(0);
 
@@ -249,13 +279,11 @@ void Application::Run()
         ImGui::Begin("Actors");
         ImGui::BeginChild("Actors.LeftPane", ImVec2(150, 0),  ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
         
-        /*
-        for (auto itr = m_actors.begin(); itr != m_actors.end(); itr++)
+        for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
         {
             std::string s = "Actor (" + std::to_string((*itr)->GetId()) + ")";
             ImGui::Selectable(s.c_str());
         }
-        */
         
         ImGui::EndChild();
         ImGui::End();
@@ -265,4 +293,36 @@ void Application::Run()
 
         glfwSwapBuffers(m_pWindow);
     }
+}
+
+void Application::CreateActor()
+{
+    m_Actors.push_back(std::make_shared<Actor>(m_LastActorId++));
+}
+
+void Application::DestroyActor(ActorId id)
+{
+    for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
+    {
+        if ((*itr)->GetId() != id) { continue; }
+        
+        if (m_Actors.size() > 1) 
+        { 
+            std::swap(m_Actors.back(), (*itr)); 
+        }
+        
+        m_Actors.pop_back();
+        return;
+    }
+}
+
+std::weak_ptr<Actor> Application::GetActor(ActorId id)
+{
+    for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
+    {
+        if ((*itr)->GetId() != id) { continue; }
+        return std::weak_ptr(*itr);
+    }
+
+    return std::weak_ptr<Actor>();
 }

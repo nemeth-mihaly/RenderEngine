@@ -76,6 +76,28 @@ void Console::Draw()
         {
             g_pApp->GetEventManager().TriggerEvent(std::make_shared<AppQuitEvent>());
         }
+        else if (stricmp(tokens[0].c_str(), "CREATEACTOR") == 0)
+        {
+            g_pApp->CreateActor();
+        }
+        else if (stricmp(tokens[0].c_str(), "DESTROYACTOR") == 0)
+        {
+            ActorId actorId = (ActorId)std::stoi(tokens[1]);
+            g_pApp->DestroyActor(actorId);
+        }
+        else if (stricmp(tokens[0].c_str(), "MOVEACTOR") == 0)
+        {
+            ActorId actorId = (ActorId)std::stoi(tokens[1]);
+            if (std::shared_ptr<Actor> actor = g_pApp->GetActor(actorId).lock())
+            {
+                glm::vec3 pos;
+                pos.x = std::stof(tokens[2]);
+                pos.y = std::stof(tokens[3]);
+                pos.z = std::stof(tokens[4]);
+
+                actor->SetPosition(pos);
+            }
+        }
         else
         {
             m_LastTexts.push_back("Unknown command '" + s + "'");

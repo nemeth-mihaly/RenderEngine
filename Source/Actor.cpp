@@ -9,7 +9,8 @@
 // Actor Implementation
 //-----------------------------------------------------------------------------
 
-Actor::Actor()
+Actor::Actor(ActorId id)
+    : m_Id(id)
 {
     printf("Creating Actor\n");
 

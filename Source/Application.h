@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #define GLFW_INCLUDE_NONE
@@ -35,6 +36,10 @@ public:
 
     EventManager& GetEventManager() { return m_EventManager; }
 
+    void CreateActor();
+    void DestroyActor(ActorId id);
+    std::weak_ptr<Actor> GetActor(ActorId id);
+
 private:
     bool            m_bRunning;
 
@@ -48,7 +53,8 @@ private:
 
     uint32_t        m_ShaderId;
 
-    Actor           m_Actor;
+    ActorId         m_LastActorId;
+    std::vector<std::shared_ptr<Actor>> m_Actors;
 
     glm::vec3       m_Pos = glm::vec3(0.0f, 0.0f, 5.0f);
     glm::vec3       m_Dir = glm::vec3(0.0f, 0.0f,-1.0f);

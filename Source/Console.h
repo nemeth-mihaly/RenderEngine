@@ -16,6 +16,6 @@ public:
     void Draw();
 
 private:
-    bool m_bScroll = false;
-    std::vector<std::string> m_LastTexts;
+    bool                        m_bScroll = false;
+    std::vector<std::string>    m_LastTexts;
 };
