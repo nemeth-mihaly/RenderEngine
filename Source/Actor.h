@@ -20,7 +20,12 @@ public:
     void Init();
     void Draw();
 
+    void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
+    const glm::vec3& GetPosition() const { return m_Pos; }
+
 private:
+    glm::vec3       m_Pos;
+
     int             m_NumVerts;
     uint32_t        m_VaoId;
     uint32_t        m_VboId;

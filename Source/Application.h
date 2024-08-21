@@ -12,6 +12,8 @@
 
 #include "EventManager.h"
 
+#include "Console.h"
+
 #include "Actor.h"
 
 //-----------------------------------------------------------------------------
@@ -30,6 +32,7 @@ public:
     void Run();
 
     GLFWwindow& GetWindow() { return *m_pWindow; }
+
     EventManager& GetEventManager() { return m_EventManager; }
 
 private:
@@ -39,9 +42,17 @@ private:
 
     EventManager    m_EventManager;
 
+    bool            m_bKeys[GLFW_KEY_LAST];
+
+    Console         m_Console;
+
     uint32_t        m_ShaderId;
 
     Actor           m_Actor;
+
+    glm::vec3       m_Pos = glm::vec3(0.0f, 0.0f, 5.0f);
+    glm::vec3       m_Dir = glm::vec3(0.0f, 0.0f,-1.0f);
+    glm::vec3       m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 };
 
 extern Application* g_pApp;

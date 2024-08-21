@@ -13,6 +13,8 @@ Actor::Actor()
 {
     printf("Creating Actor\n");
 
+    m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
+
     m_NumVerts = 0;
 }
 

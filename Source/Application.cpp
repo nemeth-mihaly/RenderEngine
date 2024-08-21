@@ -5,6 +5,10 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
+#include "3rdParty/ImGui/imgui.h"
+#include "3rdParty/ImGui/imgui_impl_glfw.h"
+#include "3rdParty/ImGui/imgui_impl_opengl3.h"
+
 Application* g_pApp = nullptr;
 
 static void GlfwWindowCloseCallback([[maybe_unused]] GLFWwindow* pWindow) { g_pApp->GetEventManager().TriggerEvent(std::make_shared<AppQuitEvent>()); }
@@ -32,11 +36,17 @@ Application::Application()
     m_bRunning = false;
 
     m_pWindow = nullptr;
+
+    memset(m_bKeys, 0x00, sizeof(m_bKeys));
 }
 
 Application::~Application()
 {
     glDeleteShader(m_ShaderId);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     if (m_pWindow) { glfwDestroyWindow(m_pWindow); }
     glfwTerminate();
@@ -57,17 +67,23 @@ void Application::OnEvent(std::shared_ptr<IEvent> event)
         case KeyDownEvent::s_Type:
         {
             auto evt = std::static_pointer_cast<KeyDownEvent>(event);
-            if (evt->GetKeyId() == GLFW_KEY_ESCAPE)
+
+            int keyId = evt->GetKeyId();
+            if (keyId == GLFW_KEY_ESCAPE)
             {
                 m_bRunning = false;
             }
             
+            m_bKeys[keyId] = true;
+
             break;            
         }
 
         case KeyUpEvent::s_Type:
         {
             auto evt = std::static_pointer_cast<KeyUpEvent>(event);
+            m_bKeys[evt->GetKeyId()] = false;
+    
             break;        
         }
     }
@@ -91,6 +107,18 @@ bool Application::Initialize()
 
     m_EventManager.AddListener(KeyDownEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
     m_EventManager.AddListener(KeyUpEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsLight(&ImGui::GetStyle());
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf", 18);
+
+    ImGui_ImplGlfw_InitForOpenGL(&g_pApp->GetWindow(), true);
+    ImGui_ImplOpenGL3_Init();
+
+    m_Console.Initialize();
 
     uint32_t vsId, fsId;
     m_ShaderId = glCreateProgram();
@@ -145,9 +173,46 @@ bool Application::Initialize()
 
 void Application::Run()
 {
+    float lastTime = (float)glfwGetTime();
+
     while (m_bRunning)
     {
+        float time = (float)glfwGetTime();
+        float dt = time - lastTime;
+
+        lastTime = time;
+
         glfwPollEvents();
+
+        float speed = 10.5f;
+        glm::vec3 right = glm::cross(m_Dir, m_Up);
+
+        if (m_bKeys[GLFW_KEY_W])
+        {
+            m_Pos += m_Dir * speed * dt;
+        }
+        else if (m_bKeys[GLFW_KEY_S])
+        {
+            m_Pos -= m_Dir * speed * dt;
+        }
+
+        if (m_bKeys[GLFW_KEY_A])
+        {
+            m_Pos -= right * speed * dt;
+        }
+        else if (m_bKeys[GLFW_KEY_D])
+        {
+            m_Pos += right * speed * dt;
+        }
+
+        if (m_bKeys[GLFW_KEY_Q])
+        {
+            m_Pos += m_Up * speed * dt;
+        }
+        else if (m_bKeys[GLFW_KEY_E])
+        {
+            m_Pos -= m_Up * speed * dt;
+        }
 
         int width, height;
         glfwGetFramebufferSize(m_pWindow, &width, &height);
@@ -159,9 +224,44 @@ void Application::Run()
 
         glUseProgram(m_ShaderId);
 
+        glm::mat4 view = glm::lookAt(m_Pos, m_Pos + m_Dir, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
+
+        glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uView"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uProj"), 1, GL_FALSE, glm::value_ptr(proj));
+
+        // Draw 'm_Actor'
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Actor.GetPosition());
+        glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+
         m_Actor.Draw();
 
         glUseProgram(0);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
+        m_Console.Draw();
+
+        ImGui::Begin("Actors");
+        ImGui::BeginChild("Actors.LeftPane", ImVec2(150, 0),  ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+        
+        /*
+        for (auto itr = m_actors.begin(); itr != m_actors.end(); itr++)
+        {
+            std::string s = "Actor (" + std::to_string((*itr)->GetId()) + ")";
+            ImGui::Selectable(s.c_str());
+        }
+        */
+        
+        ImGui::EndChild();
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(m_pWindow);
     }
