@@ -1,13 +1,11 @@
-#include <cstddef>
-#include <cstdint>
 #include <cstdio>
 
 #include "Application.h"
 
 int main()
 {
-    Application app;
-    if (app.Init())
+    Application     app;
+    if (app.Initialize())
     {
         app.Run();
     }
