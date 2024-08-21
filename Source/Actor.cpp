@@ -1,48 +1,31 @@
-#include "Application.h"
+#include "Actor.h"
+
+#include <cstdio>
 
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
 //-----------------------------------------------------------------------------
-// Application Implementation
+// Actor Implementation
 //-----------------------------------------------------------------------------
 
-Application::Application()
+Actor::Actor()
 {
-    m_bRunning = false;
+    printf("Creating Actor\n");
 
-    m_pWindow = nullptr;
-
-    /*
     m_NumVerts = 0;
-    */
 }
 
-Application::~Application()
+Actor::~Actor()
 {
-    /*
+    printf("Destroying Actor\n");
+
     glDeleteBuffers(1, &m_VboId);
     glDeleteVertexArrays(1, &m_VaoId);
-    */
-
-    if (m_pWindow) { glfwDestroyWindow(m_pWindow); }
-    glfwTerminate();
 }
 
-bool Application::Initialize()
+void Actor::Init()
 {
-    glfwInit();
-    m_pWindow = glfwCreateWindow(1280, 720, "No title", nullptr, nullptr);
-
-    glfwMakeContextCurrent(m_pWindow);
-    glfwSwapInterval(0);
-
-    gladLoadGL();
-    if (GLVersion.major < 4 || (GLVersion.major == 4 && GLVersion.minor < 6)) { return false; }
-
-    m_actor.Init();
-
-    /*
     struct Vertex
     {
         glm::vec3   Pos;
@@ -74,34 +57,10 @@ bool Application::Initialize()
 
     m_NumVerts = vertices.size();
     vertices.clear();
-    */
-
-    m_bRunning = true;
-    
-    return true;
 }
 
-void Application::Run()
+void Actor::Draw()
 {
-    while (m_bRunning && !glfwWindowShouldClose(m_pWindow))
-    {
-        glfwPollEvents();
-
-        int width, height;
-        glfwGetFramebufferSize(m_pWindow, &width, &height);
-
-        glViewport(0, 0, width, height);
-
-        glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        m_actor.Draw();
-
-        /*
-        glBindVertexArray(m_VaoId);
-        glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
-        */
-
-        glfwSwapBuffers(m_pWindow);
-    }
+    glBindVertexArray(m_VaoId);
+    glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
 }
