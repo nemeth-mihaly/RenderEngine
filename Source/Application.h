@@ -10,6 +10,8 @@
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
 #include "3rdParty/glm/gtc/type_ptr.hpp"
 
+#include "EventManager.h"
+
 #include "Actor.h"
 
 //-----------------------------------------------------------------------------
@@ -22,17 +24,24 @@ public:
     Application();
     ~Application();
 
+    void OnEvent(std::shared_ptr<IEvent> event);
+
     bool Initialize();
     void Run();
 
     GLFWwindow& GetWindow() { return *m_pWindow; }
+    EventManager& GetEventManager() { return m_EventManager; }
 
 private:
     bool            m_bRunning;
 
     GLFWwindow*     m_pWindow;
 
+    EventManager    m_EventManager;
+
     uint32_t        m_ShaderId;
 
-    Actor           m_actor;
+    Actor           m_Actor;
 };
+
+extern Application* g_pApp;
