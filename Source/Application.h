@@ -29,7 +29,7 @@ public:
 
     void OnEvent(std::shared_ptr<IEvent> event);
 
-    bool Initialize();
+    bool Init();
     void Run();
 
     GLFWwindow& GetWindow() { return *m_pWindow; }

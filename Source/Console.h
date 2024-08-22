@@ -12,10 +12,10 @@ class Console
 public:
     Console();
 
-    void Initialize();
+    void Init();
     void Draw();
 
 private:
-    bool                        m_bScroll = false;
+    bool                        m_bScrollDown;
     std::vector<std::string>    m_LastTexts;
 };

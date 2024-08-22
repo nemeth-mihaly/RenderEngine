@@ -12,10 +12,10 @@
 
 Console::Console()
 {
-
+    m_bScrollDown = false;
 }
 
-void Console::Initialize()
+void Console::Init()
 {
 
 }
@@ -32,10 +32,10 @@ void Console::Draw()
         ImGui::TextUnformatted((*itr).c_str());
     }
     
-    if (m_bScroll) 
+    if (m_bScrollDown) 
     {
         ImGui::SetScrollHereY(1.0f);
-        m_bScroll = false;
+        m_bScrollDown = false;
     }
     
     ImGui::EndChild();
@@ -53,7 +53,7 @@ void Console::Draw()
 
         std::vector<std::string> tokens;
 
-        int pos = 0;
+        size_t pos = 0;
         while (pos < s.size())
         {
             pos = s.find(' ');
@@ -64,28 +64,28 @@ void Console::Draw()
 
         tokens.push_back(s);
 
-        if (stricmp(tokens[0].c_str(), "HELP") == 0)
+        if (stricmp(tokens[0].c_str(), "Help") == 0)
         {   
             
         }
-        else if (stricmp(tokens[0].c_str(), "CLEAR") == 0)
+        else if (stricmp(tokens[0].c_str(), "Clear") == 0)
         {
             m_LastTexts.clear();
         }
-        else if (stricmp(tokens[0].c_str(), "QUIT") == 0)
+        else if (stricmp(tokens[0].c_str(), "Quit") == 0)
         {
             g_pApp->GetEventManager().TriggerEvent(std::make_shared<AppQuitEvent>());
         }
-        else if (stricmp(tokens[0].c_str(), "CREATEACTOR") == 0)
+        else if (stricmp(tokens[0].c_str(), "CreateActor") == 0)
         {
             g_pApp->CreateActor();
         }
-        else if (stricmp(tokens[0].c_str(), "DESTROYACTOR") == 0)
+        else if (stricmp(tokens[0].c_str(), "DestroyActor") == 0)
         {
             ActorId actorId = (ActorId)std::stoi(tokens[1]);
             g_pApp->DestroyActor(actorId);
         }
-        else if (stricmp(tokens[0].c_str(), "MOVEACTOR") == 0)
+        else if (stricmp(tokens[0].c_str(), "MoveActor") == 0)
         {
             ActorId actorId = (ActorId)std::stoi(tokens[1]);
             if (std::shared_ptr<Actor> actor = g_pApp->GetActor(actorId).lock())
@@ -95,7 +95,7 @@ void Console::Draw()
                 pos.y = std::stof(tokens[3]);
                 pos.z = std::stof(tokens[4]);
 
-                actor->SetPosition(pos);
+                if (std::shared_ptr<TransformComponent> component = actor->GetTransformComponent().lock()) { component->SetPosition(pos); }
             }
         }
         else
@@ -103,7 +103,7 @@ void Console::Draw()
             m_LastTexts.push_back("Unknown command '" + s + "'");
         }
 
-        m_bScroll = true;
+        m_bScrollDown = true;
         bReclaimfocus = true;
     }
 

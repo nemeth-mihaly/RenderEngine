@@ -1,11 +1,17 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "3rdParty/glm/glm.hpp"
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
 #include "3rdParty/glm/gtc/type_ptr.hpp"
+
+#include "ActorComponents.h"
+
+#include "Mesh.h"
 
 typedef uint32_t ActorId;
 
@@ -20,19 +26,17 @@ public:
     ~Actor();
 
     void Init();
-    void Draw();
-
+    
     ActorId GetId() const { return m_Id; }
 
-    void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
-    const glm::vec3& GetPosition() const { return m_Pos; }
+    void AddComponent(std::shared_ptr<ActorComponent> component);
+
+    std::weak_ptr<TransformComponent> GetTransformComponent();
+    std::weak_ptr<MeshDrawComponent> GetMeshDrawComponent();
 
 private:
     ActorId         m_Id;
+    std::unordered_map<ActorComponentType, std::shared_ptr<ActorComponent>> m_Components;
 
-    glm::vec3       m_Pos;
-
-    int             m_NumVerts;
-    uint32_t        m_VaoId;
-    uint32_t        m_VboId;
+    std::shared_ptr<Mesh> m_Mesh;
 };

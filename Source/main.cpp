@@ -5,7 +5,7 @@
 int main()
 {
     Application     app;
-    if (app.Initialize())
+    if (app.Init())
     {
         app.Run();
     }

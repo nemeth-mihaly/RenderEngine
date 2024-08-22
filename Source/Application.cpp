@@ -141,7 +141,7 @@ void Application::OnEvent(std::shared_ptr<IEvent> event)
     }
 }
 
-bool Application::Initialize()
+bool Application::Init()
 {
     glfwInit();
     m_pWindow = glfwCreateWindow(1280, 720, "No title", nullptr, nullptr);
@@ -178,7 +178,7 @@ bool Application::Initialize()
     ImGui_ImplGlfw_InitForOpenGL(&g_pApp->GetWindow(), true);
     ImGui_ImplOpenGL3_Init();
 
-    m_Console.Initialize();
+    m_Console.Init();
 
     uint32_t vsId, fsId;
     m_ShaderId = glCreateProgram();
@@ -223,33 +223,6 @@ bool Application::Initialize()
 
     glDeleteShader(vsId);
     glDeleteShader(fsId);
-
-    {
-        auto actor = std::make_shared<Actor>(m_LastActorId++);
-        actor->Init();
-
-        actor->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-
-        m_Actors.push_back(actor);
-    }
-
-    {
-        auto actor = std::make_shared<Actor>(m_LastActorId++);
-        actor->Init();
-
-        actor->SetPosition(glm::vec3(-1.2f, 2.0f, 0.5f));
-
-        m_Actors.push_back(actor);
-    }
-
-    {
-        auto actor = std::make_shared<Actor>(m_LastActorId++);
-        actor->Init();
-
-        actor->SetPosition(glm::vec3(-0.2f,-2.5f,-3.0f));
-
-        m_Actors.push_back(actor);
-    }
 
     m_bRunning = true;
     
@@ -338,10 +311,18 @@ void Application::Run()
         // Draw 'm_Actors'
         for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
         {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), (*itr)->GetPosition());
-            glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+            if (std::shared_ptr<TransformComponent> component = (*itr)->GetTransformComponent().lock())
+            {
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), component->GetPosition());
+                glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+            }
 
-            (*itr)->Draw(); 
+            // (*itr)->Draw(); 
+
+            if (std::shared_ptr<MeshDrawComponent> component = (*itr)->GetMeshDrawComponent().lock())
+            {
+                component->GetMesh()->Draw();
+            }
         }
 
         glUseProgram(0);
@@ -375,7 +356,10 @@ void Application::Run()
 
 void Application::CreateActor()
 {
-    m_Actors.push_back(std::make_shared<Actor>(m_LastActorId++));
+    auto actor = std::make_shared<Actor>(m_LastActorId++);
+    actor->Init();
+
+    m_Actors.push_back(actor);
 }
 
 void Application::DestroyActor(ActorId id)

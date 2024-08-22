@@ -13,59 +13,54 @@ Actor::Actor(ActorId id)
     : m_Id(id)
 {
     printf("Creating Actor\n");
-
-    m_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    m_NumVerts = 0;
 }
 
 Actor::~Actor()
 {
     printf("Destroying Actor\n");
-
-    glDeleteBuffers(1, &m_VboId);
-    glDeleteVertexArrays(1, &m_VaoId);
 }
 
 void Actor::Init()
 {
-    struct Vertex
-    {
-        glm::vec3   Pos;
-        glm::vec3   Color;
-    };
+    AddComponent(std::make_shared<TransformComponent>());
 
-    std::vector<Vertex> vertices;
-    vertices.resize(3);
+    m_Mesh = std::make_shared<Mesh>();
+    m_Mesh->Init();
+    
+    auto meshDrawComponent = std::make_shared<MeshDrawComponent>();
+    meshDrawComponent->SetMesh(m_Mesh);
 
-    vertices[0].Pos = glm::vec3(-0.5f,-0.5f, 0.0f); vertices[0].Color = glm::vec3(1.0f, 0.0f, 0.0f);
-    vertices[1].Pos = glm::vec3( 0.5f,-0.5f, 0.0f); vertices[1].Color = glm::vec3(0.0f, 1.0f, 0.0f);
-    vertices[2].Pos = glm::vec3( 0.0f, 0.5f, 0.0f); vertices[2].Color = glm::vec3(0.0f, 0.0f, 1.0f);
-
-    glCreateVertexArrays(1, &m_VaoId);
-
-    glCreateBuffers(1, &m_VboId);	
-    glNamedBufferData(m_VboId, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);;
-
-    glVertexArrayVertexBuffer(m_VaoId, 0, m_VboId, 0, sizeof(Vertex));
-
-    glEnableVertexArrayAttrib(m_VaoId, 0);
-    glEnableVertexArrayAttrib(m_VaoId, 1);
-
-    glVertexArrayAttribFormat(m_VaoId, 0, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribFormat(m_VaoId, 1, 3, GL_FLOAT, GL_FALSE, 12);
-
-    glVertexArrayAttribBinding(m_VaoId, 0, 0);
-    glVertexArrayAttribBinding(m_VaoId, 1, 0);
-
-    m_NumVerts = vertices.size();
-    vertices.clear();
+    AddComponent(meshDrawComponent);
 }
 
-void Actor::Draw()
+void Actor::AddComponent(std::shared_ptr<ActorComponent> component)
 {
-    glBindVertexArray(m_VaoId);
-    glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
+    auto findItr = m_Components.find(component->GetType());
+    if (findItr != m_Components.end()) { return; }
 
-    glBindVertexArray(0);
+    m_Components[component->GetType()] = component;
+}
+
+std::weak_ptr<TransformComponent> Actor::GetTransformComponent()
+{
+    auto findItr = m_Components.find(TransformComponent::s_Type);
+    if (findItr != m_Components.end()) 
+    { 
+        std::shared_ptr<TransformComponent> component = std::static_pointer_cast<TransformComponent>(findItr->second);
+        return std::weak_ptr<TransformComponent>(component); 
+    }
+
+    return std::weak_ptr<TransformComponent>();
+}
+
+std::weak_ptr<MeshDrawComponent> Actor::GetMeshDrawComponent()
+{
+    auto findItr = m_Components.find(MeshDrawComponent::s_Type);
+    if (findItr != m_Components.end()) 
+    { 
+        std::shared_ptr<MeshDrawComponent> component = std::static_pointer_cast<MeshDrawComponent>(findItr->second);
+        return std::weak_ptr<MeshDrawComponent>(component); 
+    }
+
+    return std::weak_ptr<MeshDrawComponent>();
 }
