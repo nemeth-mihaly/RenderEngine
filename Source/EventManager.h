@@ -32,6 +32,67 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// class MouseMoveEvent
+//-----------------------------------------------------------------------------
+
+class MouseMoveEvent : public IEvent
+{
+public:
+    static constexpr EventType s_Type = 0x7CD4DD93;
+
+    MouseMoveEvent(float x, float y) : m_X(x), m_Y(y) {}
+    virtual EventType GetType() const { return s_Type; }
+
+    float GetX() const { return m_X; }
+    float GetY() const { return m_Y; }
+
+private:
+    float m_X;
+    float m_Y;
+};
+
+//-----------------------------------------------------------------------------
+// class BaseMouseButtonEvent
+//-----------------------------------------------------------------------------
+
+class BaseMouseButtonEvent : public IEvent
+{
+public:
+    BaseMouseButtonEvent(int buttonId) : m_ButtonId(buttonId) {}
+
+    int GetButtonId() const { return m_ButtonId; }
+
+private:
+    int m_ButtonId;
+};
+
+//-----------------------------------------------------------------------------
+// class MouseButtonDownEvent
+//-----------------------------------------------------------------------------
+
+class MouseButtonDownEvent : public BaseMouseButtonEvent
+{
+public:
+    static constexpr EventType s_Type = 0x3066B9AF;
+
+    MouseButtonDownEvent(int buttonId) : BaseMouseButtonEvent(buttonId) {}
+    virtual EventType GetType() const { return s_Type; }
+};
+
+//-----------------------------------------------------------------------------
+// class MouseButtonUpEvent
+//-----------------------------------------------------------------------------
+
+class MouseButtonUpEvent : public BaseMouseButtonEvent
+{
+public:
+    static constexpr EventType s_Type = 0x41CE3032;
+
+    MouseButtonUpEvent(int buttonId) : BaseMouseButtonEvent(buttonId) {}
+    virtual EventType GetType() const { return s_Type; }
+};
+
+//-----------------------------------------------------------------------------
 // class BaseKeyEvent
 //-----------------------------------------------------------------------------
 

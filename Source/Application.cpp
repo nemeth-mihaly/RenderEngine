@@ -13,6 +13,20 @@ Application* g_pApp = nullptr;
 
 static void GlfwWindowCloseCallback([[maybe_unused]] GLFWwindow* pWindow) { g_pApp->GetEventManager().TriggerEvent(std::make_shared<AppQuitEvent>()); }
 
+static void GlfwCursorPosCallback([[maybe_unused]] GLFWwindow* pWindow, double x, double y) { g_pApp->GetEventManager().TriggerEvent(std::make_shared<MouseMoveEvent>(x, y)); }
+
+static void GlfwMouseButtonCallback([[maybe_unused]] GLFWwindow* pWindow, int button, int action, [[maybe_unused]] int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        g_pApp->GetEventManager().TriggerEvent(std::make_shared<MouseButtonDownEvent>(button));
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        g_pApp->GetEventManager().TriggerEvent(std::make_shared<MouseButtonUpEvent>(button));
+    } 
+}
+
 static void GlfwKeyCallback([[maybe_unused]] GLFWwindow* pWindow, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
 {
     if (action == GLFW_PRESS)
@@ -37,6 +51,9 @@ Application::Application()
 
     m_pWindow = nullptr;
 
+    m_MousePos = glm::vec2(0.0f, 0.0f);
+    m_LastMousePos = m_MousePos;
+    m_bRightMouseButtonDown = false;
     memset(m_bKeys, 0x00, sizeof(m_bKeys));
 
     m_LastActorId = 0;
@@ -65,6 +82,39 @@ void Application::OnEvent(std::shared_ptr<IEvent> event)
 
             break;
         }
+
+        case MouseMoveEvent::s_Type:
+        {
+            auto evt = std::static_pointer_cast<MouseMoveEvent>(event);
+            m_MousePos.x = evt->GetX();
+            m_MousePos.y = evt->GetY();
+
+            break;
+        }
+
+        case MouseButtonDownEvent::s_Type:
+        {
+            auto evt = std::static_pointer_cast<MouseButtonDownEvent>(event);
+
+            if (evt->GetButtonId() == GLFW_MOUSE_BUTTON_RIGHT)
+            {
+                m_bRightMouseButtonDown = true;
+            }
+
+            break;
+        }
+
+        case MouseButtonUpEvent::s_Type:
+        {
+            auto evt = std::static_pointer_cast<MouseButtonUpEvent>(event);
+
+            if (evt->GetButtonId() == GLFW_MOUSE_BUTTON_RIGHT)
+            {
+                m_bRightMouseButtonDown = false;
+            }
+
+            break;
+        }    
 
         case KeyDownEvent::s_Type:
         {
@@ -97,6 +147,10 @@ bool Application::Initialize()
     m_pWindow = glfwCreateWindow(1280, 720, "No title", nullptr, nullptr);
 
     glfwSetWindowCloseCallback(m_pWindow, GlfwWindowCloseCallback);
+
+    glfwSetCursorPosCallback(m_pWindow, GlfwCursorPosCallback);
+    glfwSetMouseButtonCallback(m_pWindow, GlfwMouseButtonCallback);
+
     glfwSetKeyCallback(m_pWindow, GlfwKeyCallback);
 
     glfwMakeContextCurrent(m_pWindow);
@@ -106,6 +160,10 @@ bool Application::Initialize()
     if (GLVersion.major < 4 || (GLVersion.major == 4 && GLVersion.minor < 6)) { return false; }
 
     m_EventManager.AddListener(AppQuitEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
+
+    m_EventManager.AddListener(MouseMoveEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
+    m_EventManager.AddListener(MouseButtonDownEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
+    m_EventManager.AddListener(MouseButtonUpEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
     m_EventManager.AddListener(KeyDownEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
     m_EventManager.AddListener(KeyUpEvent::s_Type, std::bind(&Application::OnEvent, this, std::placeholders::_1));
@@ -211,34 +269,54 @@ void Application::Run()
 
         glfwPollEvents();
 
-        float speed = 10.5f;
-        glm::vec3 right = glm::cross(m_Dir, m_Up);
+        glm::vec2 deltaMousePos = m_MousePos - m_LastMousePos;
+        m_LastMousePos = m_MousePos;
 
-        if (m_bKeys[GLFW_KEY_W])
+        if (m_bRightMouseButtonDown)
         {
-            m_Pos += m_Dir * speed * dt;
-        }
-        else if (m_bKeys[GLFW_KEY_S])
-        {
-            m_Pos -= m_Dir * speed * dt;
-        }
+            if (!(deltaMousePos.x == 0 && deltaMousePos.y == 0))
+            {
+                const float rotationSpeed = 0.085f;
+                m_Yaw += deltaMousePos.x * rotationSpeed;
+                m_Pitch += -deltaMousePos.y * rotationSpeed;
 
-        if (m_bKeys[GLFW_KEY_A])
-        {
-            m_Pos -= right * speed * dt;
-        }
-        else if (m_bKeys[GLFW_KEY_D])
-        {
-            m_Pos += right * speed * dt;
-        }
+                glm::vec3 dir;
+                dir.x = cosf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                dir.y = sinf(glm::radians(m_Pitch));
+                dir.z = sinf(glm::radians(m_Yaw)) * cosf(glm::radians(m_Pitch));
+                
+                m_Dir = glm::normalize(dir);
+            }
 
-        if (m_bKeys[GLFW_KEY_Q])
-        {
-            m_Pos += m_Up * speed * dt;
-        }
-        else if (m_bKeys[GLFW_KEY_E])
-        {
-            m_Pos -= m_Up * speed * dt;
+            float speed = 10.5f;
+            glm::vec3 right = glm::cross(m_Dir, m_Up);
+
+            if (m_bKeys[GLFW_KEY_W])
+            {
+                m_Pos += m_Dir * speed * dt;
+            }
+            else if (m_bKeys[GLFW_KEY_S])
+            {
+                m_Pos -= m_Dir * speed * dt;
+            }
+
+            if (m_bKeys[GLFW_KEY_A])
+            {
+                m_Pos -= right * speed * dt;
+            }
+            else if (m_bKeys[GLFW_KEY_D])
+            {
+                m_Pos += right * speed * dt;
+            }
+
+            if (m_bKeys[GLFW_KEY_Q])
+            {
+                m_Pos += m_Up * speed * dt;
+            }
+            else if (m_bKeys[GLFW_KEY_E])
+            {
+                m_Pos -= m_Up * speed * dt;
+            }
         }
 
         int width, height;

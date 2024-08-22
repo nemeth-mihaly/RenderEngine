@@ -47,6 +47,9 @@ private:
 
     EventManager    m_EventManager;
 
+    glm::vec2       m_MousePos;
+    glm::vec2       m_LastMousePos;
+    bool            m_bRightMouseButtonDown;
     bool            m_bKeys[GLFW_KEY_LAST];
 
     Console         m_Console;
@@ -56,6 +59,8 @@ private:
     ActorId         m_LastActorId;
     std::vector<std::shared_ptr<Actor>> m_Actors;
 
+    float           m_Yaw = -90.0f;
+    float           m_Pitch = 0.0f;
     glm::vec3       m_Pos = glm::vec3(0.0f, 0.0f, 5.0f);
     glm::vec3       m_Dir = glm::vec3(0.0f, 0.0f,-1.0f);
     glm::vec3       m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
