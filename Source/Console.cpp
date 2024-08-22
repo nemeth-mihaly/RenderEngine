@@ -95,7 +95,7 @@ void Console::Draw()
                 pos.y = std::stof(tokens[3]);
                 pos.z = std::stof(tokens[4]);
 
-                if (std::shared_ptr<TransformComponent> component = actor->GetTransformComponent().lock()) { component->SetPosition(pos); }
+                if (auto transformComponent = actor->GetComponent<TransformComponent>().lock()) { transformComponent->SetPosition(pos); }
             }
         }
         else

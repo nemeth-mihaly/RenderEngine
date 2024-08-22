@@ -311,17 +311,15 @@ void Application::Run()
         // Draw 'm_Actors'
         for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
         {
-            if (std::shared_ptr<TransformComponent> component = (*itr)->GetTransformComponent().lock())
+            if (auto transformComponent = (*itr)->GetComponent<TransformComponent>().lock()) 
             {
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), component->GetPosition());
-                glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), transformComponent->GetPosition());
+                glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));       
             }
 
-            // (*itr)->Draw(); 
-
-            if (std::shared_ptr<MeshDrawComponent> component = (*itr)->GetMeshDrawComponent().lock())
+            if (auto meshDrawComponent = (*itr)->GetComponent<MeshDrawComponent>().lock())
             {
-                component->GetMesh()->Draw();
+                    meshDrawComponent->GetMesh()->Draw();
             }
         }
 

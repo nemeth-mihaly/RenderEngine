@@ -40,27 +40,3 @@ void Actor::AddComponent(std::shared_ptr<ActorComponent> component)
 
     m_Components[component->GetType()] = component;
 }
-
-std::weak_ptr<TransformComponent> Actor::GetTransformComponent()
-{
-    auto findItr = m_Components.find(TransformComponent::s_Type);
-    if (findItr != m_Components.end()) 
-    { 
-        std::shared_ptr<TransformComponent> component = std::static_pointer_cast<TransformComponent>(findItr->second);
-        return std::weak_ptr<TransformComponent>(component); 
-    }
-
-    return std::weak_ptr<TransformComponent>();
-}
-
-std::weak_ptr<MeshDrawComponent> Actor::GetMeshDrawComponent()
-{
-    auto findItr = m_Components.find(MeshDrawComponent::s_Type);
-    if (findItr != m_Components.end()) 
-    { 
-        std::shared_ptr<MeshDrawComponent> component = std::static_pointer_cast<MeshDrawComponent>(findItr->second);
-        return std::weak_ptr<MeshDrawComponent>(component); 
-    }
-
-    return std::weak_ptr<MeshDrawComponent>();
-}
