@@ -18,6 +18,8 @@ World::~World()
 {
     glDeleteBuffers(1, &m_VboId);
     glDeleteVertexArrays(1, &m_VaoId);
+
+    glDeleteShader(m_ShaderId);
 }
 
 void World::Init()
@@ -75,11 +77,15 @@ void World::Init()
     };
 
     std::vector<Vertex> vertices;
-    vertices.resize(3);
+    vertices.resize(6);
 
-    vertices[0].Pos = glm::vec3(-0.5f,-0.5f, 0.0f); vertices[0].Color = glm::vec3(1.0f, 0.0f, 0.0f);
-    vertices[1].Pos = glm::vec3( 0.5f,-0.5f, 0.0f); vertices[1].Color = glm::vec3(0.0f, 1.0f, 0.0f);
-    vertices[2].Pos = glm::vec3( 0.0f, 0.5f, 0.0f); vertices[2].Color = glm::vec3(0.0f, 0.0f, 1.0f);
+    vertices[0].Pos = glm::vec3(-0.5f, 0.0f,-0.5f); vertices[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+    vertices[1].Pos = glm::vec3(-0.5f, 0.0f, 0.5f); vertices[1].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+    vertices[2].Pos = glm::vec3( 0.5f, 0.0f,-0.5f); vertices[2].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    vertices[3].Pos = glm::vec3( 0.5f, 0.0f,-0.5f); vertices[3].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+    vertices[4].Pos = glm::vec3(-0.5f, 0.0f, 0.5f); vertices[4].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+    vertices[5].Pos = glm::vec3( 0.5f, 0.0f, 0.5f); vertices[5].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
     glCreateVertexArrays(1, &m_VaoId);
 
@@ -101,13 +107,10 @@ void World::Init()
     vertices.clear();
 }
 
-void World::Update(float deltaTime)
-{
-
-}
-
 void World::Draw()
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glUseProgram(m_ShaderId);
 
     glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));  
@@ -117,4 +120,6 @@ void World::Draw()
 
     glBindVertexArray(0);
     glUseProgram(0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

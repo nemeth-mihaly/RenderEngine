@@ -134,6 +134,42 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// class CreateMeshDrawComponentEvent
+//-----------------------------------------------------------------------------
+
+class CreateMeshDrawComponentEvent : public IEvent
+{
+public:
+    static constexpr EventType s_Type = 0x2EB336C4;
+
+    CreateMeshDrawComponentEvent(uint32_t actorId) : m_ActorId(actorId) {}
+    virtual EventType GetType() const { return s_Type; }
+
+    uint32_t GetActorId() const { return m_ActorId; }
+
+private:
+    uint32_t m_ActorId;
+};
+
+//-----------------------------------------------------------------------------
+// class DestroyMeshDrawComponentEvent
+//-----------------------------------------------------------------------------
+
+class DestroyMeshDrawComponentEvent : public IEvent
+{
+public:
+    static constexpr EventType s_Type = 0x0153EEF3;
+
+    DestroyMeshDrawComponentEvent(uint32_t actorId) : m_ActorId(actorId) {}
+    virtual EventType GetType() const { return s_Type; }
+
+    uint32_t GetActorId() const { return m_ActorId; }
+
+private:
+    uint32_t m_ActorId;
+};
+
+//-----------------------------------------------------------------------------
 // class EventManager
 //-----------------------------------------------------------------------------
 

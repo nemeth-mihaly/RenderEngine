@@ -18,7 +18,6 @@ public:
     ~World();
 
     void Init();
-    void Update(float deltaTime);
     void Draw();
 
 private:

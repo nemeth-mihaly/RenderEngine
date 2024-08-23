@@ -61,8 +61,6 @@ Application::Application()
 
 Application::~Application()
 {
-    glDeleteShader(m_ShaderId);
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -178,63 +176,15 @@ bool Application::Init()
     ImGui_ImplGlfw_InitForOpenGL(&g_pApp->GetWindow(), true);
     ImGui_ImplOpenGL3_Init();
 
+    m_Renderer.Init();
     m_Console.Init();
-
-    uint32_t vsId, fsId;
-    m_ShaderId = glCreateProgram();
-
-    {
-        std::ifstream file("Assets/Shaders/Actor.vert", std::ios::binary | std::ios::ate);
-        size_t size = (size_t)file.tellg();
-        file.seekg(0);
-
-        char* pSource = new char[size + 1];
-        file.read(pSource, size);
-        pSource[size] = '\0';
-        file.close();
-
-        vsId = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vsId, 1, &pSource, nullptr);
-        glCompileShader(vsId);
-
-        delete[] pSource;
-    }
-
-    {
-        std::ifstream file("Assets/Shaders/Actor.frag", std::ios::binary | std::ios::ate);
-        size_t size = (size_t)file.tellg();
-        file.seekg(0);
-
-        char* pSource = new char[size + 1];
-        file.read(pSource, size);
-        pSource[size] = '\0';
-        file.close();
-
-        fsId = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fsId, 1, &pSource, nullptr);
-        glCompileShader(fsId);
-
-        delete[] pSource;
-    }
-
-    glAttachShader(m_ShaderId, vsId);
-    glAttachShader(m_ShaderId, fsId);
-    glLinkProgram(m_ShaderId);
-
-    glDeleteShader(vsId);
-    glDeleteShader(fsId);
 
     glCreateBuffers(1, &m_UboId);	
     glNamedBufferData(m_UboId, sizeof(glm::mat4) * 2, nullptr, GL_DYNAMIC_DRAW);
-    
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_UboId);
-
-    glUniformBlockBinding(m_ShaderId, glGetUniformBlockIndex(m_ShaderId, "Matrices"), 0);
 
     m_Mesh = std::make_shared<Mesh>();
     m_Mesh->Init();
-
-    m_World.Init();
 
     m_bRunning = true;
     
@@ -306,6 +256,7 @@ void Application::Run()
 
         int width, height;
         glfwGetFramebufferSize(m_pWindow, &width, &height);
+        glViewport(0, 0, width, height);
 
         glm::mat4 view = glm::lookAt(m_Pos, m_Pos + m_Dir, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
@@ -313,31 +264,7 @@ void Application::Run()
         glNamedBufferSubData(m_UboId, 0, sizeof(glm::mat4), glm::value_ptr(view));
         glNamedBufferSubData(m_UboId, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
 
-        glViewport(0, 0, width, height);
-
-        glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        m_World.Draw();
-
-        glUseProgram(m_ShaderId);
-
-        // Draw 'm_Actors'
-        for (auto itr = m_MeshDrawComponents.begin(); itr != m_MeshDrawComponents.end(); itr++)
-        {
-            if (auto actor = (*itr)->GetOwner().lock())
-            {
-                if (auto transformComponent = actor->GetComponent<TransformComponent>().lock())
-                {
-                    glm::mat4 model = glm::translate(glm::mat4(1.0f), transformComponent->GetPosition());
-                    glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));  
-                }
-
-                (*itr)->GetMesh()->Draw();
-            }
-        }
-
-        glUseProgram(0);
+        m_Renderer.Draw();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -371,40 +298,22 @@ void Application::CreateActor()
     auto actor = std::make_shared<Actor>(m_LastActorId++);
     actor->Init();
 
+    m_Actors.push_back(actor);
+
     auto transformComponent = std::make_shared<TransformComponent>();
     transformComponent->SetOwner(actor);
-
     actor->AddComponent(transformComponent);
     
     auto meshDrawComponent = std::make_shared<MeshDrawComponent>();
     meshDrawComponent->SetOwner(actor);
-
     meshDrawComponent->SetMesh(m_Mesh);
-
     actor->AddComponent(meshDrawComponent);
-
-    m_MeshDrawComponents.push_back(meshDrawComponent);
-
-    m_Actors.push_back(actor);
+    m_EventManager.TriggerEvent(std::make_shared<CreateMeshDrawComponentEvent>(actor->GetId()));
 }
 
 void Application::DestroyActor(ActorId id)
 {
-    for (auto itr = m_MeshDrawComponents.begin(); itr != m_MeshDrawComponents.end(); itr++)
-    {
-        if (auto actor = (*itr)->GetOwner().lock())
-        {
-            if (actor->GetId() != id) { continue; }
-
-            if (m_MeshDrawComponents.size() > 1) 
-            { 
-                std::swap(m_MeshDrawComponents.back(), (*itr)); 
-            }
-            
-            m_MeshDrawComponents.pop_back();
-            break;
-        }
-    }
+    m_EventManager.TriggerEvent(std::make_shared<DestroyMeshDrawComponentEvent>(id));
 
     for (auto itr = m_Actors.begin(); itr != m_Actors.end(); itr++)
     {
