@@ -9,7 +9,7 @@
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
 #include "3rdParty/glm/gtc/type_ptr.hpp"
 
-#include "ActorComponents.h"
+#include "Components.h"
 
 #include "Mesh.h"
 
@@ -29,7 +29,7 @@ public:
 
     ActorId GetId() const { return m_Id; }
 
-    void AddComponent(std::shared_ptr<ActorComponent> component);
+    void AddComponent(std::shared_ptr<Component> component);
     
     template<class T>
     std::weak_ptr<T> GetComponent()
@@ -46,7 +46,7 @@ public:
 
 private:
     ActorId         m_Id;
-    std::unordered_map<ActorComponentType, std::shared_ptr<ActorComponent>> m_Components;
+    std::unordered_map<ComponentType, std::shared_ptr<Component>> m_Components;
 
-    std::shared_ptr<Mesh> m_Mesh;
+    // std::shared_ptr<Mesh> m_Mesh;
 };

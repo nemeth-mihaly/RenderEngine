@@ -15,6 +15,7 @@
 
 #include "Console.h"
 
+#include "World.h"
 #include "Actor.h"
 
 //-----------------------------------------------------------------------------
@@ -56,8 +57,15 @@ private:
 
     uint32_t        m_ShaderId;
 
+    uint32_t        m_UboId;
+
+    std::shared_ptr<Mesh> m_Mesh;
+
+    World           m_World;
+
     ActorId         m_LastActorId;
     std::vector<std::shared_ptr<Actor>> m_Actors;
+    std::vector<std::shared_ptr<MeshDrawComponent>> m_MeshDrawComponents;
 
     float           m_Yaw = -90.0f;
     float           m_Pitch = 0.0f;

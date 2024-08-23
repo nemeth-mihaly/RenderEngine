@@ -1,4 +1,4 @@
-#include "ActorComponents.h"
+#include "Components.h"
 
 //-----------------------------------------------------------------------------
 // TransformComponent Implementation

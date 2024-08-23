@@ -10,30 +10,38 @@
 
 #include "Mesh.h"
 
-typedef uint32_t ActorComponentType;
+class Actor;
+
+typedef uint32_t ComponentType;
 
 //-----------------------------------------------------------------------------
-// class ActorComponent
+// class Component
 //-----------------------------------------------------------------------------
 
-class ActorComponent
+class Component
 {
 public:
-    virtual ~ActorComponent() { printf("Destroying ActorComponent\n"); }
-    virtual ActorComponentType GetType() const = 0;
+    virtual ~Component() { printf("Destroying Component\n"); }
+    virtual ComponentType GetType() const = 0;
+
+    void SetOwner(std::weak_ptr<Actor> owner) { m_Owner = owner; }
+    std::weak_ptr<Actor> GetOwner() { return m_Owner; }
+
+private:
+    std::weak_ptr<Actor> m_Owner;
 };
 
 //-----------------------------------------------------------------------------
 // class TransformComponent
 //-----------------------------------------------------------------------------
 
-class TransformComponent : public ActorComponent
+class TransformComponent : public Component
 {
 public:
-    static constexpr ActorComponentType s_Type = 0x348BF9B5;
+    static constexpr ComponentType s_Type = 0x348BF9B5;
 
     TransformComponent();
-    virtual ActorComponentType GetType() const { return s_Type; }
+    virtual ComponentType GetType() const { return s_Type; }
 
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     const glm::vec3& GetPosition() const { return m_Pos; }
@@ -46,13 +54,13 @@ private:
 // class MeshDrawComponent
 //-----------------------------------------------------------------------------
 
-class MeshDrawComponent : public ActorComponent
+class MeshDrawComponent : public Component
 {
 public:
-    static constexpr ActorComponentType s_Type = 0x548592CB;
+    static constexpr ComponentType s_Type = 0x548592CB;
 
     MeshDrawComponent();
-    virtual ActorComponentType GetType() const { return s_Type; }
+    virtual ComponentType GetType() const { return s_Type; }
 
     void SetMesh(std::shared_ptr<Mesh> mesh) { m_Mesh = mesh; }
     std::shared_ptr<Mesh> GetMesh() { return m_Mesh; }
