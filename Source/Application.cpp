@@ -184,7 +184,7 @@ bool Application::Init()
     m_ShaderId = glCreateProgram();
 
     {
-        std::ifstream file("Assets/Shaders/Shader.vert", std::ios::binary | std::ios::ate);
+        std::ifstream file("Assets/Shaders/Actor.vert", std::ios::binary | std::ios::ate);
         size_t size = (size_t)file.tellg();
         file.seekg(0);
 
@@ -201,7 +201,7 @@ bool Application::Init()
     }
 
     {
-        std::ifstream file("Assets/Shaders/Shader.frag", std::ios::binary | std::ios::ate);
+        std::ifstream file("Assets/Shaders/Actor.frag", std::ios::binary | std::ios::ate);
         size_t size = (size_t)file.tellg();
         file.seekg(0);
 
@@ -307,21 +307,20 @@ void Application::Run()
         int width, height;
         glfwGetFramebufferSize(m_pWindow, &width, &height);
 
-        glViewport(0, 0, width, height);
-
-        glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(m_ShaderId);
-
         glm::mat4 view = glm::lookAt(m_Pos, m_Pos + m_Dir, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
 
         glNamedBufferSubData(m_UboId, 0, sizeof(glm::mat4), glm::value_ptr(view));
         glNamedBufferSubData(m_UboId, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
 
-        glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));  
+        glViewport(0, 0, width, height);
+
+        glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         m_World.Draw();
+
+        glUseProgram(m_ShaderId);
 
         // Draw 'm_Actors'
         for (auto itr = m_MeshDrawComponents.begin(); itr != m_MeshDrawComponents.end(); itr++)

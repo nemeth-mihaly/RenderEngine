@@ -1,5 +1,7 @@
 #include "World.h"
 
+#include <fstream>
+
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
@@ -20,6 +22,52 @@ World::~World()
 
 void World::Init()
 {
+    uint32_t vsId, fsId;
+    m_ShaderId = glCreateProgram();
+
+    {
+        std::ifstream file("Assets/Shaders/World.vert", std::ios::binary | std::ios::ate);
+        size_t size = (size_t)file.tellg();
+        file.seekg(0);
+
+        char* pSource = new char[size + 1];
+        file.read(pSource, size);
+        pSource[size] = '\0';
+        file.close();
+
+        vsId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vsId, 1, &pSource, nullptr);
+        glCompileShader(vsId);
+
+        delete[] pSource;
+    }
+
+    {
+        std::ifstream file("Assets/Shaders/World.frag", std::ios::binary | std::ios::ate);
+        size_t size = (size_t)file.tellg();
+        file.seekg(0);
+
+        char* pSource = new char[size + 1];
+        file.read(pSource, size);
+        pSource[size] = '\0';
+        file.close();
+
+        fsId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fsId, 1, &pSource, nullptr);
+        glCompileShader(fsId);
+
+        delete[] pSource;
+    }
+
+    glAttachShader(m_ShaderId, vsId);
+    glAttachShader(m_ShaderId, fsId);
+    glLinkProgram(m_ShaderId);
+
+    glDeleteShader(vsId);
+    glDeleteShader(fsId);
+
+    glUniformBlockBinding(m_ShaderId, glGetUniformBlockIndex(m_ShaderId, "Matrices"), 0);
+
     struct Vertex
     {
         glm::vec3   Pos;
@@ -60,8 +108,13 @@ void World::Update(float deltaTime)
 
 void World::Draw()
 {
+    glUseProgram(m_ShaderId);
+
+    glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));  
+
     glBindVertexArray(m_VaoId);
     glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
 
     glBindVertexArray(0);
+    glUseProgram(0);
 }

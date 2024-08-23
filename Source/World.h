@@ -22,6 +22,8 @@ public:
     void Draw();
 
 private:
+    uint32_t        m_ShaderId;
+
     int             m_NumVerts;
     uint32_t        m_VaoId;
     uint32_t        m_VboId;
