@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #define GLFW_INCLUDE_NONE
 #include "3rdParty/GLFW/glfw3.h"
@@ -39,6 +40,8 @@ public:
     EventManager& GetEventManager() { return m_EventManager; }
     Renderer& GetRenderer() { return m_Renderer; }
 
+    std::shared_ptr<Mesh> GetMesh(const std::string& asset);
+
     void CreateActor();
     void DestroyActor(ActorId id);
     std::weak_ptr<Actor> GetActor(ActorId id);
@@ -60,11 +63,10 @@ private:
 
     uint32_t        m_UboId;
 
-    std::shared_ptr<Mesh> m_Mesh;
+    std::unordered_map<std::string, std::shared_ptr<Mesh>> m_Meshes;
 
     ActorId         m_LastActorId;
     std::vector<std::shared_ptr<Actor>> m_Actors;
-    std::vector<std::shared_ptr<MeshDrawComponent>> m_MeshDrawComponents;
 
     float           m_Yaw = -90.0f;
     float           m_Pitch = 0.0f;

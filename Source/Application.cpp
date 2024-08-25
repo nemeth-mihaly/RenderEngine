@@ -183,8 +183,9 @@ bool Application::Init()
     glNamedBufferData(m_UboId, sizeof(glm::mat4) * 2, nullptr, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_UboId);
 
-    m_Mesh = std::make_shared<Mesh>();
-    m_Mesh->Init();
+    auto mesh = std::make_shared<Mesh>();
+    mesh->Init();
+    m_Meshes.insert(std::make_pair("Cube", mesh));
 
     m_bRunning = true;
     
@@ -293,6 +294,17 @@ void Application::Run()
     }
 }
 
+std::shared_ptr<Mesh> Application::GetMesh(const std::string& asset)
+{
+    auto findItr = m_Meshes.find(asset);
+    if (findItr != m_Meshes.end())
+    {
+        return findItr->second;
+    }
+    
+    return std::shared_ptr<Mesh>();
+}
+
 void Application::CreateActor()
 {
     auto actor = std::make_shared<Actor>(m_LastActorId++);
@@ -306,7 +318,7 @@ void Application::CreateActor()
     
     auto meshDrawComponent = std::make_shared<MeshDrawComponent>();
     meshDrawComponent->SetOwner(actor);
-    meshDrawComponent->SetMesh(m_Mesh);
+    meshDrawComponent->SetMeshAsset("Cube");
     actor->AddComponent(meshDrawComponent);
     m_EventManager.TriggerEvent(std::make_shared<CreateMeshDrawComponentEvent>(actor->GetId()));
 }

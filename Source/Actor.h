@@ -11,8 +11,6 @@
 
 #include "Components.h"
 
-#include "Mesh.h"
-
 typedef uint32_t ActorId;
 
 //-----------------------------------------------------------------------------
@@ -47,6 +45,4 @@ public:
 private:
     ActorId         m_Id;
     std::unordered_map<ComponentType, std::shared_ptr<Component>> m_Components;
-
-    // std::shared_ptr<Mesh> m_Mesh;
 };

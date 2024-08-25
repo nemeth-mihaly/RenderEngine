@@ -2,6 +2,7 @@
 
 in layout(location = 0) vec3 aPos;
 in layout(location = 1) vec3 aColor;
+in layout(location = 2) vec2 aUv;
 
 layout (std140, binding = 0) uniform Matrices
 {
@@ -13,6 +14,7 @@ out DATA
 {
     vec3    Pos;
     vec3    Color;
+    vec2    Uv;
 } data;
 
 uniform mat4 uModel;
@@ -23,4 +25,5 @@ void main()
 
     data.Pos = aPos;
     data.Color = aColor;
+    data.Uv = aUv;
 }

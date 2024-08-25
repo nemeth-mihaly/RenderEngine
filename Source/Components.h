@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <memory>
+#include <string>
 
 #include "3rdParty/glm/glm.hpp"
 #include "3rdParty/glm/gtc/matrix_transform.hpp"
@@ -62,9 +63,9 @@ public:
     MeshDrawComponent();
     virtual ComponentType GetType() const { return s_Type; }
 
-    void SetMesh(std::shared_ptr<Mesh> mesh) { m_Mesh = mesh; }
-    std::shared_ptr<Mesh> GetMesh() { return m_Mesh; }
+    void SetMeshAsset(const std::string& asset) { m_MeshAsset = asset; }
+    const std::string& GetMeshAsset() const { return m_MeshAsset; }
 
 private:
-    std::shared_ptr<Mesh> m_Mesh;
+    std::string             m_MeshAsset;
 };

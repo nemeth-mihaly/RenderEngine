@@ -24,4 +24,6 @@ private:
     int             m_NumVerts;
     uint32_t        m_VaoId;
     uint32_t        m_VboId;
+
+    uint32_t        m_TextureId;
 };
