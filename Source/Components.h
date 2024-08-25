@@ -66,6 +66,10 @@ public:
     void SetMeshAsset(const std::string& asset) { m_MeshAsset = asset; }
     const std::string& GetMeshAsset() const { return m_MeshAsset; }
 
+    void SetTextureAsset(const std::string& asset) { m_TextureAsset = asset; }
+    const std::string& GetTextureAsset() const { return m_TextureAsset; }
+
 private:
-    std::string             m_MeshAsset;
+    std::string     m_MeshAsset;
+    std::string     m_TextureAsset;
 };

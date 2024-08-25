@@ -97,8 +97,10 @@ void Renderer::Draw()
                 glUniformMatrix4fv(glGetUniformLocation(m_ShaderId, "uModel"), 1, GL_FALSE, glm::value_ptr(model));  
             }
 
-            std::string meshAsset = (*itr)->GetMeshAsset();
-            g_pApp->GetMesh(meshAsset)->Draw();
+            uint32_t textureId = g_pApp->GetTexture((*itr)->GetTextureAsset());
+            glBindTextureUnit(0, textureId);
+
+            g_pApp->GetMesh((*itr)->GetMeshAsset())->Draw();
         }
     }
 

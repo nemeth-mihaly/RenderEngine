@@ -41,6 +41,7 @@ public:
     Renderer& GetRenderer() { return m_Renderer; }
 
     std::shared_ptr<Mesh> GetMesh(const std::string& asset);
+    uint32_t GetTexture(const std::string& asset);
 
     void CreateActor();
     void DestroyActor(ActorId id);
@@ -64,6 +65,7 @@ private:
     uint32_t        m_UboId;
 
     std::unordered_map<std::string, std::shared_ptr<Mesh>> m_Meshes;
+    std::unordered_map<std::string, uint32_t> m_Textures;
 
     ActorId         m_LastActorId;
     std::vector<std::shared_ptr<Actor>> m_Actors;

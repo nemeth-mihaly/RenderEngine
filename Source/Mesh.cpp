@@ -6,8 +6,6 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
-#include "3rdParty/stb/stb_image.h"
-
 //-----------------------------------------------------------------------------
 // Mesh Implementation
 //-----------------------------------------------------------------------------
@@ -112,28 +110,10 @@ void Mesh::Init()
 
     m_NumVerts = vertices.size();
     vertices.clear();
-
-    int width, height, numChannels;
-    uint8_t* pImageData = stbi_load("Assets/Textures/BlackPurple.png", &width, &height, &numChannels, 0);
-    assert(pImageData != nullptr);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureId);
-
-    glTextureParameteri(m_TextureId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_TextureId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_TextureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(m_TextureId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTextureStorage2D(m_TextureId, 1, GL_RGBA8, width, height);
-    glTextureSubImage2D(m_TextureId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pImageData);
-
-    stbi_image_free(pImageData);
 }
 
 void Mesh::Draw()
 {
-    glBindTextureUnit(0, m_TextureId);
-
     glBindVertexArray(m_VaoId);
     glDrawArrays(GL_TRIANGLES, 0, m_NumVerts);
 

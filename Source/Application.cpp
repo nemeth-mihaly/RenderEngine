@@ -5,6 +5,8 @@
 #include "3rdParty/KHR/khrplatform.h"
 #include "3rdParty/glad/glad.h"
 
+#include "3rdParty/stb/stb_image.h"
+
 #include "3rdParty/ImGui/imgui.h"
 #include "3rdParty/ImGui/imgui_impl_glfw.h"
 #include "3rdParty/ImGui/imgui_impl_opengl3.h"
@@ -61,6 +63,11 @@ Application::Application()
 
 Application::~Application()
 {
+    for (auto itr = m_Textures.begin(); itr != m_Textures.end(); itr++)
+    {
+        glDeleteTextures(1, &(*itr).second);
+    }
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -187,6 +194,27 @@ bool Application::Init()
     mesh->Init();
     m_Meshes.insert(std::make_pair("Cube", mesh));
 
+    std::string textureAsset = "Assets/Textures/BlackPurple.png";
+
+    int width, height, numChannels;
+    uint8_t* pImageData = stbi_load(textureAsset.c_str(), &width, &height, &numChannels, 0);
+    assert(pImageData != nullptr);
+
+    uint32_t textureId;
+    glCreateTextures(GL_TEXTURE_2D, 1, &textureId);
+
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTextureStorage2D(textureId, 1, GL_RGBA8, width, height);
+    glTextureSubImage2D(textureId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pImageData);
+
+    stbi_image_free(pImageData);
+
+    m_Textures.insert(std::make_pair(textureAsset, textureId));
+
     m_bRunning = true;
     
     return true;
@@ -305,6 +333,17 @@ std::shared_ptr<Mesh> Application::GetMesh(const std::string& asset)
     return std::shared_ptr<Mesh>();
 }
 
+uint32_t Application::GetTexture(const std::string& asset)
+{
+    auto findItr = m_Textures.find(asset);
+    if (findItr != m_Textures.end())
+    {
+        return findItr->second;
+    }
+    
+    return 0;
+}
+
 void Application::CreateActor()
 {
     auto actor = std::make_shared<Actor>(m_LastActorId++);
@@ -319,6 +358,7 @@ void Application::CreateActor()
     auto meshDrawComponent = std::make_shared<MeshDrawComponent>();
     meshDrawComponent->SetOwner(actor);
     meshDrawComponent->SetMeshAsset("Cube");
+    meshDrawComponent->SetTextureAsset("Assets/Textures/BlackPurple.png");
     actor->AddComponent(meshDrawComponent);
     m_EventManager.TriggerEvent(std::make_shared<CreateMeshDrawComponentEvent>(actor->GetId()));
 }
